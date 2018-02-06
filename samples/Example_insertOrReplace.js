@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2018 & onwards. MapR Tech, Inc., All rights reserved
- *
- */
-
 const { ConnectionManager, ODate, OTime, OTimestamp } = require('node-maprdb');
 
 // Create connection with specified URL

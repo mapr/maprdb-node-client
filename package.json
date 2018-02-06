@@ -1,28 +1,40 @@
 {
-  "name": "mapr-node-bindings",
+  "name": "node-maprdb",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "rm -rf ./dist",
-    "preinstall": "npm run clean",
-    "postinstall": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "ntsc -p tsconfig.release.json",
-    "watch": "ntsc -w",
-    "lint": "tslint -c tslint.json -p tsconfig.json"
+    "test": "npm run proto:dev && mocha -r ts-node/register --compiler tsc --project ./tsconfig.json --watch-extensions ts test/**/*.ts -w",
+    "clean": "rimraf ./dist/* ./test/dist/*",
+    "prepublish": "npm run build",
+    "proto": "mkdirp ./dist/proto && pbjs -t static-module -w commonjs ./proto/maprdb-server.proto -o ./dist/proto/index.js && pbts -o ./dist/proto/index.d.ts ./dist/proto/index.js",
+    "proto:dev": "pbjs -t static-module -w commonjs ./proto/maprdb-server.proto -o ./src/proto/index.js && pbts -o ./src/proto/index.d.ts ./src/proto/index.js",
+    "build": "npm run proto && tsc -p tsconfig.release.json",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "lint-fix": "tslint -c tslint.json -p tsconfig.json --fix"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ntypescript": "^1.201706190042.1",
-    "tslint": "^5.9.1"
+    "dotenv": "^5.0.0",
+    "grpc": "^1.8.4",
+    "grpc-health-check": "^1.6.6",
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "@types/jest": "^22.1.1",
+    "@types/chai": "^4.1.2",
+    "@types/mocha": "^2.2.48",
     "@types/node": "^9.4.0",
+    "chai": "^4.1.2",
     "jest": "^22.1.4",
+    "mkdirp": "^0.5.1",
+    "mocha": "^5.0.1",
+    "protobufjs": "^6.8.5",
+    "rimraf": "^2.6.2",
     "ts-node": "^4.1.0",
+    "tslint": "^5.9.1",
     "tslint-microsoft-contrib": "^5.0.2",
     "tsutils": "^2.21.0",
     "typescript": "^2.7.1"

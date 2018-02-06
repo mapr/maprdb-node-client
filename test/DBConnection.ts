@@ -2,14 +2,12 @@ import {expect} from 'chai'
 import * as grpc from 'grpc'
 import {join} from 'path'
 import { config } from './config'
-import {loadSync} from 'protobufjs'
 
-const { HOST, PORT } = config
+const { HOST, PORT } = config;
 const PROTO_PATH = join(__dirname, '../proto/maprdb-server.proto')
-const protoPackage = loadSync(PROTO_PATH)
-const grpcObject: any = grpc.loadObject(protoPackage, { enumsAsStrings: false })
+const com: any = grpc.load(PROTO_PATH).com
 
-const client = new grpcObject.com.mapr.data.db.MapRDbServer(`${HOST}:${PORT}`, grpc.credentials.createInsecure())
+const client = new com.mapr.maprdb.grpc.MapRDbServer(`${HOST}:${PORT}`, grpc.credentials.createInsecure())
 
 describe('Test connection to DB', () => {
   let response

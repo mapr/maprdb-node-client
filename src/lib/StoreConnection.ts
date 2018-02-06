@@ -1,27 +1,13 @@
-/*
- * Copyright (c) 2018 & onwards. MapR Tech, Inc., All rights reserved
- *
- */
-
 import {com} from '../proto'
 import {Callback} from '../types'
-import {createConnection, InsertOrReplaceRequestBuilder} from './Connection'
-
+import {
+  CreateTableRequest, DeleteTableRequest, ErrorCode, FindByIdRequest, PayloadEncoding, TableExistsRequest, TableResponse,
+} from '../types/grpc'
+import {ConnectionWrapper} from './ConnectionWrapper'
 import InsertMode = com.mapr.data.db.InsertMode
-import ICreateTableRequest = com.mapr.data.db.ICreateTableRequest
-import ErrorCode = com.mapr.data.db.ErrorCode
-import IDeleteTableRequest = com.mapr.data.db.IDeleteTableRequest
-import PayloadEncoding = com.mapr.data.db.PayloadEncoding
-import IDeleteTableResponse = com.mapr.data.db.IDeleteTableResponse
-import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
-import ITableExistsRequest = com.mapr.data.db.ITableExistsRequest
-import ITableExistsResponse = com.mapr.data.db.ITableExistsResponse
-import IInsertOrReplaceResponse = com.mapr.data.db.IInsertOrReplaceResponse
-import IFindByIdResponse = com.mapr.data.db.IFindByIdResponse
 
-/*
- * Class that responsible for calls to grpc service
- */
+import {InsertOrReplaceRequestBuilder} from './Connection'
+
 export class StoreConnection {
   public _url: string
   public _connection: any
@@ -30,11 +16,11 @@ export class StoreConnection {
   constructor(url: string, tableName?: string) {
     this._url = url
     this._tableName = tableName
-    this._connection = createConnection(url)
+    this._connection = new ConnectionWrapper({url})
   }
 
-  public createStore(storePath: string, callback?: Callback): void|Promise<any> {
-    const request: ICreateTableRequest = {tablePath: storePath}
+  public createTable(storePath: string, callback: Callback): void|Promise<any> {
+    const request: CreateTableRequest = {table_path: storePath}
 
     if (callback) {
       this._connection.createTable(request, (err, response) => {
@@ -51,20 +37,20 @@ export class StoreConnection {
     })
   }
 
-  public storeExists(storePath: string, callback?: Callback): void|Promise<any> {
-    const request: ITableExistsRequest = {tablePath: storePath}
+  public tableExists(storePath: string, callback: Callback): void|Promise<any> {
+    const request: TableExistsRequest = {table_path: storePath}
 
     if (callback) {
-      this._connection.tableExists(request, (err, response: ITableExistsResponse) => {
+      this._connection.tableExists(request, (err, response) => {
         if (err) {
           return callback(err)
         }
 
         if (response.error) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return callback(null, true)
           }
-          if (response.error.errCode === ErrorCode.TABLE_NOT_FOUND) {
+          if (response.error.err_code === ErrorCode.TABLE_NOT_FOUND) {
             return callback(null, false)
           }
         }
@@ -75,12 +61,12 @@ export class StoreConnection {
     }
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.tableExists(request, (err, response: ITableExistsResponse) => {
+      this._connection.tableExists(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return resolve(true)
           }
-          if (response.error.errCode === ErrorCode.TABLE_NOT_FOUND) {
+          if (response.error.err_code === ErrorCode.TABLE_NOT_FOUND) {
             return resolve(false)
           }
         }
@@ -89,8 +75,8 @@ export class StoreConnection {
     })
   }
 
-  public deleteStore(storePath: string, callback?: Callback): void|Promise<any> {
-    const request: IDeleteTableRequest = {tablePath: storePath}
+  public deleteTable(storePath: string, callback: Callback): void|Promise<any> {
+    const request: DeleteTableRequest = {table_path: storePath}
 
     if (callback) {
       this._connection.deleteTable(request, (err, response) => {
@@ -101,19 +87,19 @@ export class StoreConnection {
     }
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.deleteTable(request, (err: Error, response: IDeleteTableResponse) => {
+      this._connection.deleteTable(request, (err: Error, response: TableResponse) => {
         this.handleDefaultPromise(err, response, resolve, reject)
       })
     })
   }
   // TODO Refactor
-  public insertOrReplace(payload: any, callback?: Callback): void|Promise<any> {
+  public insertOrReplace(payload: any, callback: Callback): void|Promise<any> {
     const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.INSERT_OR_REPLACE)
 
     if (callback) {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
+      this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return callback(null, true)
           }
         }
@@ -124,9 +110,9 @@ export class StoreConnection {
     }
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
+      this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return resolve(true)
           }
         }
@@ -134,13 +120,13 @@ export class StoreConnection {
       })
     })
   }
-  public insert(payload: any, callback?: Callback): void|Promise<any> {
+  public insert(payload: any, callback: Callback): void|Promise<any> {
     const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.INSERT)
 
     if (callback) {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
+      this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return callback(null, true)
           }
         }
@@ -151,9 +137,9 @@ export class StoreConnection {
     }
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
+      this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return resolve(true)
           }
         }
@@ -161,13 +147,13 @@ export class StoreConnection {
       })
     })
   }
-  public replace(payload: any, callback?: Callback): void|Promise<any> {
+  public replace(payload: any, callback: Callback): void|Promise<any> {
     const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.REPLACE)
 
     if (callback) {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
+      this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return callback(null, true)
           }
         }
@@ -178,9 +164,9 @@ export class StoreConnection {
     }
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
+      this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
             return resolve(true)
           }
         }
@@ -199,18 +185,18 @@ export class StoreConnection {
     return this
   }
 
-  public findById(storePath: string, id: string, callback?: Callback): void|Promise<any> {
-    const request: IFindByIdRequest = {
-      tablePath: storePath,
-      payloadEncoding: PayloadEncoding.JSON_ENCODING,
-      jsonDocument: JSON.stringify({_id: id}),
+  public findById(storePath: string, id: string, callback: Callback): void|Promise<any> {
+    const request: FindByIdRequest = {
+      table_path: storePath,
+      payload_encoding: PayloadEncoding.JSON_ENCODING,
+      json_document: JSON.stringify({_id: id}),
     }
 
     if (callback) {
-      this._connection.findById(request, (err, response: IFindByIdResponse) => {
+      this._connection.findById(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, response.jsonDocument)
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            return callback(null, response.json_document)
           }
         }
         callback(err || response.error)
@@ -220,29 +206,26 @@ export class StoreConnection {
     }
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.findById(request, (err, response: IFindByIdResponse) => {
+      this._connection.findById(request, (err, response) => {
         if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(response.jsonDocument)
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            return resolve(response.json_document)
           }
         }
         reject(err || response.error)
       })
     })
   }
-  public close() {
-    this._connection.close()
-  }
 
-  private handleDefaultCallback(err: Error, response: any, callback?: Callback): void {
-    if (!err && (response.error.errCode === ErrorCode.NO_ERROR)) {
+  private handleDefaultCallback(err: Error, response: any, callback: Callback): void {
+    if (!err && (response.error.err_code === ErrorCode.NO_ERROR)) {
       return callback(null, true)
     }
     callback(err || response.error)
   }
 
   private handleDefaultPromise(err: Error, response: any, resolve: any, reject: any): void {
-    if (!err && (response.error.errCode === ErrorCode.NO_ERROR)) {
+    if (!err && (response.error.err_code === ErrorCode.NO_ERROR)) {
       return resolve(true)
     }
     reject(err || response.error)

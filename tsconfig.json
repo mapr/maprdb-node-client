@@ -15,7 +15,6 @@
     "noImplicitAny": false,
     "noImplicitThis": false,
     "strictNullChecks": false,
-    "declaration": true,
     "rootDirs": ["src","test"],
     "outDir": "dist"
   },

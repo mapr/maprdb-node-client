@@ -5,11 +5,11 @@
   "main": "./dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "npm run proto:dev && mocha -r ts-node/register --compiler tsc --project ./tsconfig.json --watch-extensions ts test/**/*.ts -w",
+    "test": "mocha -r ts-node/register --watch-extensions ts test/**/*.ts -w",
     "clean": "rimraf ./dist/* ./test/dist/*",
     "prepublish": "npm run build",
     "proto": "mkdirp ./dist/proto && pbjs -t static-module -w commonjs ./proto/maprdb-server.proto -o ./dist/proto/index.js && pbts -o ./dist/proto/index.d.ts ./dist/proto/index.js",
-    "proto:dev": "pbjs -t static-module -w commonjs ./proto/maprdb-server.proto -o ./src/proto/index.js && pbts -o ./src/proto/index.d.ts ./src/proto/index.js",
+    "proto:dev": "pbjs -t static-module -w commonjs ./proto/maprdb-server.proto | pbts -o ./src/proto/index.d.ts -",
     "build": "npm run proto && tsc -p tsconfig.release.json",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",

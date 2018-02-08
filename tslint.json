@@ -3,6 +3,7 @@
     "tslint-microsoft-contrib"
   ],
   "rules": {
+    "function-name": false,
     "no-console": [
       true,
       "info",

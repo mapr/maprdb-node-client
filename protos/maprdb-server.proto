@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package com.mapr.maprdb.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.mapr.maprdb.proto.grpc";
+
+import "ojai.proto";
+
+enum RpcError {
+  NO_ERROR = 0;
+  UNKNOWN_PAYLOAD_ENCODING = 1;
+}
+
+enum PayLoadEncoding {
+  UNKNOWN_ENCODING = 0;  // For backward compatibility
+  PROTOBUF_ENCODING = 1; // Payload is encoded as protobuf messages
+  JSON_ENCODING = 2;     // Payload is encoded as JSON strings
+}
+
+service MapRDbServer {
+  rpc InsertOrReplace (InsertOrReplaceRequest) returns (InsertOrReplaceReply) {}
+}
+
+message InsertOrReplaceRequest {
+  string table_path = 1;
+  int32 document_count = 2;
+  PayLoadEncoding payload_encoding = 3;
+  bytes payload = 4;
+}
+
+message InsertOrReplaceReply {
+  RpcError error = 1;
+  int32 document_count = 2;
+  PayLoadEncoding payload_encoding = 3;
+  bytes payload = 4;
+}
+
+message DocumentPayload {
+  repeated org.ojai.proto.OjaiDocument documents = 1;
+}

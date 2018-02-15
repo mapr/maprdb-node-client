@@ -5,6 +5,9 @@
   "main": "./dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "test:build": "npm run build && ntsc -p ./test/tsconfig.server.json",
+    "test:run": "node ./test/dist/server",
+    "test:check": "node ./test/dist/client",
     "clean": "rm -rf ./dist",
     "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",

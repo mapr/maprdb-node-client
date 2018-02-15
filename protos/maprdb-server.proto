@@ -5,37 +5,66 @@ package com.mapr.maprdb.grpc;
 option java_multiple_files = true;
 option java_package = "com.mapr.maprdb.proto.grpc";
 
-import "ojai.proto";
-
-enum RpcError {
-  NO_ERROR = 0;
-  UNKNOWN_PAYLOAD_ENCODING = 1;
+// Common data structures
+enum ErrorCode {
+  NO_ERROR = 0;                   // no error, operation was successful
+  UNKNOWN_PAYLOAD_ENCODING = 1;   // specified payload encoding is not supported
+  CLUSTER_NOT_FOUND = 2;          // specified cluster does not exist
+  PATH_NOT_FOUND = 3;             // parent path of the specified table does not exist
+  TABLE_NOT_FOUND = 4;            // specified table does exist
+  ENCODING_ERROR = 5;
+  DECODING_ERROR = 6;
 }
 
-enum PayLoadEncoding {
-  UNKNOWN_ENCODING = 0;  // For backward compatibility
-  PROTOBUF_ENCODING = 1; // Payload is encoded as protobuf messages
-  JSON_ENCODING = 2;     // Payload is encoded as JSON strings
+enum PayloadEncoding {
+  JSON_ENCODING = 0;      // Payload is encoded as JSON strings
 }
 
+// RPC calls and their Request/Response
 service MapRDbServer {
-  rpc InsertOrReplace (InsertOrReplaceRequest) returns (InsertOrReplaceReply) {}
+  rpc InsertOrReplace (InsertOrReplaceRequest) returns (InsertOrReplaceResponse) {}
+  rpc CreateTable (CreateTableRequest) returns (CreateTableResponse) {}
+  rpc DeleteTable (DeleteTableRequest) returns (DeleteTableResponse) {}
+  rpc TableExists (TableExistsRequest) returns (TableExistsResponse) {}
+}
+
+message RpcError {
+  ErrorCode err = 1;
+  string error_description = 2; // NULL if `err` is `NO_ERROR`
 }
 
 message InsertOrReplaceRequest {
   string table_path = 1;
-  int32 document_count = 2;
-  PayLoadEncoding payload_encoding = 3;
-  bytes payload = 4;
+  PayloadEncoding payload_encoding = 3;
+  string json_payload = 4; // contains payload if the payload_encoding is `JSON_ENCODING`
 }
 
-message InsertOrReplaceReply {
+message InsertOrReplaceResponse {
   RpcError error = 1;
-  int32 document_count = 2;
-  PayLoadEncoding payload_encoding = 3;
-  bytes payload = 4;
+  PayloadEncoding payload_encoding = 3;
+  string json_payload = 4; // contains payload if the payload_encoding is `JSON_ENCODING`
 }
 
-message DocumentPayload {
-  repeated org.ojai.proto.OjaiDocument documents = 1;
+message CreateTableRequest {
+  string table_path = 1;
+}
+
+message CreateTableResponse {
+  RpcError error = 1;
+}
+
+message DeleteTableRequest {
+  string table_path = 1;
+}
+
+message DeleteTableResponse {
+  RpcError error = 1;
+}
+
+message TableExistsRequest {
+  string table_path = 1;
+}
+
+message TableExistsResponse {
+  RpcError error = 1; // `NO_ERROR` if the table exists, `TABLE_NOT_FOUND` otherwise
 }

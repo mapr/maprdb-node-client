@@ -44,3 +44,8 @@ message OjaiValue {
     OjaiList        list_value       = 17;
   }
 }
+
+// Protobuf encoded OJAI Objects
+message DocumentPayload {
+  repeated OjaiDocument documents = 1;
+}

@@ -1,6 +1,6 @@
 import {Server, ServerCredentials, load} from 'grpc';
 import {join} from 'path';
-import {InsertOrReplaceRequest, InsertOrReplaceResponse} from './types';
+import {InsertOrReplaceRequest, InsertOrReplaceResponse, PayloadEncoding} from '../../dist/types/grpc';
 const {GRPC_PORT, PROTO_PATH} = require('../constants.json')
 const SERVER_HOST = `0.0.0.0:${GRPC_PORT}`;
 const PROTO_FILE = join(__dirname, '../', PROTO_PATH);
@@ -33,7 +33,7 @@ const InsertOrReplace = (call, callback: (err: Error, data: InsertOrReplaceRespo
   console.log('InsertOrReplace receive:', request)
   const response: InsertOrReplaceResponse = {
     error: null,
-    payload_encoding: 0,
+    payload_encoding: PayloadEncoding.JSON_ENCODING,
     json_payload: JSON.stringify(DocumentResponse)
   }
 

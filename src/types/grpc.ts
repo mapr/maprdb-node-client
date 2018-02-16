@@ -1,5 +1,5 @@
 export enum PayloadEncoding {
-    JSON_ENCODING 
+    JSON_ENCODING = 0,
 }
 
 export enum ErrorCode {

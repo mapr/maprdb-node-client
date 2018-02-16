@@ -2,7 +2,7 @@ import {Document} from '../Document';
 import {DocumentMutation} from '../DocumentMutation';
 import {DocumentStream} from '../DocumentStream';
 import {FieldPath} from '../FieldPath';
-import {callback} from '../generic';
+import {Callback} from '../generic';
 import {Query} from './Query';
 import {QueryCondition} from './QueryCondition';
 import {QueryResult} from './QueryResult';
@@ -11,38 +11,38 @@ export interface DocumentStore {
 
   isReadOnly(): boolean;
 
-  flush(cb: callback): void;
+  flush(cb: Callback): void;
 
-  beginTrackingWrites(cb: callback);
+  beginTrackingWrites(cb: Callback);
 
-  beginTrackingWrites(previousWritesContext: string, cb: callback): void;
+  beginTrackingWrites(previousWritesContext: string, cb: Callback): void;
 
-  endTrackingWrites(cb: callback<string>): void;
+  endTrackingWrites(cb: Callback<string>): void;
 
-  clearTrackedWrites(cb: callback): void;
+  clearTrackedWrites(cb: Callback): void;
 
-  findById(...conditions: (string | Query | QueryCondition | FieldPath | callback<Document>)[]): void;
+  findById(...conditions: (string | Query | QueryCondition | FieldPath | Callback<Document>)[]): void;
 
-  find(...conditions: (string | Query | FieldPath | QueryCondition | callback<DocumentStream | QueryResult>)[]): void;
+  find(...conditions: (string | Query | FieldPath | QueryCondition | Callback<DocumentStream | QueryResult>)[]): void;
 
-  findQuery(...conditions: (string | Query | callback<DocumentStream>)[]): void;
+  findQuery(...conditions: (string | Query | Callback<DocumentStream>)[]): void;
 
-  insertOrReplace(...conditions: (string | Document | FieldPath | DocumentStream | callback)[]): void;
+  insertOrReplace(...conditions: (string | Document | FieldPath | DocumentStream | Callback)[]): void;
 
-  update(id: string, mutation: DocumentMutation, cb: callback): void;
+  update(id: string, mutation: DocumentMutation, cb: Callback): void;
 
-  remove(...conditions: (string | Document | FieldPath | DocumentStream | callback)[]): void;
+  remove(...conditions: (string | Document | FieldPath | DocumentStream | Callback)[]): void;
 
-  insert(...conditions: (string | Document | FieldPath | DocumentStream | callback)[]): void;
+  insert(...conditions: (string | Document | FieldPath | DocumentStream | Callback)[]): void;
 
-  replace(...conditions: (string | Document | FieldPath | DocumentStream | callback)[]): void;
+  replace(...conditions: (string | Document | FieldPath | DocumentStream | Callback)[]): void;
 
-  increment(id: string, field: string, inc: number, cb: callback): void;
+  increment(id: string, field: string, inc: number, cb: Callback): void;
 
-  checkAndMutate(id: string, condition: QueryCondition, mutation: DocumentMutation, cb: callback<boolean>): void;
+  checkAndMutate(id: string, condition: QueryCondition, mutation: DocumentMutation, cb: Callback<boolean>): void;
 
-  checkAndDelete(id: string, condition: QueryCondition, cb: callback<boolean>): void;
+  checkAndDelete(id: string, condition: QueryCondition, cb: Callback<boolean>): void;
 
-  checkAndReplace(id: string, condition: QueryCondition, doc: Document, cb: callback<boolean>): void;
+  checkAndReplace(id: string, condition: QueryCondition, doc: Document, cb: Callback<boolean>): void;
 
 }

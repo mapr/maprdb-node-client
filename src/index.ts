@@ -1,3 +1,5 @@
-import {createConnection} from './lib/connection';
+import {DocumentStore} from './lib/DocumentStore';
 
-export default createConnection
+export {
+    DocumentStore
+}

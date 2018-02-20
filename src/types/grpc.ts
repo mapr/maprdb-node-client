@@ -16,7 +16,7 @@ export type RpcError = {
     err: ErrorCode;
     error_description: string;
   }
-  
+
 export type InsertOrReplaceRequest = {
     table_path: string;
     payload_encoding: PayloadEncoding;

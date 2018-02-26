@@ -11,7 +11,7 @@ import {createConnection, decode, grpcRequestBuilder} from './connection';
 
 export class DocumentStore {
 
-  public _connection: createConnection
+  public _connection
   public tableName: string;
   constructor(url: string, tableName: string) {
       this._connection = createConnection(url)

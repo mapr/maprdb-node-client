@@ -4,7 +4,7 @@ import {InsertOrReplaceRequest, InsertOrReplaceResponse, PayloadEncoding} from '
 const {GRPC_PORT, PROTO_PATH} = require('../constants.json')
 const SERVER_HOST = `0.0.0.0:${GRPC_PORT}`;
 const PROTO_FILE = join(__dirname, '../', PROTO_PATH);
-const protoPackage = load(PROTO_FILE);
+const protoPackage: any = load(PROTO_FILE);
 const MapRDbServer = protoPackage.com.mapr.maprdb.grpc.MapRDbServer;
 
 const DocumentResponse = {

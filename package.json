@@ -12,7 +12,7 @@
     "prepublish": "npm run build",
     "proto": "mkdir -p ./dist/protos && pbjs -t static-module -w commonjs ./protos/maprdb-server.proto | pbts -o ./dist/protos/index.d.ts -",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "ntsc -p tsconfig.release.json",
+    "build": "npm run proto && ntsc -p tsconfig.release.json",
     "watch": "ntsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint-fix": "tslint -c tslint.json -p tsconfig.json --fix"
@@ -20,6 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^5.0.0",
     "grpc": "^1.8.4",
     "grpc-health-check": "^1.6.6",
     "ntypescript": "^1.201706190042.1",

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "module": "commonjs",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -15,8 +15,8 @@
     "noImplicitAny": false,
     "noImplicitThis": false,
     "strictNullChecks": false,
-    "rootDir": "./src",
-    "outDir": "./dist"
+    "rootDirs": ["src","test"],
+    "outDir": "dist"
   },
   "include": [
     "src/**/*",

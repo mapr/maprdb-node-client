@@ -12,8 +12,18 @@ export enum ErrorCode {
     DECODING_ERROR,
 }
 
+export interface TableRequest {
+  table_path: string
+}
+
+export interface TableResponse {
+  error: RpcError
+  payload_encoding: PayloadEncoding
+  json_payload: string
+}
+
 export type RpcError = {
-    err: ErrorCode;
+    err: ErrorCode|string;
     error_description: string;
   }
 
@@ -27,4 +37,16 @@ export type InsertOrReplaceResponse = {
     error: RpcError;
     payload_encoding: PayloadEncoding;
     json_payload: string;
+}
+
+export type CreateTableRequest = {
+  table_path: string;
+}
+
+export type DeleteTableRequest = {
+  table_path: string;
+}
+
+export type TableExistsRequest = {
+  table_path: string;
 }

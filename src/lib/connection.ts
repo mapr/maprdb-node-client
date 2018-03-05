@@ -20,7 +20,7 @@ export const encode = (payload: Object, encoding: PayloadEncoding): any => {
 
       return payload
   }
-}
+};
 
 export const decode = (raw: any, rawEncoding: any): Object => {
   const encoding: any = PayloadEncoding[rawEncoding];
@@ -33,7 +33,7 @@ export const decode = (raw: any, rawEncoding: any): Object => {
 
       return raw
   }
-}
+};
 
 export const grpcRequestBuilder = (payload: Object, tablePath: string): InsertOrReplaceRequest => {
   const encoding = PayloadEncoding.JSON_ENCODING;
@@ -43,4 +43,4 @@ export const grpcRequestBuilder = (payload: Object, tablePath: string): InsertOr
     payload_encoding: encoding,
     json_payload: encode(payload, encoding),
   }
-}
+};

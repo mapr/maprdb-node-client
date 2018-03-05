@@ -41,9 +41,12 @@
     "variable-name": false,
     "no-require-imports": false,
     "no-var-requires": false,
-    "semicolon": false,
+    "semicolon": [true, "never"],
     "no-unsafe-any": false,
     "no-any": false,
-    "no-suspicious-comment": false
+    "no-suspicious-comment": false,
+    "no-implicit-dependencies": false,
+    "no-unused-expression": false,
+    "chai-vague-errors": false
   }
 }

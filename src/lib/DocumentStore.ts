@@ -22,8 +22,8 @@ export class DocumentStore implements IDocumentStore {
     this.tableName = tableName
   }
 
-  public insertOrReplace(storePath: string, payload: (string | Document | FieldPath | DocumentStream | any)): Promise<any> {
-    const request: InsertOrReplaceRequest = grpcRequestBuilder(payload, storePath || this.tableName)
+  public insertOrReplace(payload: (string | Document | FieldPath | DocumentStream | any)): Promise<any> {
+    const request: InsertOrReplaceRequest = grpcRequestBuilder(payload, this.tableName)
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
       this._connection.insertOrReplace(request, (err: Error, response: InsertOrReplaceResponse) => {
@@ -32,12 +32,12 @@ export class DocumentStore implements IDocumentStore {
         } else if (!response) {
           reject(new Error())
         } else {
-          switch (response.error.err) {
+          switch (response.error.err_code) {
             case ErrorCode[0]:
               resolve(decode(response.json_payload, response.payload_encoding))
               break
             default:
-              reject(new Error(response.error.error_description))
+              reject(new Error(response.error.error_message))
           }
         }
       })

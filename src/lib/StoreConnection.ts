@@ -23,14 +23,14 @@ export class StoreConnection {
         if (err) {
           reject(err)
         } else if (!response) {
-          reject(new Error())
+          reject(new Error('NO RESPONSE'))
         } else {
-          switch (response.error.err) {
+          switch (response.error.err_code) {
             case ErrorCode[0]:
               resolve(this.getStore(storePath))
               break
             default:
-              reject(new Error(response.error.error_description))
+              reject(new Error(response.error.error_message))
           }
         }
       })
@@ -45,17 +45,17 @@ export class StoreConnection {
         if (err) {
           reject(err)
         } else if (!response) {
-          reject(new Error())
+          reject(new Error('NO RESPONSE'))
         } else {
-          switch (response.error.err) {
+          switch (response.error.err_code) {
             case ErrorCode[0]:
               resolve(true)
               break
-            case 50:
+            case ErrorCode[50]:
               resolve(false)
               break
             default:
-              reject(new Error(response.error.error_description))
+              reject(new Error(response.error.error_message))
           }
         }
       })
@@ -70,14 +70,14 @@ export class StoreConnection {
         if (err) {
           reject(err)
         } else if (!response) {
-          reject(new Error())
+          reject(new Error('NO RESPONSE'))
         } else {
-          switch (response.error.err) {
+          switch (response.error.err_code) {
             case ErrorCode[0]:
               resolve(true)
               break
             default:
-              reject(new Error(response.error.error_description))
+              reject(new Error(response.error.error_message))
           }
         }
       })
@@ -85,6 +85,6 @@ export class StoreConnection {
   }
 
   public getStore(storePath: string): IDocumentStore {
-    return new DocumentStore(this._url, storePath, this._connection)
+    return new DocumentStore(this._url, this._connection, storePath)
   }
 }

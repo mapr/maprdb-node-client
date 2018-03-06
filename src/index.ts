@@ -1,5 +1,7 @@
-import {DocumentStore} from './lib/DocumentStore';
+import {DocumentStore} from './lib/DocumentStore'
+import {StoreConnection} from './lib/StoreConnection'
 
 export {
-    DocumentStore,
+  DocumentStore,
+  StoreConnection,
 }

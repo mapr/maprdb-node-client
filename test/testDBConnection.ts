@@ -9,7 +9,7 @@ const client = new com.mapr.maprdb.grpc.MapRDbServer('localhost:5678', grpc.cred
 
 const nodeClient = require('../dist')
 
-const store = new nodeClient.DocumentStore('localhost:5678', '/test-store1')
+const store = new nodeClient.StoreConnection('localhost:5678', '/test-store1')
 
 describe('Test connection to DB', () => {
   let response
@@ -41,7 +41,7 @@ describe('Test create/delete table', () => {
 
   it('should create table', async () => {
     const resp = await store.createStore('/test-store-test')
-    expect(resp).to.be.true
+    expect(resp).not.to.be.false
   })
 
   it('should check if table exists', async () => {

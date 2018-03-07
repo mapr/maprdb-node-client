@@ -1,91 +1,137 @@
-import {com} from '../../proto'
+import {Callback} from '../types'
 import {
-  CreateTableRequest, DeleteTableRequest, TableExistsRequest, TableResponse,
+  CreateTableRequest, DeleteTableRequest, ErrorCode, TableExistsRequest, TableResponse,
 } from '../types/grpc'
-import {createConnection} from './Connection'
-import {DocumentStore} from './DocumentStore'
-import MapRDbServer = com.mapr.maprdb.grpc.MapRDbServer
-import ErrorCode = com.mapr.maprdb.grpc.ErrorCode
+import {ConnectionWrapper} from './ConnectionWrapper'
+
+import {InsertOrReplaceRequestBuilder} from './Connection'
 
 export class StoreConnection {
   public _url: string
   public _connection: any
+  public _tableName: string
 
-  constructor(url: string) {
+  constructor(url: string, tableName: string) {
     this._url = url
-    this._connection = createConnection(url)
+    this._tableName = tableName
+    this._connection = new ConnectionWrapper({url})
   }
 
-  public createStore(storePath: string): Promise<any> {
+  public createTable(storePath: string, callback: Callback): void|Promise<any> {
     const request: CreateTableRequest = {table_path: storePath}
 
+    if (callback) {
+      this._connection.createTable(request, (err, response) => {
+        this.handleDefaultCallback(err, response, callback)
+      })
+
+      return
+    }
+
     return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.createTable(request, (err: Error, response: TableResponse) => {
-        if (err) {
-          reject(err)
-        } else if (!response) {
-          reject(new Error('NO RESPONSE'))
-        } else {
-          switch (response.error.err_code) {
-            case ErrorCode[0]:
-              resolve(this.getStore(storePath))
-              break
-            default:
-              reject(new Error(response.error.error_message))
-          }
-        }
+      this._connection.createTable(request, (err, response) => {
+        this.handleDefaultPromise(err, response, resolve, reject)
       })
     })
   }
 
-  public isStoreExists(storePath: string): Promise<any> {
+  public tableExists(storePath: string, callback: Callback): void|Promise<any> {
     const request: TableExistsRequest = {table_path: storePath}
 
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.tableExists(request, (err: Error, response: TableResponse) => {
-        if (err) {
-          reject(err)
-        } else if (!response) {
-          reject(new Error('NO RESPONSE'))
-        } else {
-          switch (response.error.err_code) {
-            case ErrorCode[0]:
-              resolve(true)
-              break
-            case ErrorCode[50]:
-              resolve(false)
-              break
-            default:
-              reject(new Error(response.error.error_message))
+    if (callback) {
+      this._connection.createTable(request, (err, response) => {
+        if (!err) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            callback(null, true)
+          }
+          if (response.error.err_code === ErrorCode.TABLE_NOT_FOUND) {
+            callback(null, false)
           }
         }
+        callback(err || response.error)
+      })
+
+      return
+    }
+
+    return new Promise((resolve: any, reject: (err: Error) => void) => {
+      this._connection.tableExists(request, (err, response) => {
+        if (!err) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            resolve(true)
+          }
+          if (response.error.err_code === ErrorCode.TABLE_NOT_FOUND) {
+            resolve(false)
+          }
+        }
+        reject(err || response.error)
       })
     })
   }
 
-  public deleteStore(storePath: string): Promise<any> {
+  public deleteTable(storePath: string, callback: Callback): void|Promise<any> {
     const request: DeleteTableRequest = {table_path: storePath}
+
+    if (callback) {
+      this._connection.deleteTable(request, (err, response) => {
+        this.handleDefaultCallback(err, response, callback)
+      })
+
+      return
+    }
 
     return new Promise((resolve: any, reject: (err: Error) => void) => {
       this._connection.deleteTable(request, (err: Error, response: TableResponse) => {
-        if (err) {
-          reject(err)
-        } else if (!response) {
-          reject(new Error('NO RESPONSE'))
-        } else {
-          switch (response.error.err_code) {
-            case ErrorCode[0]:
-              resolve(true)
-              break
-            default:
-              reject(new Error(response.error.error_message))
-          }
-        }
+        this.handleDefaultPromise(err, response, resolve, reject)
       })
     })
   }
 
-  public getStore(storePath: string): MapRDbServer {
-    return new DocumentStore({url: this._url, connection: this._connection, storePath})
+  public insertOrReplace(payload: any, store: string, callback: Callback): void|Promise<any> {
+    const request = InsertOrReplaceRequestBuilder(payload, store || this._tableName)
+
+    if (callback) {
+      this._connection.insertOrReplace(request, (err, response) => {
+        if (!err) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            callback(null, true)
+          }
+        }
+        callback(err || response.error)
+      })
+
+      return
+    }
+
+    return new Promise((resolve: any, reject: (err: Error) => void) => {
+      this._connection.insertOrReplace(request, (err, response) => {
+        if (!err) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            resolve(true)
+          }
+        }
+        reject(err || response.error)
+      })
+    })
+  }
+
+  public getStore(storePath: string): StoreConnection {
+    this._tableName = storePath
+
+    return this
+  }
+
+  private handleDefaultCallback(err: Error, response: any, callback: Callback): void {
+    if (!err && (response.error.err_code === ErrorCode.NO_ERROR)) {
+      callback(null, true)
+    }
+    callback(err || response.error)
+  }
+
+  private handleDefaultPromise(err: Error, response: any, resolve: any, reject: any): void {
+    if (!err && (response.error.err_code === ErrorCode.NO_ERROR)) {
+      resolve(true)
+    }
+    reject(err || response.error)
   }
 }

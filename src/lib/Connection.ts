@@ -1,8 +1,6 @@
 import {credentials, load} from 'grpc'
 import {join} from 'path'
-import {com} from '../../proto'
 import {PayloadEncoding} from '../types/grpc'
-import InsertOrReplaceRequest = com.mapr.maprdb.grpc.InsertOrReplaceRequest
 
 const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
 const protoPackage: any = load(PROTO_PATH)
@@ -37,14 +35,13 @@ export const decode = (raw: any, rawEncoding: any): Object => {
   }
 }
 
-export const InsertOrReplaceRequestBuilder = (payload: Object, tablePath: string): InsertOrReplaceRequest => {
+export const InsertOrReplaceRequestBuilder = (payload: Object, tablePath: string) => {
   const encoding = PayloadEncoding.JSON_ENCODING
 
   return {
-    insertMode: 0,
-    tablePath,
-    payloadEncoding: encoding,
-    jsonDocument: encode(payload, encoding),
-    toJSON: () => ({payload}),
+    insert_mode: 0,
+    table_path: tablePath,
+    payload_encoding: encoding,
+    json_document: encode(payload, encoding),
   }
 }

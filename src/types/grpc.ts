@@ -3,19 +3,19 @@ export enum PayloadEncoding {
 }
 
 export enum ErrorCode {
-  NO_ERROR,                   // no error, operation was successful
+  NO_ERROR = 'NO_ERROR',                   // no error, operation was successful
 
-  UNKNOWN_EXCEPTION = 10,          // catch all for all undefined errors on server
-  UNKNOWN_PAYLOAD_ENCODING = 20,   // specified payload encoding is not supported
-  CLUSTER_NOT_FOUND = 30,          // specified cluster does not exist
-  PATH_NOT_FOUND = 40,             // parent path of the specified table does not exist
-  TABLE_NOT_FOUND = 50,            // specified table does not exist
-  TABLE_ALREADY_EXISTS = 51,       // specified table already exist
-  DOCUMENT_ALREADY_EXISTS = 52,    // a document with the specified _id already exist in the store
-  DOCUMENT_NOT_FOUND = 53,         // a document with the specified _id wasn't found in the store
-  ENCODING_ERROR = 60,             // an error occurred while encoding an OJAI object.
-  DECODING_ERROR = 61,             // the supplied OJAI object could not be decoded
-  UNRECOGNIZED_INSERT_MODE = 62,   // the specified insert mode was not recognized by this server
+  UNKNOWN_EXCEPTION = 'UNKNOWN_EXCEPTION', // catch all for all undefined errors on server
+  UNKNOWN_PAYLOAD_ENCODING = 'UNKNOWN_PAYLOAD_ENCODING',   // specified payload encoding is not supported
+  CLUSTER_NOT_FOUND = 'CLUSTER_NOT_FOUND',          // specified cluster does not exist
+  PATH_NOT_FOUND = 'PATH_NOT_FOUND',             // parent path of the specified table does not exist
+  TABLE_NOT_FOUND = 'TABLE_NOT_FOUND',            // specified table does not exist
+  TABLE_ALREADY_EXISTS = 'TABLE_ALREADY_EXISTS',       // specified table already exist
+  DOCUMENT_ALREADY_EXISTS = 'DOCUMENT_ALREADY_EXISTS',    // a document with the specified _id already exist in the store
+  DOCUMENT_NOT_FOUND = 'DOCUMENT_NOT_FOUND',         // a document with the specified _id wasn't found in the store
+  ENCODING_ERROR = 'ENCODING_ERROR',             // an error occurred while encoding an OJAI object.
+  DECODING_ERROR = 'DECODING_ERROR',             // the supplied OJAI object could not be decoded
+  UNRECOGNIZED_INSERT_MODE = 'UNRECOGNIZED_INSERT_MODE',   // the specified insert mode was not recognized by this server
 }
 
 export enum InsertMode {

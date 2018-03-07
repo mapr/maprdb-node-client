@@ -1,0 +1,69 @@
+import {ODate} from '../types/ODate'
+import {OInterval} from '../types/OInterval'
+import {OTime} from '../types/OTime'
+import {OTimestamp} from '../types/OTimestamp'
+
+export class Document {
+  private _internalObject: any
+
+  constructor(id: string) {
+    this._internalObject = {}
+    this.setId(id)
+  }
+
+  public setId(id: string): Document {
+    if (typeof id === 'string' || typeof id === 'number') {
+      this._internalObject._id = id
+    }
+
+    return this
+  }
+
+  public getId() {
+    return this._internalObject._id
+  }
+
+  public setField(field: string, value: any): Document {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      this._internalObject[field] = value
+    } else if (Array.isArray(value)) {
+      this.setArray(field, value)
+    } else if (value instanceof ODate) {
+      this.setODate(field, value)
+    } else if (value instanceof OTime) {
+      this.setOTime(field, value)
+    } else if (value instanceof OTimestamp) {
+      this.setOTimestamp(field, value)
+    } else if (value instanceof OInterval) {
+      this.setOInterval(field, value)
+    }
+
+    return this
+  }
+
+  public toJSON() {
+    console.log(this._internalObject)
+
+    return this._internalObject
+  }
+
+  private setArray(field: string, value: any[]) {
+    this._internalObject[field] = value
+  }
+
+  private setODate(field: string, value: ODate) {
+    this._internalObject[field] = value
+  }
+
+  private setOTime(field: string, value: OTime) {
+    this._internalObject[field] = value
+  }
+
+  private setOTimestamp(field: string, value: OTimestamp) {
+    this._internalObject[field] = value
+  }
+
+  private setOInterval(field: string, value: OInterval) {
+    this._internalObject[field] = value
+  }
+}

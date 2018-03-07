@@ -20,9 +20,8 @@ import FindByIdCallback = com.mapr.maprdb.grpc.MapRDbServer.FindByIdCallback
 import IFindRequest = com.mapr.maprdb.grpc.IFindRequest
 import FindCallback = com.mapr.maprdb.grpc.MapRDbServer.FindCallback
 import FindResponse = com.mapr.maprdb.grpc.FindResponse
-import ErrorCode = com.mapr.maprdb.grpc.ErrorCode
 
-export class DocumentStore implements MapRDbServer {
+export class ConnectionWrapper implements MapRDbServer {
   public requestDelimited: boolean
   public responseDelimited: boolean
   public rpcImpl: any
@@ -30,7 +29,7 @@ export class DocumentStore implements MapRDbServer {
   constructor(rpcImpl: { url?: string; connection?: string; storePath?: string },
               requestDelimited?: boolean,
               responseDelimited?: boolean) {
-    this.rpcImpl = Boolean(rpcImpl) && Boolean(rpcImpl.connection) ? rpcImpl.connection : createConnection(rpcImpl.url)
+    this.rpcImpl = Boolean(rpcImpl.connection) ? rpcImpl.connection : createConnection(rpcImpl.url)
 
     console.log({requestDelimited, responseDelimited})
   }
@@ -48,16 +47,8 @@ export class DocumentStore implements MapRDbServer {
       this.rpcImpl.insertOrReplace(request, (err: Error, response: InsertOrReplaceResponse) => {
         if (err) {
           reject(err)
-        } else if (!response) {
-          reject(new Error())
         } else {
-          switch (response.error.errCode) {
-            case ErrorCode.NO_ERROR:
-              resolve(response)
-              break
-            default:
-              reject(new Error(response.error.errorMessage))
-          }
+          resolve(response)
         }
       })
     })

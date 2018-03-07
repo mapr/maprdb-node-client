@@ -1,1 +1,1 @@
-export type FieldPath = {};
+export type FieldPath = {}

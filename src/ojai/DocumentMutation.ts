@@ -1,1 +1,1 @@
-export type DocumentMutation = {};
+export type DocumentMutation = {}

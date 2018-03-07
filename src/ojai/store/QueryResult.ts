@@ -1,1 +1,1 @@
-export type QueryResult = {};
+export type QueryResult = {}

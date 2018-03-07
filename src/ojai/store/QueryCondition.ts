@@ -1,1 +1,1 @@
-export type QueryCondition = {};
+export type QueryCondition = {}

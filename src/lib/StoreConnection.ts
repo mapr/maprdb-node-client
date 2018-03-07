@@ -1,12 +1,13 @@
-import {IDocumentStore} from '../ojai/store/IDocumentStore'
+import {com} from '../../proto'
 import {
-CreateTableRequest, DeleteTableRequest, ErrorCode, TableExistsRequest, TableResponse,
+  CreateTableRequest, DeleteTableRequest, TableExistsRequest, TableResponse,
 } from '../types/grpc'
-import {createConnection} from './connection'
+import {createConnection} from './Connection'
 import {DocumentStore} from './DocumentStore'
+import MapRDbServer = com.mapr.maprdb.grpc.MapRDbServer
+import ErrorCode = com.mapr.maprdb.grpc.ErrorCode
 
 export class StoreConnection {
-
   public _url: string
   public _connection: any
 
@@ -84,7 +85,7 @@ export class StoreConnection {
     })
   }
 
-  public getStore(storePath: string): IDocumentStore {
-    return new DocumentStore(this._url, this._connection, storePath)
+  public getStore(storePath: string): MapRDbServer {
+    return new DocumentStore({url: this._url, connection: this._connection, storePath})
   }
 }

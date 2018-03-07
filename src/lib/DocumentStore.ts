@@ -1,122 +1,185 @@
-import {Document} from '../ojai/Document'
-import {DocumentMutation} from '../ojai/DocumentMutation'
-import {DocumentStream} from '../ojai/DocumentStream'
-import {FieldPath} from '../ojai/FieldPath'
-import {IDocumentStore} from '../ojai/store/IDocumentStore'
-import {Query} from '../ojai/store/Query'
-import {QueryCondition} from '../ojai/store/QueryCondition'
-import {QueryResult} from '../ojai/store/QueryResult'
-import {Callback} from '../types'
-import {ErrorCode, InsertOrReplaceRequest, InsertOrReplaceResponse} from '../types/grpc'
-import {createConnection, decode, grpcRequestBuilder} from './connection'
+import {createConnection} from './Connection'
 
-export class DocumentStore implements IDocumentStore {
+import {com} from '../../proto'
+import CreateTableCallback = com.mapr.maprdb.grpc.MapRDbServer.CreateTableCallback
+import MapRDbServer = com.mapr.maprdb.grpc.MapRDbServer
+import IInsertOrReplaceRequest = com.mapr.maprdb.grpc.IInsertOrReplaceRequest
+import InsertOrReplaceResponse = com.mapr.maprdb.grpc.InsertOrReplaceResponse
+import ICreateTableRequest = com.mapr.maprdb.grpc.ICreateTableRequest
+import CreateTableResponse = com.mapr.maprdb.grpc.CreateTableResponse
+import InsertOrReplaceCallback = com.mapr.maprdb.grpc.MapRDbServer.InsertOrReplaceCallback
+import DeleteTableCallback = com.mapr.maprdb.grpc.MapRDbServer.DeleteTableCallback
+import DeleteTableResponse = com.mapr.maprdb.grpc.DeleteTableResponse
+import IDeleteTableRequest = com.mapr.maprdb.grpc.IDeleteTableRequest
+import TableExistsCallback = com.mapr.maprdb.grpc.MapRDbServer.TableExistsCallback
+import TableExistsRequest = com.mapr.maprdb.grpc.TableExistsRequest
+import TableExistsResponse = com.mapr.maprdb.grpc.TableExistsResponse
+import IFindByIdRequest = com.mapr.maprdb.grpc.IFindByIdRequest
+import FindByIdResponse = com.mapr.maprdb.grpc.FindByIdResponse
+import FindByIdCallback = com.mapr.maprdb.grpc.MapRDbServer.FindByIdCallback
+import IFindRequest = com.mapr.maprdb.grpc.IFindRequest
+import FindCallback = com.mapr.maprdb.grpc.MapRDbServer.FindCallback
+import FindResponse = com.mapr.maprdb.grpc.FindResponse
+import ErrorCode = com.mapr.maprdb.grpc.ErrorCode
 
-  public _url: string
-  public _connection: any
-  public tableName: string
+export class DocumentStore implements MapRDbServer {
+  public requestDelimited: boolean
+  public responseDelimited: boolean
+  public rpcImpl: any
 
-  constructor(url: string, connection: any, tableName?: string) {
-    this._url = url
-    this._connection = connection || createConnection(url)
-    this.tableName = tableName
+  constructor(rpcImpl: { url?: string; connection?: string; storePath?: string },
+              requestDelimited?: boolean,
+              responseDelimited?: boolean) {
+    this.rpcImpl = Boolean(rpcImpl) && Boolean(rpcImpl.connection) ? rpcImpl.connection : createConnection(rpcImpl.url)
+
+    console.log({requestDelimited, responseDelimited})
   }
 
-  public insertOrReplace(payload: (string | Document | FieldPath | DocumentStream | any)): Promise<any> {
-    const request: InsertOrReplaceRequest = grpcRequestBuilder(payload, this.tableName)
+  public insertOrReplace(request: IInsertOrReplaceRequest, callback: InsertOrReplaceCallback): void
+  public insertOrReplace(request: IInsertOrReplaceRequest): Promise<InsertOrReplaceResponse>
+  public insertOrReplace(request: IInsertOrReplaceRequest, callback?: InsertOrReplaceCallback): (void | Promise<InsertOrReplaceResponse>) {
+    if (callback) {
+      this.rpcImpl.insertOrReplace(request, callback)
 
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.insertOrReplace(request, (err: Error, response: InsertOrReplaceResponse) => {
+      return
+    }
+
+    return new Promise<InsertOrReplaceResponse>((resolve, reject) => {
+      this.rpcImpl.insertOrReplace(request, (err: Error, response: InsertOrReplaceResponse) => {
         if (err) {
           reject(err)
         } else if (!response) {
           reject(new Error())
         } else {
-          switch (response.error.err_code) {
-            case ErrorCode[0]:
-              resolve(decode(response.json_payload, response.payload_encoding))
+          switch (response.error.errCode) {
+            case ErrorCode.NO_ERROR:
+              resolve(response)
               break
             default:
-              reject(new Error(response.error.error_message))
+              reject(new Error(response.error.errorMessage))
           }
         }
       })
     })
   }
 
-  public isReadOnly(): boolean {
-    console.log('isReadOnly')
+  public createTable(request: ICreateTableRequest, callback: CreateTableCallback): void
+  public createTable(request: ICreateTableRequest): Promise<CreateTableResponse>
+  public createTable(request: ICreateTableRequest, callback?: CreateTableCallback): (void | Promise<CreateTableResponse>) {
+    if (callback) {
+      this.rpcImpl.createTable(request, callback)
 
-    return true
+      return
+    }
+
+    return new Promise<CreateTableResponse>((resolve, reject) => {
+      this.rpcImpl.createTable(request, (err: Error, response: CreateTableResponse) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(response)
+        }
+      })
+    })
   }
 
-  public flush(cb: Callback): void {
-    console.log({cb})
+  public deleteTable(request: IDeleteTableRequest, callback: DeleteTableCallback): void
+  public deleteTable(request: IDeleteTableRequest): Promise<DeleteTableResponse>
+  public deleteTable(request: IDeleteTableRequest, callback?: DeleteTableCallback): (void | Promise<DeleteTableResponse>) {
+    if (callback) {
+      this.rpcImpl.deleteTable(request, callback)
+
+      return
+    }
+
+    return new Promise<DeleteTableResponse>((resolve, reject) => {
+      this.rpcImpl.deleteTable(request, (err: Error) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    })
   }
 
-  public beginTrackingWrites(...conditions: (string | Callback)[]): void {
-    console.log({conditions})
+  public tableExists(request: TableExistsRequest, callback: TableExistsCallback): void
+  public tableExists(request: TableExistsRequest): Promise<TableExistsResponse>
+  public tableExists(request: TableExistsRequest, callback?: TableExistsCallback): (void | Promise<TableExistsResponse>) {
+    if (callback) {
+      this.rpcImpl.tableExists(request, callback)
+
+      return
+    }
+
+    return new Promise<TableExistsResponse>((resolve, reject) => {
+      this.rpcImpl.tableExists(request, (err: Error, response: TableExistsResponse) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(response)
+        }
+      })
+    })
   }
 
-  public endTrackingWrites(cb: Callback<string>): void {
-    console.log({cb})
+  public findById(request: IFindByIdRequest, callback: FindByIdCallback): void
+  public findById(request: IFindByIdRequest): Promise<FindByIdResponse>
+  public findById(request: IFindByIdRequest, callback?: FindByIdCallback): (void | Promise<FindByIdResponse>) {
+    if (callback) {
+      this.rpcImpl.findById(request, callback)
+
+      return
+    }
+
+    return new Promise<FindByIdResponse>((resolve, reject) => {
+      this.rpcImpl.findById(request, (err: Error, response: FindByIdResponse) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(response)
+        }
+      })
+    })
   }
 
-  public clearTrackedWrites(cb: Callback): void {
-    console.log({cb})
+  public find(request: IFindRequest, callback: FindCallback): void
+  public find(request: IFindRequest): Promise<FindResponse>
+  public find(request: IFindRequest, callback?: FindCallback): (void | Promise<FindResponse>) {
+    if (callback) {
+      this.rpcImpl.find(request, callback)
+
+      return
+    }
+
+    return new Promise<FindResponse>((resolve, reject) => {
+      this.rpcImpl.find(request, (err: Error, response: FindResponse) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(response)
+        }
+      })
+    })
   }
 
-  public findById(...conditions: (string | Query | QueryCondition | FieldPath | Callback<Document>)[]): void {
-    console.log({conditions})
-
+  public rpcCall() {
+    console.log('rpcCall')
   }
 
-  public find(...conditions: (string | Query | FieldPath | QueryCondition | Callback<DocumentStream | QueryResult>)[]): void {
-    console.log({conditions})
-
+  public end(): any {
+    console.log('end')
   }
 
-  public findQuery(...conditions: (string | Query | Callback<DocumentStream>)[]): void {
-    console.log({conditions})
-
+  public on(): any {
+    console.log('on')
   }
 
-  public update(id: string, mutation: DocumentMutation, cb: Callback): void {
-    console.log({cb, id, mutation})
-
+  public off(): any {
+    console.log('off')
   }
 
-  public remove(...conditions: (string | Document | FieldPath | DocumentStream | Callback)[]): void {
-    console.log({conditions})
-
-  }
-
-  public insert(...conditions: (string | Document | FieldPath | DocumentStream | Callback)[]): void {
-    console.log({conditions})
-
-  }
-
-  public replace(...conditions: (string | Document | FieldPath | DocumentStream | Callback)[]): void {
-    console.log({conditions})
-
-  }
-
-  public increment(id: string, field: string, inc: number, cb: Callback): void {
-    console.log({cb, id, field, inc})
-
-  }
-
-  public checkAndMutate(id: string, condition: QueryCondition, mutation: DocumentMutation, cb: Callback<boolean>): void {
-    console.log({cb, id, condition, mutation})
-  }
-
-  public checkAndDelete(id: string, condition: QueryCondition, cb: Callback<boolean>): void {
-    console.log({cb, id, condition})
-
-  }
-
-  public checkAndReplace(id: string, condition: QueryCondition, doc: Document, cb: Callback<boolean>): void {
-    console.log({cb, id, condition, doc})
-
+  public emit(): any {
+    console.log('off')
   }
 }

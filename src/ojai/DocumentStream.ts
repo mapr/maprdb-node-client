@@ -1,1 +1,1 @@
-export type DocumentStream = {};
+export type DocumentStream = {}

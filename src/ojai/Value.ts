@@ -1,20 +1,20 @@
-const TYPE_CODE_NULL = 1;
-const TYPE_CODE_BOOLEAN = 2;
-const TYPE_CODE_STRING = 3;
-const TYPE_CODE_BYTE = 4;
+const TYPE_CODE_NULL = 1
+const TYPE_CODE_BOOLEAN = 2
+const TYPE_CODE_STRING = 3
+const TYPE_CODE_BYTE = 4
 // const TYPE_CODE_SHORT = 5;
 // const TYPE_CODE_INT = 6;
 // const TYPE_CODE_LONG = 7;
 // const TYPE_CODE_FLOAT = 8;
 // const TYPE_CODE_DOUBLE = 9;
-const TYPE_CODE_DECIMAL = 10;
+const TYPE_CODE_DECIMAL = 10
 // const TYPE_CODE_DATE = 11;
 // const TYPE_CODE_TIME = 12;
 // const TYPE_CODE_TIMESTAMP = 13;
 // const TYPE_CODE_INTERVAL = 14;
 // const TYPE_CODE_BINARY = 15;
-const TYPE_CODE_MAP = 16;
-const TYPE_CODE_ARRAY = 17;
+const TYPE_CODE_MAP = 16
+const TYPE_CODE_ARRAY = 17
 
 /*
 
@@ -51,52 +51,52 @@ export enum code {
 
 export interface ValueI {
   // code: code;
-  setCode(n: number): void;
+  setCode(n: number): void
 
-  getCode(): number;
+  getCode(): number
 
-  isScalar(): boolean;
+  isScalar(): boolean
 
-  isNumeric(): boolean;
+  isNumeric(): boolean
 }
 
 /**
  * Documentation for Value class
  */
 export class Value implements ValueI {
-  private code: code;
+  private code: code
 
   constructor(codeNumber: number) {
-    this.setCode(codeNumber);
+    this.setCode(codeNumber)
   }
 
   public static DetermineType(typeCode: code): code {
     switch (typeof typeCode) {
       case 'undefined':
-        return TYPE_CODE_NULL;
+        return TYPE_CODE_NULL
       case 'boolean':
-        return TYPE_CODE_BOOLEAN;
+        return TYPE_CODE_BOOLEAN
       case 'string':
-        return TYPE_CODE_STRING;
+        return TYPE_CODE_STRING
       // case 'object': return types[typeCode] || TYPE_CODE_NULL;
       default:
-        return null;
+        return null
     }
   }
 
   public setCode(c: code) {
-    this.code = c;
+    this.code = c
   }
 
   public getCode(): code {
-    return this.code;
+    return this.code
   }
 
   public isScalar(): boolean {
-    return this.code !== TYPE_CODE_MAP && this.code !== TYPE_CODE_ARRAY;
+    return this.code !== TYPE_CODE_MAP && this.code !== TYPE_CODE_ARRAY
   }
 
   public isNumeric(): boolean {
-    return this.code >= TYPE_CODE_BYTE && this.code <= TYPE_CODE_DECIMAL;
+    return this.code >= TYPE_CODE_BYTE && this.code <= TYPE_CODE_DECIMAL
   }
 }

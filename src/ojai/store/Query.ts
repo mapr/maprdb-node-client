@@ -1,1 +1,1 @@
-export type Query = {};
+export type Query = {}

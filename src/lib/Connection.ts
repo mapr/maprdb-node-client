@@ -1,8 +1,10 @@
 import {credentials, load} from 'grpc'
 import {join} from 'path'
-import {InsertMode, InsertOrReplaceRequest, PayloadEncoding} from '../types/grpc'
+import {com} from '../../proto'
+import {PayloadEncoding} from '../types/grpc'
+import InsertOrReplaceRequest = com.mapr.maprdb.grpc.InsertOrReplaceRequest
 
-const PROTO_PATH = join(__dirname, '../../protos/maprdb-server.proto')
+const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
 const protoPackage: any = load(PROTO_PATH)
 const MapRDbServer = protoPackage.com.mapr.maprdb.grpc.MapRDbServer
 
@@ -10,7 +12,7 @@ export const createConnection = (url: string) => {
   return new MapRDbServer(url, credentials.createInsecure())
 }
 
-export const encode = (payload: Object, encoding: PayloadEncoding): any => {
+export const encode = (payload: Object, encoding: PayloadEncoding): string => {
   switch (encoding) {
     case PayloadEncoding.JSON_ENCODING:
       return JSON.stringify(payload)
@@ -18,7 +20,7 @@ export const encode = (payload: Object, encoding: PayloadEncoding): any => {
     default:
       console.warn('Unknown encoding:', encoding)
 
-      return payload
+      return String(payload)
   }
 }
 
@@ -26,7 +28,7 @@ export const decode = (raw: any, rawEncoding: any): Object => {
   const encoding: any = PayloadEncoding[rawEncoding]
   switch (encoding) {
     case PayloadEncoding.JSON_ENCODING:
-      return JSON.stringify(raw)
+      return JSON.parse(raw)
 
     default:
       console.warn('Unknown encoding:', encoding)
@@ -35,14 +37,14 @@ export const decode = (raw: any, rawEncoding: any): Object => {
   }
 }
 
-export const grpcRequestBuilder = (payload: Object, tablePath: string): InsertOrReplaceRequest => {
+export const InsertOrReplaceRequestBuilder = (payload: Object, tablePath: string): InsertOrReplaceRequest => {
   const encoding = PayloadEncoding.JSON_ENCODING
-  const insertMode = InsertMode.INSERT_OR_REPLACE
 
   return {
-    table_path: tablePath,
-    payload_encoding: encoding,
-    insert_mode: insertMode,
-    json_document: encode(payload, encoding),
+    insertMode: 0,
+    tablePath,
+    payloadEncoding: encoding,
+    jsonDocument: encode(payload, encoding),
+    toJSON: () => ({payload}),
   }
 }

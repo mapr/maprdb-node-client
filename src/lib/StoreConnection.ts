@@ -39,7 +39,7 @@ export class StoreConnection {
     const request: TableExistsRequest = {table_path: storePath}
 
     if (callback) {
-      this._connection.createTable(request, (err, response) => {
+      this._connection.tableExists(request, (err, response) => {
         if (!err) {
           if (response.error.err_code === ErrorCode.NO_ERROR) {
             callback(null, true)

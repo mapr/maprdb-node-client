@@ -40,12 +40,16 @@ export class StoreConnection {
 
     if (callback) {
       this._connection.tableExists(request, (err, response) => {
-        if (!err) {
+        if (err) {
+          return callback(err)
+        }
+
+        if (response.error) {
           if (response.error.err_code === ErrorCode.NO_ERROR) {
-            callback(null, true)
+            return callback(null, true)
           }
           if (response.error.err_code === ErrorCode.TABLE_NOT_FOUND) {
-            callback(null, false)
+            return callback(null, false)
           }
         }
         callback(err || response.error)
@@ -58,10 +62,10 @@ export class StoreConnection {
       this._connection.tableExists(request, (err, response) => {
         if (!err) {
           if (response.error.err_code === ErrorCode.NO_ERROR) {
-            resolve(true)
+            return resolve(true)
           }
           if (response.error.err_code === ErrorCode.TABLE_NOT_FOUND) {
-            resolve(false)
+            return resolve(false)
           }
         }
         reject(err || response.error)
@@ -94,7 +98,7 @@ export class StoreConnection {
       this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
           if (response.error.err_code === ErrorCode.NO_ERROR) {
-            callback(null, true)
+            return callback(null, true)
           }
         }
         callback(err || response.error)
@@ -107,7 +111,7 @@ export class StoreConnection {
       this._connection.insertOrReplace(request, (err, response) => {
         if (!err) {
           if (response.error.err_code === ErrorCode.NO_ERROR) {
-            resolve(true)
+            return resolve(true)
           }
         }
         reject(err || response.error)
@@ -123,14 +127,14 @@ export class StoreConnection {
 
   private handleDefaultCallback(err: Error, response: any, callback: Callback): void {
     if (!err && (response.error.err_code === ErrorCode.NO_ERROR)) {
-      callback(null, true)
+      return callback(null, true)
     }
     callback(err || response.error)
   }
 
   private handleDefaultPromise(err: Error, response: any, resolve: any, reject: any): void {
     if (!err && (response.error.err_code === ErrorCode.NO_ERROR)) {
-      resolve(true)
+      return resolve(true)
     }
     reject(err || response.error)
   }

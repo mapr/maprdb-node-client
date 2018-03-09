@@ -9,8 +9,4 @@
 
 ## Testing GRPC communitation
 
-`npm run test:build` - prepare test files
-
-`npm run test:run` - run test server
-
-`npm run test:check` - send mock data to test server
+`npm run test` - run tests with a localhost:5678 connection

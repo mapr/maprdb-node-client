@@ -43,6 +43,13 @@ describe('Document tests', () => {
     expect(resp).to.be.true
   })
 
+  it('should insert date string field into table', async () => {
+    const doc = new Document('id_id')
+      .setField('test_time', (new ODate('1993-01-01')).toString())
+    const resp = await store.insertOrReplace(doc.toJSON(), '/test-store-test-insert')
+    expect(resp).to.be.true
+  })
+
   it('should insert timestamp field into table', async () => {
     const doc = new Document('id_id')
       .setField('test_timestamp', (new OTimestamp(172800000)).toString())
@@ -50,7 +57,7 @@ describe('Document tests', () => {
     expect(resp).to.be.true
   })
 
-  it('test set bool', async () => {
+  it('should insert bool fields into table', async () => {
     const doc = new Document('id_id')
       .setField('test_bool', true)
       .setField('test_bool_false', false)

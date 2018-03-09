@@ -72,7 +72,7 @@ describe('Document tests', () => {
 
   it('test setField/getField', async () => {
     const doc = (new Document())
-      .setId(123)
+      .setId('123')
       .setField('test_int', 123)
       .setField('test_date', new ODate(1518689532))
       .setField('test_interval', new OInterval(172800000))
@@ -84,7 +84,7 @@ describe('Document tests', () => {
       .setField('test_object', {a: 1, b: 2})
       .setField('test_empty_object', {})
 
-    expect(doc.getId()).equal(123)
+    expect(doc.getId()).equal('123')
     expect(doc.getField('test_int')).equal(123)
     expect(doc.getField('test_date')).eql(new Date(1518689532))
     expect(doc.getField('test_interval')).eql(new Date(172800000))
@@ -99,7 +99,7 @@ describe('Document tests', () => {
 
   it('test doc nested setField/getField', async () => {
     const doc = (new Document())
-      .setId(123)
+      .setId('123')
       .setField('first.test_int', 123)
       .setField('first.test_date', new ODate(1518689532))
       .setField('first.test_interval', new OInterval(172800000))
@@ -143,6 +143,59 @@ describe('Document tests', () => {
         test_str: 'strstr',
         test_object: {a: 1, b: 2},
         test_empty_object: {},
+      },
+    })
+  })
+
+  it('test doc toJson with nested fields', async () => {
+    const doc = (new Document())
+      .setId('123')
+      .setField('first.test_int', 123)
+      .setField('first.test_date', new ODate(1518689532))
+      .setField('first.test_interval', new OInterval(172800000))
+      .setField('first.test_time', new OTime(3456))
+      .setField('first.test_timestamp', new OTimestamp(29877132000))
+      .setField('first.test_bool', true)
+      .setField('first.test_bool_false', false)
+      .setField('first.test_str', 'strstr')
+      .setField('first.test_object', {a: 1, b: 2})
+      .setField('first.test_empty_object', {})
+      .setField('first.second.test_int', 123)
+      .setField('first.second.test_date', new ODate(1518689532))
+      .setField('first.second.test_interval', new OInterval(172800000))
+      .setField('first.second.test_time', new OTime(3456))
+      .setField('first.second.test_timestamp', new OTimestamp(29877132000))
+      .setField('first.second.test_bool', true)
+      .setField('first.second.test_bool_false', false)
+      .setField('first.second.test_str', 'strstr')
+      .setField('first.second.test_object', {a: 1, b: 2})
+      .setField('first.second.test_empty_object', {})
+
+    expect(doc.toJSON()).eql({
+      _id: '123',
+      first: {
+        test_int: 123,
+        test_date: {$date: '1970-01-18T13:51:29.532Z'},
+        test_interval: {$interval: 172800000},
+        test_time: {$time: '02:00:03'},
+        test_timestamp: {$date: 29877132000},
+        test_bool: true,
+        test_bool_false: false,
+        test_str: 'strstr',
+        test_object: {a: 1, b: 2},
+        test_empty_object: {},
+        second: {
+          test_int: 123,
+          test_date: {$date: '1970-01-18T13:51:29.532Z'},
+          test_interval: {$interval: 172800000},
+          test_time: {$time: '02:00:03'},
+          test_timestamp: {$date: 29877132000},
+          test_bool: true,
+          test_bool_false: false,
+          test_str: 'strstr',
+          test_object: {a: 1, b: 2},
+          test_empty_object: {},
+        },
       },
     })
   })

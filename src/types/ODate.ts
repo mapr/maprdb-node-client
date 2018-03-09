@@ -10,6 +10,6 @@ export class ODate {
   }
 
   public toString() {
-    return {$date: this.value}
+    return {$date: this.value.toJSON()}
   }
 }

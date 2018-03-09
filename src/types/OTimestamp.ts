@@ -10,6 +10,6 @@ export class OTimestamp {
   }
 
   public toString() {
-    return {$date: this.value.getDate()}
+    return {$date: this.value.getTime()}
   }
 }

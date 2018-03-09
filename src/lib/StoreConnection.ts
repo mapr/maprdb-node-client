@@ -1,6 +1,6 @@
 import {Callback} from '../types'
 import {
-  CreateTableRequest, DeleteTableRequest, ErrorCode, TableExistsRequest, TableResponse,
+  CreateTableRequest, DeleteTableRequest, ErrorCode, FindByIdRequest, PayloadEncoding, TableExistsRequest, TableResponse,
 } from '../types/grpc'
 import {ConnectionWrapper} from './ConnectionWrapper'
 
@@ -120,9 +120,45 @@ export class StoreConnection {
   }
 
   public getStore(storePath: string): StoreConnection {
-    this._tableName = storePath
+    if (typeof storePath === 'string') {
+      this._tableName = storePath
+    } else {
+      console.warn('Table name should be string')
+    }
 
     return this
+  }
+
+  public findById(storePath: string, id: string, callback: Callback): void|Promise<any> {
+    const request: FindByIdRequest = {
+      table_path: storePath,
+      payload_encoding: PayloadEncoding.JSON_ENCODING,
+      json_document: JSON.stringify({_id: id})
+    }
+
+    if (callback) {
+      this._connection.findById(request, (err, response) => {
+        if (!err) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            return callback(null, response.json_document)
+          }
+        }
+        callback(err || response.error)
+      })
+
+      return
+    }
+
+    return new Promise((resolve: any, reject: (err: Error) => void) => {
+      this._connection.findById(request, (err, response) => {
+        if (!err) {
+          if (response.error.err_code === ErrorCode.NO_ERROR) {
+            return resolve(response.json_document)
+          }
+        }
+        reject(err || response.error)
+      })
+    })
   }
 
   private handleDefaultCallback(err: Error, response: any, callback: Callback): void {

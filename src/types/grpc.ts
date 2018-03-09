@@ -62,3 +62,9 @@ export type DeleteTableRequest = {
 export type TableExistsRequest = {
   table_path: string;
 }
+
+export type FindByIdRequest = {
+  table_path?: string;
+  payload_encoding: PayloadEncoding;
+  json_document?: string;
+}

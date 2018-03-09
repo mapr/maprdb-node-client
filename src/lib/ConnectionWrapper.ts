@@ -30,8 +30,8 @@ export class ConnectionWrapper implements MapRDbServer {
               requestDelimited?: boolean,
               responseDelimited?: boolean) {
     this.rpcImpl = Boolean(rpcImpl.connection) ? rpcImpl.connection : createConnection(rpcImpl.url)
-
-    console.log({requestDelimited, responseDelimited})
+    this.requestDelimited = requestDelimited
+    this.responseDelimited = responseDelimited
   }
 
   public insertOrReplace(request: IInsertOrReplaceRequest, callback: InsertOrReplaceCallback): void

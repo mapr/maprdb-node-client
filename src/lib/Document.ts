@@ -57,8 +57,6 @@ export class Document {
   }
 
   public toJSON() {
-    console.log(this._internalObject)
-
     return this._internalObject
   }
 

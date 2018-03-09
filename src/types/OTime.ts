@@ -1,7 +1,17 @@
+import {format} from 'date-fns'
+
 export class OTime {
-  private value: string
+  private value: Date
+
+  constructor(value: string) {
+    this.value = new Date(value)
+  }
+
+  public getValue() {
+    return this.value
+  }
 
   public toString() {
-    return this.value
+    return {$time: format(this.value, 'hh:mm:ss')}
   }
 }

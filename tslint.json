@@ -33,6 +33,7 @@
     ],
     "strict-boolean-expressions": [
       true,
+      "allow-string",
       "allow-null-union",
       "allow-undefined-union"
     ],

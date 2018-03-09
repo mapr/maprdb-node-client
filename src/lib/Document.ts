@@ -1,3 +1,5 @@
+import * as _ from 'lodash'
+
 import {ODate} from '../types/ODate'
 import {OInterval} from '../types/OInterval'
 import {OTime} from '../types/OTime'
@@ -23,9 +25,20 @@ export class Document {
     return this._internalObject._id
   }
 
+  public getField(field: string): any {
+    const internalField = _.get(this._internalObject, field)
+
+    if (internalField instanceof ODate || internalField instanceof OTime ||
+      internalField instanceof OTimestamp || internalField instanceof OInterval) {
+      return internalField.getValue()
+    }
+
+    return internalField
+  }
+
   public setField(field: string, value: any): Document {
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      this._internalObject[field] = value
+      _.set(this._internalObject, field, value)
     } else if (Array.isArray(value)) {
       this.setArray(field, value)
     } else if (value instanceof ODate) {
@@ -36,6 +49,8 @@ export class Document {
       this.setOTimestamp(field, value)
     } else if (value instanceof OInterval) {
       this.setOInterval(field, value)
+    } else {
+      _.set(this._internalObject, field, value)
     }
 
     return this
@@ -48,22 +63,22 @@ export class Document {
   }
 
   private setArray(field: string, value: any[]) {
-    this._internalObject[field] = value
+    _.set(this._internalObject, field, value)
   }
 
   private setODate(field: string, value: ODate) {
-    this._internalObject[field] = value
+    _.set(this._internalObject, field, value)
   }
 
   private setOTime(field: string, value: OTime) {
-    this._internalObject[field] = value
+    _.set(this._internalObject, field, value)
   }
 
   private setOTimestamp(field: string, value: OTimestamp) {
-    this._internalObject[field] = value
+    _.set(this._internalObject, field, value)
   }
 
   private setOInterval(field: string, value: OInterval) {
-    this._internalObject[field] = value
+    _.set(this._internalObject, field, value)
   }
 }

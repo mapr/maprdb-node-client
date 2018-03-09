@@ -1,7 +1,15 @@
 export class OInterval {
-  private value: string
+  private value: Date
+
+  constructor(value: string) {
+    this.value = new Date(value)
+  }
+
+  public getValue() {
+    return this.value
+  }
 
   public toString() {
-    return this.value
+    return {$interval: this.value.getTime()}
   }
 }

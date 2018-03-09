@@ -1,7 +1,15 @@
 export class OTimestamp {
-  private value: string
+  private value: Date
+
+  constructor(value: string) {
+    this.value = new Date(value)
+  }
+
+  public getValue() {
+    return this.value
+  }
 
   public toString() {
-    return this.value
+    return {$date: this.value.getDate()}
   }
 }

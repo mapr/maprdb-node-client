@@ -7,6 +7,7 @@
   "scripts": {
     "test": "mocha -r ts-node/register --watch-extensions ts test/**/*.ts -w",
     "clean": "rm -rf ./dist/* && rm -rf ./test/dist/*",
+    "prepublish": "npm run build",
     "prepare": "npm run build",
     "proto": "mkdir -p ./dist/proto && pbjs -t static-module -w commonjs ./proto/maprdb-server.proto | pbts -o ./dist/proto/index.d.ts -",
     "proto:dev": "pbjs -t static-module -w commonjs ./proto/maprdb-server.proto | pbts -o ./proto/index.d.ts -",

@@ -1077,8 +1077,30 @@ export namespace com {
                     payloadEncoding?: (com.mapr.data.db.PayloadEncoding|null);
 
                     /**
-                     * Contains JSON encoded OJAI Document with "_id" field if the payload_encoding is `JSON_ENCODING`
-                     * e.g. {"_id": "user0001"}, or {"_id": {"$binary": "dXNlcjAwMDE="}}
+                     * Contains JSON encoded OJAI document if the payload_encoding is `JSON_ENCODING`.<p/>
+                     * <b>Schema of the OJAI document:</b>
+                     * <pre>
+                     * {
+                     * "_id": &lt;id_value>,
+                     * "$condition": { &lt;ojai_condition_in_json_format> },
+                     * "$select": [ &lt;list_of_field_paths> ]
+                     * }
+                     * </pre>
+                     * The document MUST contain the "_id" field.<p/>
+                     * <b>Examples:</b><p/>
+                     * <pre>
+                     * {
+                     * "_id": "user0001"
+                     * }
+                     * </pre>
+                     * <i>or</i>,
+                     * <pre>
+                     * {
+                     * "_id": { "$binary": "dXNlcjAwMDE="} },
+                     * "$condition": { "$eq": {"address.zip": 95111} },
+                     * "$select": [ "name", "address.phone" ]
+                     * }
+                     * </pre>
                      */
                     jsonDocument?: (string|null);
                 }
@@ -1099,8 +1121,30 @@ export namespace com {
                     public payloadEncoding: com.mapr.data.db.PayloadEncoding;
 
                     /**
-                     * Contains JSON encoded OJAI Document with "_id" field if the payload_encoding is `JSON_ENCODING`
-                     * e.g. {"_id": "user0001"}, or {"_id": {"$binary": "dXNlcjAwMDE="}}
+                     * Contains JSON encoded OJAI document if the payload_encoding is `JSON_ENCODING`.<p/>
+                     * <b>Schema of the OJAI document:</b>
+                     * <pre>
+                     * {
+                     * "_id": &lt;id_value>,
+                     * "$condition": { &lt;ojai_condition_in_json_format> },
+                     * "$select": [ &lt;list_of_field_paths> ]
+                     * }
+                     * </pre>
+                     * The document MUST contain the "_id" field.<p/>
+                     * <b>Examples:</b><p/>
+                     * <pre>
+                     * {
+                     * "_id": "user0001"
+                     * }
+                     * </pre>
+                     * <i>or</i>,
+                     * <pre>
+                     * {
+                     * "_id": { "$binary": "dXNlcjAwMDE="} },
+                     * "$condition": { "$eq": {"address.zip": 95111} },
+                     * "$select": [ "name", "address.phone" ]
+                     * }
+                     * </pre>
                      */
                     public jsonDocument: string;
 
@@ -1181,7 +1225,10 @@ export namespace com {
                 /** Properties of a FindByIdResponse. */
                 interface IFindByIdResponse {
 
-                    /** FindByIdResponse error */
+                    /**
+                     * `NO_ERROR` - if a document with the specified `_id` was found
+                     * `DOCUMENT_NOT_FOUND` - if the document with the specified `_id` does not exist
+                     */
                     error?: (com.mapr.data.db.IRpcError|null);
 
                     /** FindByIdResponse payloadEncoding */
@@ -1200,7 +1247,10 @@ export namespace com {
                      */
                     constructor(properties?: com.mapr.data.db.IFindByIdResponse);
 
-                    /** FindByIdResponse error. */
+                    /**
+                     * `NO_ERROR` - if a document with the specified `_id` was found
+                     * `DOCUMENT_NOT_FOUND` - if the document with the specified `_id` does not exist
+                     */
                     public error?: (com.mapr.data.db.IRpcError|null);
 
                     /** FindByIdResponse payloadEncoding. */
@@ -1394,6 +1444,13 @@ export namespace com {
                     public toJSON(): { [k: string]: any };
                 }
 
+                /** FindResponseType enum. */
+                enum FindResponseType {
+                    UNKNOWN_TYPE = 0,
+                    RESULT_DOCUMENT = 1,
+                    QUERY_PLAN = 2
+                }
+
                 /** Properties of a FindResponse. */
                 interface IFindResponse {
 
@@ -1403,11 +1460,11 @@ export namespace com {
                     /** FindResponse payloadEncoding */
                     payloadEncoding?: (com.mapr.data.db.PayloadEncoding|null);
 
-                    /** Contains JSON encoded OJAI QueryPlan if the payload_encoding is `JSON_ENCODING` */
-                    jsonQueryPlan?: (string|null);
+                    /** Indicates the type of this response */
+                    type?: (com.mapr.data.db.FindResponseType|null);
 
-                    /** Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING` */
-                    jsonDocument?: (string|null);
+                    /** Contains JSON encoded response if the payload_encoding is `JSON_ENCODING` */
+                    jsonResponse?: (string|null);
                 }
 
                 /**
@@ -1429,14 +1486,14 @@ export namespace com {
                     /** FindResponse payloadEncoding. */
                     public payloadEncoding: com.mapr.data.db.PayloadEncoding;
 
-                    /** Contains JSON encoded OJAI QueryPlan if the payload_encoding is `JSON_ENCODING` */
-                    public jsonQueryPlan: string;
+                    /** Indicates the type of this response */
+                    public type: com.mapr.data.db.FindResponseType;
 
-                    /** Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING` */
-                    public jsonDocument: string;
+                    /** Contains JSON encoded response if the payload_encoding is `JSON_ENCODING` */
+                    public jsonResponse: string;
 
                     /** FindResponse data. */
-                    public data?: ("jsonQueryPlan"|"jsonDocument");
+                    public data?: "jsonResponse";
 
                     /**
                      * Creates a new FindResponse instance using the specified properties.

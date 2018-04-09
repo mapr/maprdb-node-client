@@ -1,5 +1,6 @@
 const { ConnectionManager } = require('node-maprdb');
-const { MAPRDB_HOST, MAPRDB_PORT } = require('./config');
+const MAPRDB_HOST = 'localhost';
+const MAPRDB_PORT = '5678';
 
 const maprURL = `${MAPRDB_HOST}:${MAPRDB_PORT}`;
 
@@ -13,16 +14,6 @@ const store = connection.getStore(storeName);
 
 store.delete(docId, (err, result) => {
   // Log the result to the console
-  console.log('findById', {err, result})
-});
-
-// or doc with _id property
-const docWithId = {_id: '123123'};
-store.delete(docWithId, (err, result) => {
-  // Log the result to the console
   console.log('delete', {err, result})
+  connection.close();
 });
-//with promise
-store.delete(docId)
-  .then((doc) => console.log(doc))
-  .catch((err) => console.error(err));

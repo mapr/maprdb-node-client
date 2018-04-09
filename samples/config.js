@@ -1,4 +1,0 @@
-module.exports = {
-  MAPRDB_HOST: 'localhost',
-  MAPRDB_PORT: '5678',
-};

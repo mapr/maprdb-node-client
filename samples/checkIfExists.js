@@ -1,5 +1,6 @@
 const { ConnectionManager } = require('node-maprdb');
-const { MAPRDB_HOST, MAPRDB_PORT } = require('./config');
+const MAPRDB_HOST = 'localhost';
+const MAPRDB_PORT = '5678';
 
 const maprURL = `${MAPRDB_HOST}:${MAPRDB_PORT}`;
 
@@ -11,4 +12,5 @@ const storeName = '/test-db-1';
 connection.tableExists(storeName, (err, result) => {
   // Log the result to the console
   console.log('tableExists', {err, result});
+  connection.close();
 });

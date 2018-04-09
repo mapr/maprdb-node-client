@@ -1,5 +1,6 @@
 const { ConnectionManager } = require('node-maprdb');
-const { MAPRDB_HOST, MAPRDB_PORT } = require('./config');
+const MAPRDB_HOST = 'localhost';
+const MAPRDB_PORT = '5678';
 
 const maprURL = `${MAPRDB_HOST}:${MAPRDB_PORT}`;
 // Create connection with specified URL

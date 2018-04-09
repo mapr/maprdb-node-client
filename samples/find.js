@@ -1,5 +1,6 @@
 const { ConnectionManager } = require('node-maprdb');
-const { MAPRDB_HOST, MAPRDB_PORT } = require('./config');
+const MAPRDB_HOST = 'localhost';
+const MAPRDB_PORT = '5678';
 
 const maprURL = `${MAPRDB_HOST}:${MAPRDB_PORT}`;
 
@@ -19,10 +20,12 @@ const stream = store.find(query);
 stream.on('data', (chunk) => console.log(chunk));
 stream.on('end', () => {
   console.log('end');
+  connection.close();
 });
 
 //with promise
 store.find(query)
   .toPromise()
   .then((results) => console.log(results))
-  .catch((err) => console.error(err));
+  .catch((err) => console.error(err))
+  .then(() => connection.close());

@@ -1,5 +1,6 @@
 const { ConnectionManager, ODate, OInterval, OTime, OTimestamp } = require('node-maprdb');
-const { MAPRDB_HOST, MAPRDB_PORT } = require('./config');
+const MAPRDB_HOST = 'localhost';
+const MAPRDB_PORT = '5678';
 
 const maprURL = `${MAPRDB_HOST}:${MAPRDB_PORT}`;
 
@@ -23,23 +24,24 @@ doc.test_str = 'strstr';
 doc.test_object = {a: 1, b: 2};
 doc.test_empty_object = {};
 
-store.insertOrReplace(doc, (err, result) => {
-  // Log the result to the console
-  console.log('insertOrReplace', {err, result})
-});
+const promises = [];
 
 //with promise
 doc._id = '345';
-store.insertOrReplace(doc)
+promises.push(store.insertOrReplace(doc)
   .then((res) => console.log(res))
-  .catch((err) => console.error(err));
+  .catch((err) => console.error(err)));
 
 doc._id = 'zbc';
-store.insert(doc)
+promises.push(store.insert(doc)
   .then((res) => console.log(res))
-  .catch((err) => console.error(err));
+  .catch((err) => console.error(err)));
 
 doc._id = 'qwe';
-store.replace(doc)
+promises.push(store.replace(doc)
   .then((res) => console.log(res))
-  .catch((err) => console.error(err));
+  .catch((err) => console.error(err)));
+
+Promise.all(promises).then(() => {
+  connection.close();
+});

@@ -1,12 +1,16 @@
-import {credentials, load} from 'grpc'
-import {join} from 'path'
+import {credentials, loadObject} from 'grpc'
 import {com} from '../proto'
-import {PayloadEncoding} from '../types/grpc'
+import {loadSync} from 'protobufjs'
+import {join} from 'path'
+
 import InsertMode = com.mapr.data.db.InsertMode
+import PayloadEncoding = com.mapr.data.db.PayloadEncoding
+import IInsertOrReplaceRequest = com.mapr.data.db.IInsertOrReplaceRequest
 
 const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
-const protoPackage: any = load(PROTO_PATH)
-const MapRDbServer = protoPackage.com.mapr.data.db.MapRDbServer
+const protoPackage = loadSync(PROTO_PATH)
+const grpcObject: any = loadObject(protoPackage, { enumsAsStrings: false })
+const MapRDbServer = grpcObject.com.mapr.data.db.MapRDbServer
 
 export const createConnection = (url: string) => {
   return new MapRDbServer(url, credentials.createInsecure())
@@ -37,13 +41,13 @@ export const decode = (raw: any, rawEncoding: any): Object => {
   }
 }
 
-export const InsertOrReplaceRequestBuilder = (payload: Object, tablePath: string, insertMode?: InsertMode) => {
+export const InsertOrReplaceRequestBuilder = (payload: Object, tablePath: string, insertMode?: InsertMode): IInsertOrReplaceRequest => {
   const encoding = PayloadEncoding.JSON_ENCODING
 
   return {
-    insert_mode: insertMode,
-    table_path: tablePath,
-    payload_encoding: encoding,
-    json_document: encode(payload, encoding),
+    insertMode: insertMode,
+    tablePath: tablePath,
+    payloadEncoding: encoding,
+    jsonDocument: encode(payload, encoding),
   }
 }

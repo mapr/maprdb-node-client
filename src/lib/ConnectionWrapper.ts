@@ -1,6 +1,10 @@
-import {createConnection} from './Connection'
+/*
+ * Copyright (c) 2018 & onwards. MapR Tech, Inc., All rights reserved
+ *
+ */
 
 import {com} from '../proto'
+import {createConnection} from './Connection'
 import CreateTableCallback = com.mapr.data.db.MapRDbServer.CreateTableCallback
 import MapRDbServer = com.mapr.data.db.MapRDbServer
 import IInsertOrReplaceRequest = com.mapr.data.db.IInsertOrReplaceRequest
@@ -152,6 +156,10 @@ export class ConnectionWrapper implements MapRDbServer {
         }
       })
     })
+  }
+
+  public close() {
+    this.rpcImpl.close()
   }
 
   public rpcCall() {

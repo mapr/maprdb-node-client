@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018 & onwards. MapR Tech, Inc., All rights reserved
+ *
+ */
+
 import {credentials, loadObject} from 'grpc'
 import {com} from '../proto'
 import {loadSync} from 'protobufjs'

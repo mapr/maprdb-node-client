@@ -5,6 +5,9 @@
 
 import {StoreConnection} from './StoreConnection'
 
+/*
+ * Class for connection management
+ */
 export class ConnectionManagerClass {
   public getConnection(url: string) {
     return new StoreConnection(url)

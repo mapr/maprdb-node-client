@@ -5,8 +5,7 @@
 
 import {com} from '../proto'
 import {Callback} from '../types'
-import {ConnectionWrapper} from './ConnectionWrapper'
-import {InsertOrReplaceRequestBuilder} from './Connection'
+import {createConnection, InsertOrReplaceRequestBuilder} from './Connection'
 
 import InsertMode = com.mapr.data.db.InsertMode
 import ICreateTableRequest = com.mapr.data.db.ICreateTableRequest
@@ -20,6 +19,9 @@ import ITableExistsResponse = com.mapr.data.db.ITableExistsResponse
 import IInsertOrReplaceResponse = com.mapr.data.db.IInsertOrReplaceResponse
 import IFindByIdResponse = com.mapr.data.db.IFindByIdResponse
 
+/*
+ * Class that responsible for calls to grpc service
+ */
 export class StoreConnection {
   public _url: string
   public _connection: any
@@ -28,10 +30,10 @@ export class StoreConnection {
   constructor(url: string, tableName?: string) {
     this._url = url
     this._tableName = tableName
-    this._connection = new ConnectionWrapper({url})
+    this._connection = createConnection(url)
   }
 
-  public createTable(storePath: string, callback: Callback): void|Promise<any> {
+  public createStore(storePath: string, callback?: Callback): void|Promise<any> {
     const request: ICreateTableRequest = {tablePath: storePath}
 
     if (callback) {
@@ -49,7 +51,7 @@ export class StoreConnection {
     })
   }
 
-  public tableExists(storePath: string, callback: Callback): void|Promise<any> {
+  public storeExists(storePath: string, callback?: Callback): void|Promise<any> {
     const request: ITableExistsRequest = {tablePath: storePath}
 
     if (callback) {
@@ -87,7 +89,7 @@ export class StoreConnection {
     })
   }
 
-  public deleteTable(storePath: string, callback: Callback): void|Promise<any> {
+  public deleteStore(storePath: string, callback?: Callback): void|Promise<any> {
     const request: IDeleteTableRequest = {tablePath: storePath}
 
     if (callback) {
@@ -105,7 +107,7 @@ export class StoreConnection {
     })
   }
   // TODO Refactor
-  public insertOrReplace(payload: any, callback: Callback): void|Promise<any> {
+  public insertOrReplace(payload: any, callback?: Callback): void|Promise<any> {
     const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.INSERT_OR_REPLACE)
 
     if (callback) {
@@ -132,7 +134,7 @@ export class StoreConnection {
       })
     })
   }
-  public insert(payload: any, callback: Callback): void|Promise<any> {
+  public insert(payload: any, callback?: Callback): void|Promise<any> {
     const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.INSERT)
 
     if (callback) {
@@ -159,7 +161,7 @@ export class StoreConnection {
       })
     })
   }
-  public replace(payload: any, callback: Callback): void|Promise<any> {
+  public replace(payload: any, callback?: Callback): void|Promise<any> {
     const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.REPLACE)
 
     if (callback) {
@@ -197,7 +199,7 @@ export class StoreConnection {
     return this
   }
 
-  public findById(storePath: string, id: string, callback: Callback): void|Promise<any> {
+  public findById(storePath: string, id: string, callback?: Callback): void|Promise<any> {
     const request: IFindByIdRequest = {
       tablePath: storePath,
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
@@ -232,7 +234,7 @@ export class StoreConnection {
     this._connection.close()
   }
 
-  private handleDefaultCallback(err: Error, response: any, callback: Callback): void {
+  private handleDefaultCallback(err: Error, response: any, callback?: Callback): void {
     if (!err && (response.error.errCode === ErrorCode.NO_ERROR)) {
       return callback(null, true)
     }

@@ -18,6 +18,8 @@ import ITableExistsRequest = com.mapr.data.db.ITableExistsRequest
 import ITableExistsResponse = com.mapr.data.db.ITableExistsResponse
 import IInsertOrReplaceResponse = com.mapr.data.db.IInsertOrReplaceResponse
 import IFindByIdResponse = com.mapr.data.db.IFindByIdResponse
+import IFindRequest = com.mapr.data.db.IFindRequest
+import {DocumentStream} from '../ojai/DocumentStream'
 
 /*
  * Class that responsible for calls to grpc service
@@ -199,9 +201,9 @@ export class StoreConnection {
     return this
   }
 
-  public findById(storePath: string, id: string, callback?: Callback): void|Promise<any> {
+  public findById(id: string, callback?: Callback): void|Promise<any> {
     const request: IFindByIdRequest = {
-      tablePath: storePath,
+      tablePath: this._tableName,
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
       jsonDocument: JSON.stringify({_id: id}),
     }
@@ -229,6 +231,16 @@ export class StoreConnection {
         reject(err || response.error)
       })
     })
+  }
+  public find(query: any, includeQueryPlan: boolean = false): DocumentStream {
+    const request: IFindRequest = {
+      tablePath: this._tableName,
+      payloadEncoding: PayloadEncoding.JSON_ENCODING,
+      includeQueryPlan,
+      jsonQuery: JSON.stringify(query),
+    }
+
+    return new DocumentStream(this._connection.find(request))
   }
   public close() {
     this._connection.close()

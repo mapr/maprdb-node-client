@@ -10,6 +10,6 @@ const store = connection.getStore(storeName);
 
 store.delete(docId, (err, result) => {
   // Log the result to the console
-  console.log('delete', {err, result})
+  console.log('delete', {err, result});
   connection.close();
 });

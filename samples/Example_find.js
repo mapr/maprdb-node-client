@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018 & onwards. MapR Tech, Inc., All rights reserved
+ *
+ */
+
 const { ConnectionManager } = require('node-maprdb');
 
 // Create connection with specified URL
@@ -8,20 +13,17 @@ const storeName = '/test-db-1';
 const store = connection.getStore(storeName);
 
 const query = {};
-query.$select = ["name", "age"];
-query.$condition = {$eq: {"address.zip": 95110}};
+query.$select = ['_id', 'name', 'age', 'address'];
+query.$where = {
+  $and: [
+    {$ge: {age: 26}},
+    {$le: {age: 35}}
+  ]
+};
 
 const stream = store.find(query);
-
 stream.on('data', (chunk) => console.log(chunk));
 stream.on('end', () => {
   console.log('end');
   connection.close();
 });
-
-//with promise
-store.find(query)
-  .toPromise()
-  .then((results) => console.log(results))
-  .catch((err) => console.error(err))
-  .then(() => connection.close());

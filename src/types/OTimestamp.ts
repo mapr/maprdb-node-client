@@ -3,8 +3,12 @@
  *
  */
 
-export function OTimestamp(timestamp: string) {
-  return {
-    $date: timestamp,
+export class OTimestamp {
+  private timestamp : string
+  public constructor (timestamp : string) {
+    this.timestamp = timestamp
+  }
+  public toJSON () {
+    return { $date: this.timestamp }
   }
 }

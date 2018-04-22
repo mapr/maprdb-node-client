@@ -11,6 +11,7 @@ import {join} from 'path'
 import InsertMode = com.mapr.data.db.InsertMode
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import IInsertOrReplaceRequest = com.mapr.data.db.IInsertOrReplaceRequest
+import {parseOJAIDocument} from '../ojai/OJAIUtils'
 
 const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
 const protoPackage = loadSync(PROTO_PATH)
@@ -36,7 +37,7 @@ export const encode = (payload: Object, encoding: PayloadEncoding = PayloadEncod
 export const decode = (raw: any, encoding: PayloadEncoding): Object => {
   switch (encoding) {
     case PayloadEncoding.JSON_ENCODING:
-      return JSON.parse(raw)
+      return parseOJAIDocument(raw)
 
     default:
       console.warn('Unknown encoding:', encoding)

@@ -3,8 +3,12 @@
  *
  */
 
-export function OTime(value: string) {
-  return {
-    $time: value,
+export class OTime {
+  private time : string
+  public constructor (time : string) {
+    this.time = time
+  }
+  public toJSON () {
+    return { $time: this.time }
   }
 }

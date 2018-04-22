@@ -49,6 +49,7 @@
     "no-suspicious-comment": false,
     "no-implicit-dependencies": false,
     "no-unused-expression": false,
-    "chai-vague-errors": false
+    "chai-vague-errors": false,
+    "no-multiline-string": false
   }
 }

@@ -3,8 +3,12 @@
  *
  */
 
-export function ODate(value: string | number) {
-  return {
-    $dateDay: value,
+export class ODate {
+  private date : string
+  public constructor(date : string) {
+    this.date = date
+  }
+  public toJSON () {
+    return { $dateDay: this.date }
   }
 }

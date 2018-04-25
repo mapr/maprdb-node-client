@@ -52,13 +52,24 @@ describe('DocumentStore', () => {
         expect(resp).to.be.true
       })
     })
+    describe('Test findById document', () => {
+      it('should find store document by id', async () => {
+        const _id = 'id__id'
+        const store = storeConnection.getStore(storeName)
+        const doc = await store.findById(_id)
+        expect(doc).to.be.eql({
+          _id,
+          testField: 'testValue',
+        })
+      })
+    })
     describe('Test find document', () => {
       it('should find store documents', (done) => {
         const query: any = {}
         query.$select = ['_id', 'testField']
         query.$where = {
           $eq: { testField: 'testValue' },
-        };
+        }
         const store = storeConnection.getStore(storeName)
         const docStream = store.find(query)
         const resp = []
@@ -69,6 +80,63 @@ describe('DocumentStore', () => {
           expect(resp).to.be.eql([{_id: 'id__id', testField: 'testValue'}])
           done()
         })
+      })
+    })
+    describe('Test update document', () => {
+      it('should update store document', async () => {
+        const store = storeConnection.getStore(storeName)
+        const _id = 'id__id'
+        const mutation = {
+          $set: { testField: 'updatedTestValue' },
+        }
+        const result = await store.update(_id, mutation)
+        expect(result).to.be.true
+        const doc = await store.findById(_id)
+        expect(doc).to.be.eql({_id: 'id__id', testField: 'updatedTestValue'})
+      })
+    })
+    describe('Test checkAndMutate document', () => {
+      it('should update with condition store document', async () => {
+        const store = storeConnection.getStore(storeName)
+        const _id = 'id__id'
+        const mutation = {
+          $set: { testField: 'mutatedValue' },
+        }
+        const condition = {
+          $where: {
+            $eq: { testField: 'updatedTestValue' },
+          },
+        }
+        const result = await store.checkAndMutate(_id, mutation, condition)
+        expect(result).to.be.true
+        const doc = await store.findById(_id)
+        expect(doc).to.be.eql({_id: 'id__id', testField: 'mutatedValue'})
+      })
+    })
+    describe('Test delete document', () => {
+      it('should delete store document', async () => {
+        const store = storeConnection.getStore(storeName)
+        const _id = 'id__id'
+        const result = await store.delete(_id)
+        expect(result).to.be.true
+      })
+    })
+    describe('Test checkAndDelete document', () => {
+      it('should delete with condition store document', async () => {
+        const store = storeConnection.getStore(storeName)
+        const _id = 'id__id'
+        const doc: any = {}
+        doc._id = _id
+        doc.testField = 'testValue'
+        const resp = await store.insertOrReplace(doc)
+        expect(resp).to.be.true
+        const condition = {
+          $where: {
+            $eq: { testField: 'testValue' },
+          },
+        }
+        const result = await store.checkAndDelete(_id, condition)
+        expect(result).to.be.true
       })
     })
   })

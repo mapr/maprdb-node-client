@@ -275,6 +275,72 @@ $root.com = (function() {
                      * @variation 2
                      */
 
+                    /**
+                     * Callback as used by {@link com.mapr.data.db.MapRDbServer#update}.
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @typedef UpdateCallback
+                     * @type {function}
+                     * @param {Error|null} error Error, if any
+                     * @param {com.mapr.data.db.UpdateResponse} [response] UpdateResponse
+                     */
+
+                    /**
+                     * Calls Update.
+                     * @function update
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @instance
+                     * @param {com.mapr.data.db.IUpdateRequest} request UpdateRequest message or plain object
+                     * @param {com.mapr.data.db.MapRDbServer.UpdateCallback} callback Node-style callback called with the error, if any, and UpdateResponse
+                     * @returns {undefined}
+                     * @variation 1
+                     */
+                    MapRDbServer.prototype.update = function update(request, callback) {
+                        return this.rpcCall(update, $root.com.mapr.data.db.UpdateRequest, $root.com.mapr.data.db.UpdateResponse, request, callback);
+                    };
+
+                    /**
+                     * Calls Update.
+                     * @function update
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @instance
+                     * @param {com.mapr.data.db.IUpdateRequest} request UpdateRequest message or plain object
+                     * @returns {Promise<com.mapr.data.db.UpdateResponse>} Promise
+                     * @variation 2
+                     */
+
+                    /**
+                     * Callback as used by {@link com.mapr.data.db.MapRDbServer#delete_}.
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @typedef DeleteCallback
+                     * @type {function}
+                     * @param {Error|null} error Error, if any
+                     * @param {com.mapr.data.db.DeleteResponse} [response] DeleteResponse
+                     */
+
+                    /**
+                     * Calls Delete.
+                     * @function delete
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @instance
+                     * @param {com.mapr.data.db.IDeleteRequest} request DeleteRequest message or plain object
+                     * @param {com.mapr.data.db.MapRDbServer.DeleteCallback} callback Node-style callback called with the error, if any, and DeleteResponse
+                     * @returns {undefined}
+                     * @variation 1
+                     */
+                    MapRDbServer.prototype["delete"] = function delete_(request, callback) {
+                        return this.rpcCall(delete_, $root.com.mapr.data.db.DeleteRequest, $root.com.mapr.data.db.DeleteResponse, request, callback);
+                    };
+
+                    /**
+                     * Calls Delete.
+                     * @function delete
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @instance
+                     * @param {com.mapr.data.db.IDeleteRequest} request DeleteRequest message or plain object
+                     * @returns {Promise<com.mapr.data.db.DeleteResponse>} Promise
+                     * @variation 2
+                     */
+
                     return MapRDbServer;
                 })();
 
@@ -1826,7 +1892,11 @@ $root.com = (function() {
                      * @property {string|null} [tablePath] InsertOrReplaceRequest tablePath
                      * @property {com.mapr.data.db.InsertMode|null} [insertMode] InsertOrReplaceRequest insertMode
                      * @property {com.mapr.data.db.PayloadEncoding|null} [payloadEncoding] InsertOrReplaceRequest payloadEncoding
-                     * @property {string|null} [jsonDocument] Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
+                     * @property {string|null} [jsonCondition] <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * This should only be specified if the `insert_mode` == REPLACE
+                     * @property {string|null} [jsonDocument] <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
                      */
 
                     /**
@@ -1869,6 +1939,17 @@ $root.com = (function() {
                     InsertOrReplaceRequest.prototype.payloadEncoding = 0;
 
                     /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * This should only be specified if the `insert_mode` == REPLACE
+                     * @member {string} jsonCondition
+                     * @memberof com.mapr.data.db.InsertOrReplaceRequest
+                     * @instance
+                     */
+                    InsertOrReplaceRequest.prototype.jsonCondition = "";
+
+                    /**
+                     * <b>[Required]</b><p/>
                      * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
                      * @member {string} jsonDocument
                      * @memberof com.mapr.data.db.InsertOrReplaceRequest
@@ -1878,6 +1959,17 @@ $root.com = (function() {
 
                     // OneOf field names bound to virtual getters and setters
                     var $oneOfFields;
+
+                    /**
+                     * InsertOrReplaceRequest condition.
+                     * @member {"jsonCondition"|undefined} condition
+                     * @memberof com.mapr.data.db.InsertOrReplaceRequest
+                     * @instance
+                     */
+                    Object.defineProperty(InsertOrReplaceRequest.prototype, "condition", {
+                        get: $util.oneOfGetter($oneOfFields = ["jsonCondition"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
 
                     /**
                      * InsertOrReplaceRequest data.
@@ -1920,8 +2012,10 @@ $root.com = (function() {
                             writer.uint32(/* id 2, wireType 0 =*/16).int32(message.insertMode);
                         if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
                             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.payloadEncoding);
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition"))
+                            writer.uint32(/* id 4, wireType 2 =*/34).string(message.jsonCondition);
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument"))
-                            writer.uint32(/* id 10, wireType 2 =*/82).string(message.jsonDocument);
+                            writer.uint32(/* id 30, wireType 2 =*/242).string(message.jsonDocument);
                         return writer;
                     };
 
@@ -1965,7 +2059,10 @@ $root.com = (function() {
                             case 3:
                                 message.payloadEncoding = reader.int32();
                                 break;
-                            case 10:
+                            case 4:
+                                message.jsonCondition = reader.string();
+                                break;
+                            case 30:
                                 message.jsonDocument = reader.string();
                                 break;
                             default:
@@ -2025,6 +2122,11 @@ $root.com = (function() {
                             case 1:
                                 break;
                             }
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            properties.condition = 1;
+                            if (!$util.isString(message.jsonCondition))
+                                return "jsonCondition: string expected";
+                        }
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
                             properties.data = 1;
                             if (!$util.isString(message.jsonDocument))
@@ -2075,6 +2177,8 @@ $root.com = (function() {
                             message.payloadEncoding = 1;
                             break;
                         }
+                        if (object.jsonCondition != null)
+                            message.jsonCondition = String(object.jsonCondition);
                         if (object.jsonDocument != null)
                             message.jsonDocument = String(object.jsonDocument);
                         return message;
@@ -2104,6 +2208,11 @@ $root.com = (function() {
                             object.insertMode = options.enums === String ? $root.com.mapr.data.db.InsertMode[message.insertMode] : message.insertMode;
                         if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
                             object.payloadEncoding = options.enums === String ? $root.com.mapr.data.db.PayloadEncoding[message.payloadEncoding] : message.payloadEncoding;
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            object.jsonCondition = message.jsonCondition;
+                            if (options.oneofs)
+                                object.condition = "jsonCondition";
+                        }
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
                             object.jsonDocument = message.jsonDocument;
                             if (options.oneofs)
@@ -2331,7 +2440,7 @@ $root.com = (function() {
                      * <pre>
                      * {
                      * "_id": &lt;id_value>,
-                     * "$condition": { &lt;ojai_condition_in_json_format> },
+                     * "$where": { &lt;ojai_condition_in_json_format> },
                      * "$select": [ &lt;list_of_field_paths> ]
                      * }
                      * </pre>
@@ -2346,7 +2455,7 @@ $root.com = (function() {
                      * <pre>
                      * {
                      * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$condition": { "$eq": {"address.zip": 95111} },
+                     * "$where": { "$eq": {"address.zip": 95111} },
                      * "$select": [ "name", "address.phone" ]
                      * }
                      * </pre>
@@ -2389,7 +2498,7 @@ $root.com = (function() {
                      * <pre>
                      * {
                      * "_id": &lt;id_value>,
-                     * "$condition": { &lt;ojai_condition_in_json_format> },
+                     * "$where": { &lt;ojai_condition_in_json_format> },
                      * "$select": [ &lt;list_of_field_paths> ]
                      * }
                      * </pre>
@@ -2404,7 +2513,7 @@ $root.com = (function() {
                      * <pre>
                      * {
                      * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$condition": { "$eq": {"address.zip": 95111} },
+                     * "$where": { "$eq": {"address.zip": 95111} },
                      * "$select": [ "name", "address.phone" ]
                      * }
                      * </pre>
@@ -2637,7 +2746,8 @@ $root.com = (function() {
                      * @property {com.mapr.data.db.IRpcError|null} [error] `NO_ERROR` - if a document with the specified `_id` was found
                      * `DOCUMENT_NOT_FOUND` - if the document with the specified `_id` does not exist
                      * @property {com.mapr.data.db.PayloadEncoding|null} [payloadEncoding] FindByIdResponse payloadEncoding
-                     * @property {string|null} [jsonDocument] Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
+                     * @property {string|null} [jsonDocument] <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
                      */
 
                     /**
@@ -2673,6 +2783,7 @@ $root.com = (function() {
                     FindByIdResponse.prototype.payloadEncoding = 0;
 
                     /**
+                     * <b>[Required]</b><p/>
                      * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
                      * @member {string} jsonDocument
                      * @memberof com.mapr.data.db.FindByIdResponse
@@ -2723,7 +2834,7 @@ $root.com = (function() {
                         if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
                             writer.uint32(/* id 2, wireType 0 =*/16).int32(message.payloadEncoding);
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument"))
-                            writer.uint32(/* id 10, wireType 2 =*/82).string(message.jsonDocument);
+                            writer.uint32(/* id 30, wireType 2 =*/242).string(message.jsonDocument);
                         return writer;
                     };
 
@@ -2764,7 +2875,7 @@ $root.com = (function() {
                             case 2:
                                 message.payloadEncoding = reader.int32();
                                 break;
-                            case 10:
+                            case 30:
                                 message.jsonDocument = reader.string();
                                 break;
                             default:
@@ -2908,7 +3019,8 @@ $root.com = (function() {
                      * @property {string|null} [tablePath] FindRequest tablePath
                      * @property {com.mapr.data.db.PayloadEncoding|null} [payloadEncoding] FindRequest payloadEncoding
                      * @property {boolean|null} [includeQueryPlan] FindRequest includeQueryPlan
-                     * @property {string|null} [jsonQuery] Contains JSON encoded OJAI Query if the payload_encoding is `JSON_ENCODING`
+                     * @property {string|null} [jsonQuery] <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Query if the payload_encoding is `JSON_ENCODING`
                      */
 
                     /**
@@ -2951,6 +3063,7 @@ $root.com = (function() {
                     FindRequest.prototype.includeQueryPlan = false;
 
                     /**
+                     * <b>[Required]</b><p/>
                      * Contains JSON encoded OJAI Query if the payload_encoding is `JSON_ENCODING`
                      * @member {string} jsonQuery
                      * @memberof com.mapr.data.db.FindRequest
@@ -3003,7 +3116,7 @@ $root.com = (function() {
                         if (message.includeQueryPlan != null && message.hasOwnProperty("includeQueryPlan"))
                             writer.uint32(/* id 3, wireType 0 =*/24).bool(message.includeQueryPlan);
                         if (message.jsonQuery != null && message.hasOwnProperty("jsonQuery"))
-                            writer.uint32(/* id 10, wireType 2 =*/82).string(message.jsonQuery);
+                            writer.uint32(/* id 4, wireType 2 =*/34).string(message.jsonQuery);
                         return writer;
                     };
 
@@ -3047,7 +3160,7 @@ $root.com = (function() {
                             case 3:
                                 message.includeQueryPlan = reader.bool();
                                 break;
-                            case 10:
+                            case 4:
                                 message.jsonQuery = reader.string();
                                 break;
                             default:
@@ -3307,7 +3420,7 @@ $root.com = (function() {
                         if (message.type != null && message.hasOwnProperty("type"))
                             writer.uint32(/* id 3, wireType 0 =*/24).int32(message.type);
                         if (message.jsonResponse != null && message.hasOwnProperty("jsonResponse"))
-                            writer.uint32(/* id 11, wireType 2 =*/90).string(message.jsonResponse);
+                            writer.uint32(/* id 30, wireType 2 =*/242).string(message.jsonResponse);
                         return writer;
                     };
 
@@ -3351,7 +3464,7 @@ $root.com = (function() {
                             case 3:
                                 message.type = reader.int32();
                                 break;
-                            case 11:
+                            case 30:
                                 message.jsonResponse = reader.string();
                                 break;
                             default:
@@ -3510,6 +3623,1043 @@ $root.com = (function() {
                     };
 
                     return FindResponse;
+                })();
+
+                db.UpdateRequest = (function() {
+
+                    /**
+                     * Properties of an UpdateRequest.
+                     * @memberof com.mapr.data.db
+                     * @interface IUpdateRequest
+                     * @property {string|null} [tablePath] UpdateRequest tablePath
+                     * @property {com.mapr.data.db.PayloadEncoding|null} [payloadEncoding] UpdateRequest payloadEncoding
+                     * @property {string|null} [jsonDocument] <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @property {string|null} [jsonCondition] <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @property {string|null} [jsonMutation] <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI DocumentMutation when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+
+                    /**
+                     * Constructs a new UpdateRequest.
+                     * @memberof com.mapr.data.db
+                     * @classdesc Represents an UpdateRequest.
+                     * @implements IUpdateRequest
+                     * @constructor
+                     * @param {com.mapr.data.db.IUpdateRequest=} [properties] Properties to set
+                     */
+                    function UpdateRequest(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * UpdateRequest tablePath.
+                     * @member {string} tablePath
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    UpdateRequest.prototype.tablePath = "";
+
+                    /**
+                     * UpdateRequest payloadEncoding.
+                     * @member {com.mapr.data.db.PayloadEncoding} payloadEncoding
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    UpdateRequest.prototype.payloadEncoding = 0;
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @member {string} jsonDocument
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    UpdateRequest.prototype.jsonDocument = "";
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @member {string} jsonCondition
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    UpdateRequest.prototype.jsonCondition = "";
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI DocumentMutation when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @member {string} jsonMutation
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    UpdateRequest.prototype.jsonMutation = "";
+
+                    // OneOf field names bound to virtual getters and setters
+                    var $oneOfFields;
+
+                    /**
+                     * UpdateRequest document.
+                     * @member {"jsonDocument"|undefined} document
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    Object.defineProperty(UpdateRequest.prototype, "document", {
+                        get: $util.oneOfGetter($oneOfFields = ["jsonDocument"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+
+                    /**
+                     * UpdateRequest condition.
+                     * @member {"jsonCondition"|undefined} condition
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    Object.defineProperty(UpdateRequest.prototype, "condition", {
+                        get: $util.oneOfGetter($oneOfFields = ["jsonCondition"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+
+                    /**
+                     * UpdateRequest mutation.
+                     * @member {"jsonMutation"|undefined} mutation
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     */
+                    Object.defineProperty(UpdateRequest.prototype, "mutation", {
+                        get: $util.oneOfGetter($oneOfFields = ["jsonMutation"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+
+                    /**
+                     * Creates a new UpdateRequest instance using the specified properties.
+                     * @function create
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {com.mapr.data.db.IUpdateRequest=} [properties] Properties to set
+                     * @returns {com.mapr.data.db.UpdateRequest} UpdateRequest instance
+                     */
+                    UpdateRequest.create = function create(properties) {
+                        return new UpdateRequest(properties);
+                    };
+
+                    /**
+                     * Encodes the specified UpdateRequest message. Does not implicitly {@link com.mapr.data.db.UpdateRequest.verify|verify} messages.
+                     * @function encode
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {com.mapr.data.db.IUpdateRequest} message UpdateRequest message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    UpdateRequest.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.tablePath != null && message.hasOwnProperty("tablePath"))
+                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.tablePath);
+                        if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
+                            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.payloadEncoding);
+                        if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument"))
+                            writer.uint32(/* id 3, wireType 2 =*/26).string(message.jsonDocument);
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition"))
+                            writer.uint32(/* id 4, wireType 2 =*/34).string(message.jsonCondition);
+                        if (message.jsonMutation != null && message.hasOwnProperty("jsonMutation"))
+                            writer.uint32(/* id 30, wireType 2 =*/242).string(message.jsonMutation);
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified UpdateRequest message, length delimited. Does not implicitly {@link com.mapr.data.db.UpdateRequest.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {com.mapr.data.db.IUpdateRequest} message UpdateRequest message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    UpdateRequest.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes an UpdateRequest message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {com.mapr.data.db.UpdateRequest} UpdateRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    UpdateRequest.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.com.mapr.data.db.UpdateRequest();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.tablePath = reader.string();
+                                break;
+                            case 2:
+                                message.payloadEncoding = reader.int32();
+                                break;
+                            case 3:
+                                message.jsonDocument = reader.string();
+                                break;
+                            case 4:
+                                message.jsonCondition = reader.string();
+                                break;
+                            case 30:
+                                message.jsonMutation = reader.string();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes an UpdateRequest message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {com.mapr.data.db.UpdateRequest} UpdateRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    UpdateRequest.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies an UpdateRequest message.
+                     * @function verify
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    UpdateRequest.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        var properties = {};
+                        if (message.tablePath != null && message.hasOwnProperty("tablePath"))
+                            if (!$util.isString(message.tablePath))
+                                return "tablePath: string expected";
+                        if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
+                            switch (message.payloadEncoding) {
+                            default:
+                                return "payloadEncoding: enum value expected";
+                            case 0:
+                            case 1:
+                                break;
+                            }
+                        if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
+                            properties.document = 1;
+                            if (!$util.isString(message.jsonDocument))
+                                return "jsonDocument: string expected";
+                        }
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            properties.condition = 1;
+                            if (!$util.isString(message.jsonCondition))
+                                return "jsonCondition: string expected";
+                        }
+                        if (message.jsonMutation != null && message.hasOwnProperty("jsonMutation")) {
+                            properties.mutation = 1;
+                            if (!$util.isString(message.jsonMutation))
+                                return "jsonMutation: string expected";
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates an UpdateRequest message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {com.mapr.data.db.UpdateRequest} UpdateRequest
+                     */
+                    UpdateRequest.fromObject = function fromObject(object) {
+                        if (object instanceof $root.com.mapr.data.db.UpdateRequest)
+                            return object;
+                        var message = new $root.com.mapr.data.db.UpdateRequest();
+                        if (object.tablePath != null)
+                            message.tablePath = String(object.tablePath);
+                        switch (object.payloadEncoding) {
+                        case "UNKNOWN_ENCODING":
+                        case 0:
+                            message.payloadEncoding = 0;
+                            break;
+                        case "JSON_ENCODING":
+                        case 1:
+                            message.payloadEncoding = 1;
+                            break;
+                        }
+                        if (object.jsonDocument != null)
+                            message.jsonDocument = String(object.jsonDocument);
+                        if (object.jsonCondition != null)
+                            message.jsonCondition = String(object.jsonCondition);
+                        if (object.jsonMutation != null)
+                            message.jsonMutation = String(object.jsonMutation);
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from an UpdateRequest message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @static
+                     * @param {com.mapr.data.db.UpdateRequest} message UpdateRequest
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    UpdateRequest.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.tablePath = "";
+                            object.payloadEncoding = options.enums === String ? "UNKNOWN_ENCODING" : 0;
+                        }
+                        if (message.tablePath != null && message.hasOwnProperty("tablePath"))
+                            object.tablePath = message.tablePath;
+                        if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
+                            object.payloadEncoding = options.enums === String ? $root.com.mapr.data.db.PayloadEncoding[message.payloadEncoding] : message.payloadEncoding;
+                        if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
+                            object.jsonDocument = message.jsonDocument;
+                            if (options.oneofs)
+                                object.document = "jsonDocument";
+                        }
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            object.jsonCondition = message.jsonCondition;
+                            if (options.oneofs)
+                                object.condition = "jsonCondition";
+                        }
+                        if (message.jsonMutation != null && message.hasOwnProperty("jsonMutation")) {
+                            object.jsonMutation = message.jsonMutation;
+                            if (options.oneofs)
+                                object.mutation = "jsonMutation";
+                        }
+                        return object;
+                    };
+
+                    /**
+                     * Converts this UpdateRequest to JSON.
+                     * @function toJSON
+                     * @memberof com.mapr.data.db.UpdateRequest
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    UpdateRequest.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return UpdateRequest;
+                })();
+
+                db.UpdateResponse = (function() {
+
+                    /**
+                     * Properties of an UpdateResponse.
+                     * @memberof com.mapr.data.db
+                     * @interface IUpdateResponse
+                     * @property {com.mapr.data.db.IRpcError|null} [error] `NO_ERROR` - if a document was updated successfuly
+                     * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
+                     * evaluated to 'false'.
+                     */
+
+                    /**
+                     * Constructs a new UpdateResponse.
+                     * @memberof com.mapr.data.db
+                     * @classdesc Represents an UpdateResponse.
+                     * @implements IUpdateResponse
+                     * @constructor
+                     * @param {com.mapr.data.db.IUpdateResponse=} [properties] Properties to set
+                     */
+                    function UpdateResponse(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * `NO_ERROR` - if a document was updated successfuly
+                     * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
+                     * evaluated to 'false'.
+                     * @member {com.mapr.data.db.IRpcError|null|undefined} error
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @instance
+                     */
+                    UpdateResponse.prototype.error = null;
+
+                    /**
+                     * Creates a new UpdateResponse instance using the specified properties.
+                     * @function create
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {com.mapr.data.db.IUpdateResponse=} [properties] Properties to set
+                     * @returns {com.mapr.data.db.UpdateResponse} UpdateResponse instance
+                     */
+                    UpdateResponse.create = function create(properties) {
+                        return new UpdateResponse(properties);
+                    };
+
+                    /**
+                     * Encodes the specified UpdateResponse message. Does not implicitly {@link com.mapr.data.db.UpdateResponse.verify|verify} messages.
+                     * @function encode
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {com.mapr.data.db.IUpdateResponse} message UpdateResponse message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    UpdateResponse.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.error != null && message.hasOwnProperty("error"))
+                            $root.com.mapr.data.db.RpcError.encode(message.error, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified UpdateResponse message, length delimited. Does not implicitly {@link com.mapr.data.db.UpdateResponse.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {com.mapr.data.db.IUpdateResponse} message UpdateResponse message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    UpdateResponse.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes an UpdateResponse message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {com.mapr.data.db.UpdateResponse} UpdateResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    UpdateResponse.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.com.mapr.data.db.UpdateResponse();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.error = $root.com.mapr.data.db.RpcError.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes an UpdateResponse message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {com.mapr.data.db.UpdateResponse} UpdateResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    UpdateResponse.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies an UpdateResponse message.
+                     * @function verify
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    UpdateResponse.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.error != null && message.hasOwnProperty("error")) {
+                            var error = $root.com.mapr.data.db.RpcError.verify(message.error);
+                            if (error)
+                                return "error." + error;
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates an UpdateResponse message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {com.mapr.data.db.UpdateResponse} UpdateResponse
+                     */
+                    UpdateResponse.fromObject = function fromObject(object) {
+                        if (object instanceof $root.com.mapr.data.db.UpdateResponse)
+                            return object;
+                        var message = new $root.com.mapr.data.db.UpdateResponse();
+                        if (object.error != null) {
+                            if (typeof object.error !== "object")
+                                throw TypeError(".com.mapr.data.db.UpdateResponse.error: object expected");
+                            message.error = $root.com.mapr.data.db.RpcError.fromObject(object.error);
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from an UpdateResponse message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @static
+                     * @param {com.mapr.data.db.UpdateResponse} message UpdateResponse
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    UpdateResponse.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults)
+                            object.error = null;
+                        if (message.error != null && message.hasOwnProperty("error"))
+                            object.error = $root.com.mapr.data.db.RpcError.toObject(message.error, options);
+                        return object;
+                    };
+
+                    /**
+                     * Converts this UpdateResponse to JSON.
+                     * @function toJSON
+                     * @memberof com.mapr.data.db.UpdateResponse
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    UpdateResponse.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return UpdateResponse;
+                })();
+
+                db.DeleteRequest = (function() {
+
+                    /**
+                     * Properties of a DeleteRequest.
+                     * @memberof com.mapr.data.db
+                     * @interface IDeleteRequest
+                     * @property {string|null} [tablePath] DeleteRequest tablePath
+                     * @property {com.mapr.data.db.PayloadEncoding|null} [payloadEncoding] DeleteRequest payloadEncoding
+                     * @property {string|null} [jsonCondition] <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @property {string|null} [jsonDocument] <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+
+                    /**
+                     * Constructs a new DeleteRequest.
+                     * @memberof com.mapr.data.db
+                     * @classdesc Represents a DeleteRequest.
+                     * @implements IDeleteRequest
+                     * @constructor
+                     * @param {com.mapr.data.db.IDeleteRequest=} [properties] Properties to set
+                     */
+                    function DeleteRequest(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * DeleteRequest tablePath.
+                     * @member {string} tablePath
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @instance
+                     */
+                    DeleteRequest.prototype.tablePath = "";
+
+                    /**
+                     * DeleteRequest payloadEncoding.
+                     * @member {com.mapr.data.db.PayloadEncoding} payloadEncoding
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @instance
+                     */
+                    DeleteRequest.prototype.payloadEncoding = 0;
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @member {string} jsonCondition
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @instance
+                     */
+                    DeleteRequest.prototype.jsonCondition = "";
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @member {string} jsonDocument
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @instance
+                     */
+                    DeleteRequest.prototype.jsonDocument = "";
+
+                    // OneOf field names bound to virtual getters and setters
+                    var $oneOfFields;
+
+                    /**
+                     * DeleteRequest condition.
+                     * @member {"jsonCondition"|undefined} condition
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @instance
+                     */
+                    Object.defineProperty(DeleteRequest.prototype, "condition", {
+                        get: $util.oneOfGetter($oneOfFields = ["jsonCondition"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+
+                    /**
+                     * DeleteRequest document.
+                     * @member {"jsonDocument"|undefined} document
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @instance
+                     */
+                    Object.defineProperty(DeleteRequest.prototype, "document", {
+                        get: $util.oneOfGetter($oneOfFields = ["jsonDocument"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+
+                    /**
+                     * Creates a new DeleteRequest instance using the specified properties.
+                     * @function create
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {com.mapr.data.db.IDeleteRequest=} [properties] Properties to set
+                     * @returns {com.mapr.data.db.DeleteRequest} DeleteRequest instance
+                     */
+                    DeleteRequest.create = function create(properties) {
+                        return new DeleteRequest(properties);
+                    };
+
+                    /**
+                     * Encodes the specified DeleteRequest message. Does not implicitly {@link com.mapr.data.db.DeleteRequest.verify|verify} messages.
+                     * @function encode
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {com.mapr.data.db.IDeleteRequest} message DeleteRequest message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    DeleteRequest.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.tablePath != null && message.hasOwnProperty("tablePath"))
+                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.tablePath);
+                        if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
+                            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.payloadEncoding);
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition"))
+                            writer.uint32(/* id 3, wireType 2 =*/26).string(message.jsonCondition);
+                        if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument"))
+                            writer.uint32(/* id 4, wireType 2 =*/34).string(message.jsonDocument);
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified DeleteRequest message, length delimited. Does not implicitly {@link com.mapr.data.db.DeleteRequest.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {com.mapr.data.db.IDeleteRequest} message DeleteRequest message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    DeleteRequest.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a DeleteRequest message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {com.mapr.data.db.DeleteRequest} DeleteRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    DeleteRequest.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.com.mapr.data.db.DeleteRequest();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.tablePath = reader.string();
+                                break;
+                            case 2:
+                                message.payloadEncoding = reader.int32();
+                                break;
+                            case 3:
+                                message.jsonCondition = reader.string();
+                                break;
+                            case 4:
+                                message.jsonDocument = reader.string();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a DeleteRequest message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {com.mapr.data.db.DeleteRequest} DeleteRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    DeleteRequest.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a DeleteRequest message.
+                     * @function verify
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    DeleteRequest.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        var properties = {};
+                        if (message.tablePath != null && message.hasOwnProperty("tablePath"))
+                            if (!$util.isString(message.tablePath))
+                                return "tablePath: string expected";
+                        if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
+                            switch (message.payloadEncoding) {
+                            default:
+                                return "payloadEncoding: enum value expected";
+                            case 0:
+                            case 1:
+                                break;
+                            }
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            properties.condition = 1;
+                            if (!$util.isString(message.jsonCondition))
+                                return "jsonCondition: string expected";
+                        }
+                        if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
+                            properties.document = 1;
+                            if (!$util.isString(message.jsonDocument))
+                                return "jsonDocument: string expected";
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates a DeleteRequest message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {com.mapr.data.db.DeleteRequest} DeleteRequest
+                     */
+                    DeleteRequest.fromObject = function fromObject(object) {
+                        if (object instanceof $root.com.mapr.data.db.DeleteRequest)
+                            return object;
+                        var message = new $root.com.mapr.data.db.DeleteRequest();
+                        if (object.tablePath != null)
+                            message.tablePath = String(object.tablePath);
+                        switch (object.payloadEncoding) {
+                        case "UNKNOWN_ENCODING":
+                        case 0:
+                            message.payloadEncoding = 0;
+                            break;
+                        case "JSON_ENCODING":
+                        case 1:
+                            message.payloadEncoding = 1;
+                            break;
+                        }
+                        if (object.jsonCondition != null)
+                            message.jsonCondition = String(object.jsonCondition);
+                        if (object.jsonDocument != null)
+                            message.jsonDocument = String(object.jsonDocument);
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a DeleteRequest message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @static
+                     * @param {com.mapr.data.db.DeleteRequest} message DeleteRequest
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    DeleteRequest.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.tablePath = "";
+                            object.payloadEncoding = options.enums === String ? "UNKNOWN_ENCODING" : 0;
+                        }
+                        if (message.tablePath != null && message.hasOwnProperty("tablePath"))
+                            object.tablePath = message.tablePath;
+                        if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
+                            object.payloadEncoding = options.enums === String ? $root.com.mapr.data.db.PayloadEncoding[message.payloadEncoding] : message.payloadEncoding;
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            object.jsonCondition = message.jsonCondition;
+                            if (options.oneofs)
+                                object.condition = "jsonCondition";
+                        }
+                        if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
+                            object.jsonDocument = message.jsonDocument;
+                            if (options.oneofs)
+                                object.document = "jsonDocument";
+                        }
+                        return object;
+                    };
+
+                    /**
+                     * Converts this DeleteRequest to JSON.
+                     * @function toJSON
+                     * @memberof com.mapr.data.db.DeleteRequest
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    DeleteRequest.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return DeleteRequest;
+                })();
+
+                db.DeleteResponse = (function() {
+
+                    /**
+                     * Properties of a DeleteResponse.
+                     * @memberof com.mapr.data.db
+                     * @interface IDeleteResponse
+                     * @property {com.mapr.data.db.IRpcError|null} [error] `NO_ERROR` - if a document was deleted successfuly
+                     */
+
+                    /**
+                     * Constructs a new DeleteResponse.
+                     * @memberof com.mapr.data.db
+                     * @classdesc Represents a DeleteResponse.
+                     * @implements IDeleteResponse
+                     * @constructor
+                     * @param {com.mapr.data.db.IDeleteResponse=} [properties] Properties to set
+                     */
+                    function DeleteResponse(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * `NO_ERROR` - if a document was deleted successfuly
+                     * @member {com.mapr.data.db.IRpcError|null|undefined} error
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @instance
+                     */
+                    DeleteResponse.prototype.error = null;
+
+                    /**
+                     * Creates a new DeleteResponse instance using the specified properties.
+                     * @function create
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {com.mapr.data.db.IDeleteResponse=} [properties] Properties to set
+                     * @returns {com.mapr.data.db.DeleteResponse} DeleteResponse instance
+                     */
+                    DeleteResponse.create = function create(properties) {
+                        return new DeleteResponse(properties);
+                    };
+
+                    /**
+                     * Encodes the specified DeleteResponse message. Does not implicitly {@link com.mapr.data.db.DeleteResponse.verify|verify} messages.
+                     * @function encode
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {com.mapr.data.db.IDeleteResponse} message DeleteResponse message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    DeleteResponse.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.error != null && message.hasOwnProperty("error"))
+                            $root.com.mapr.data.db.RpcError.encode(message.error, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified DeleteResponse message, length delimited. Does not implicitly {@link com.mapr.data.db.DeleteResponse.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {com.mapr.data.db.IDeleteResponse} message DeleteResponse message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    DeleteResponse.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a DeleteResponse message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {com.mapr.data.db.DeleteResponse} DeleteResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    DeleteResponse.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.com.mapr.data.db.DeleteResponse();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.error = $root.com.mapr.data.db.RpcError.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a DeleteResponse message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {com.mapr.data.db.DeleteResponse} DeleteResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    DeleteResponse.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a DeleteResponse message.
+                     * @function verify
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    DeleteResponse.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.error != null && message.hasOwnProperty("error")) {
+                            var error = $root.com.mapr.data.db.RpcError.verify(message.error);
+                            if (error)
+                                return "error." + error;
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates a DeleteResponse message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {com.mapr.data.db.DeleteResponse} DeleteResponse
+                     */
+                    DeleteResponse.fromObject = function fromObject(object) {
+                        if (object instanceof $root.com.mapr.data.db.DeleteResponse)
+                            return object;
+                        var message = new $root.com.mapr.data.db.DeleteResponse();
+                        if (object.error != null) {
+                            if (typeof object.error !== "object")
+                                throw TypeError(".com.mapr.data.db.DeleteResponse.error: object expected");
+                            message.error = $root.com.mapr.data.db.RpcError.fromObject(object.error);
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a DeleteResponse message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @static
+                     * @param {com.mapr.data.db.DeleteResponse} message DeleteResponse
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    DeleteResponse.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults)
+                            object.error = null;
+                        if (message.error != null && message.hasOwnProperty("error"))
+                            object.error = $root.com.mapr.data.db.RpcError.toObject(message.error, options);
+                        return object;
+                    };
+
+                    /**
+                     * Converts this DeleteResponse to JSON.
+                     * @function toJSON
+                     * @memberof com.mapr.data.db.DeleteResponse
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    DeleteResponse.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return DeleteResponse;
                 })();
 
                 return db;

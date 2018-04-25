@@ -7,7 +7,15 @@ const storeName = '/test-db-1';
 
 const store = connection.getStore(storeName);
 const id = '123';
-
+const condition = {
+  $where: {
+    $and: [
+      {
+        $eq: { testField : 'test'}
+      }
+    ]
+  }
+};
 const mutation = {
   $set:[
     {'a.b[0].boolean':true},
@@ -16,8 +24,8 @@ const mutation = {
   ]
 };
 
-store.update(id, mutation, (err, result) => {
+store.checkAndMutate(id, mutation, condition, (err, result) => {
   // Log the result to the console
-  console.log('update', {err, result});
+  console.log('checkAndMutate', {err, result});
   connection.close();
 });

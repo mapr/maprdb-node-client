@@ -24,7 +24,7 @@ export class DocumentStream extends Transform {
         results.push(chunk)
       })
       this.on('error', (err) => {
-        reject(err);
+        reject(err)
       })
       this.on('end', () => {
         resolve(results)

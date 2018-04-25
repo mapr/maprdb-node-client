@@ -17,7 +17,7 @@ query.$where = {
 };
 
 const stream = store.find(query);
-stream.on('data', (chunk) => console.log(chunk));
+stream.on('data', (document) => console.log(document));
 stream.on('end', () => {
   console.log('end');
   connection.close();

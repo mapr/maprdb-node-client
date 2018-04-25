@@ -115,6 +115,34 @@ export namespace com {
                      * @returns Promise
                      */
                     public find(request: com.mapr.data.db.IFindRequest): Promise<com.mapr.data.db.FindResponse>;
+
+                    /**
+                     * Calls Update.
+                     * @param request UpdateRequest message or plain object
+                     * @param callback Node-style callback called with the error, if any, and UpdateResponse
+                     */
+                    public update(request: com.mapr.data.db.IUpdateRequest, callback: com.mapr.data.db.MapRDbServer.UpdateCallback): void;
+
+                    /**
+                     * Calls Update.
+                     * @param request UpdateRequest message or plain object
+                     * @returns Promise
+                     */
+                    public update(request: com.mapr.data.db.IUpdateRequest): Promise<com.mapr.data.db.UpdateResponse>;
+
+                    /**
+                     * Calls Delete.
+                     * @param request DeleteRequest message or plain object
+                     * @param callback Node-style callback called with the error, if any, and DeleteResponse
+                     */
+                    public delete(request: com.mapr.data.db.IDeleteRequest, callback: com.mapr.data.db.MapRDbServer.DeleteCallback): void;
+
+                    /**
+                     * Calls Delete.
+                     * @param request DeleteRequest message or plain object
+                     * @returns Promise
+                     */
+                    public delete(request: com.mapr.data.db.IDeleteRequest): Promise<com.mapr.data.db.DeleteResponse>;
                 }
 
                 namespace MapRDbServer {
@@ -160,6 +188,20 @@ export namespace com {
                      * @param [response] FindResponse
                      */
                     type FindCallback = (error: (Error|null), response?: com.mapr.data.db.FindResponse) => void;
+
+                    /**
+                     * Callback as used by {@link com.mapr.data.db.MapRDbServer#update}.
+                     * @param error Error, if any
+                     * @param [response] UpdateResponse
+                     */
+                    type UpdateCallback = (error: (Error|null), response?: com.mapr.data.db.UpdateResponse) => void;
+
+                    /**
+                     * Callback as used by {@link com.mapr.data.db.MapRDbServer#delete_}.
+                     * @param error Error, if any
+                     * @param [response] DeleteResponse
+                     */
+                    type DeleteCallback = (error: (Error|null), response?: com.mapr.data.db.DeleteResponse) => void;
                 }
 
                 /**
@@ -878,7 +920,17 @@ export namespace com {
                     /** InsertOrReplaceRequest payloadEncoding */
                     payloadEncoding?: (com.mapr.data.db.PayloadEncoding|null);
 
-                    /** Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING` */
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * This should only be specified if the `insert_mode` == REPLACE
+                     */
+                    jsonCondition?: (string|null);
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
+                     */
                     jsonDocument?: (string|null);
                 }
 
@@ -900,8 +952,21 @@ export namespace com {
                     /** InsertOrReplaceRequest payloadEncoding. */
                     public payloadEncoding: com.mapr.data.db.PayloadEncoding;
 
-                    /** Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING` */
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * This should only be specified if the `insert_mode` == REPLACE
+                     */
+                    public jsonCondition: string;
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
+                     */
                     public jsonDocument: string;
+
+                    /** InsertOrReplaceRequest condition. */
+                    public condition?: "jsonCondition";
 
                     /** InsertOrReplaceRequest data. */
                     public data?: "jsonDocument";
@@ -1082,7 +1147,7 @@ export namespace com {
                      * <pre>
                      * {
                      * "_id": &lt;id_value>,
-                     * "$condition": { &lt;ojai_condition_in_json_format> },
+                     * "$where": { &lt;ojai_condition_in_json_format> },
                      * "$select": [ &lt;list_of_field_paths> ]
                      * }
                      * </pre>
@@ -1097,7 +1162,7 @@ export namespace com {
                      * <pre>
                      * {
                      * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$condition": { "$eq": {"address.zip": 95111} },
+                     * "$where": { "$eq": {"address.zip": 95111} },
                      * "$select": [ "name", "address.phone" ]
                      * }
                      * </pre>
@@ -1126,7 +1191,7 @@ export namespace com {
                      * <pre>
                      * {
                      * "_id": &lt;id_value>,
-                     * "$condition": { &lt;ojai_condition_in_json_format> },
+                     * "$where": { &lt;ojai_condition_in_json_format> },
                      * "$select": [ &lt;list_of_field_paths> ]
                      * }
                      * </pre>
@@ -1141,7 +1206,7 @@ export namespace com {
                      * <pre>
                      * {
                      * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$condition": { "$eq": {"address.zip": 95111} },
+                     * "$where": { "$eq": {"address.zip": 95111} },
                      * "$select": [ "name", "address.phone" ]
                      * }
                      * </pre>
@@ -1234,7 +1299,10 @@ export namespace com {
                     /** FindByIdResponse payloadEncoding */
                     payloadEncoding?: (com.mapr.data.db.PayloadEncoding|null);
 
-                    /** Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING` */
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
+                     */
                     jsonDocument?: (string|null);
                 }
 
@@ -1256,7 +1324,10 @@ export namespace com {
                     /** FindByIdResponse payloadEncoding. */
                     public payloadEncoding: com.mapr.data.db.PayloadEncoding;
 
-                    /** Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING` */
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document if the payload_encoding is `JSON_ENCODING`
+                     */
                     public jsonDocument: string;
 
                     /** FindByIdResponse data. */
@@ -1345,7 +1416,10 @@ export namespace com {
                     /** FindRequest includeQueryPlan */
                     includeQueryPlan?: (boolean|null);
 
-                    /** Contains JSON encoded OJAI Query if the payload_encoding is `JSON_ENCODING` */
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Query if the payload_encoding is `JSON_ENCODING`
+                     */
                     jsonQuery?: (string|null);
                 }
 
@@ -1367,7 +1441,10 @@ export namespace com {
                     /** FindRequest includeQueryPlan. */
                     public includeQueryPlan: boolean;
 
-                    /** Contains JSON encoded OJAI Query if the payload_encoding is `JSON_ENCODING` */
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Query if the payload_encoding is `JSON_ENCODING`
+                     */
                     public jsonQuery: string;
 
                     /** FindRequest data. */
@@ -1561,6 +1638,461 @@ export namespace com {
 
                     /**
                      * Converts this FindResponse to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
+
+                /** Properties of an UpdateRequest. */
+                interface IUpdateRequest {
+
+                    /** UpdateRequest tablePath */
+                    tablePath?: (string|null);
+
+                    /** UpdateRequest payloadEncoding */
+                    payloadEncoding?: (com.mapr.data.db.PayloadEncoding|null);
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    jsonDocument?: (string|null);
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    jsonCondition?: (string|null);
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI DocumentMutation when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    jsonMutation?: (string|null);
+                }
+
+                /** Represents an UpdateRequest. */
+                class UpdateRequest implements IUpdateRequest {
+
+                    /**
+                     * Constructs a new UpdateRequest.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: com.mapr.data.db.IUpdateRequest);
+
+                    /** UpdateRequest tablePath. */
+                    public tablePath: string;
+
+                    /** UpdateRequest payloadEncoding. */
+                    public payloadEncoding: com.mapr.data.db.PayloadEncoding;
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    public jsonDocument: string;
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    public jsonCondition: string;
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI DocumentMutation when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    public jsonMutation: string;
+
+                    /** UpdateRequest document. */
+                    public document?: "jsonDocument";
+
+                    /** UpdateRequest condition. */
+                    public condition?: "jsonCondition";
+
+                    /** UpdateRequest mutation. */
+                    public mutation?: "jsonMutation";
+
+                    /**
+                     * Creates a new UpdateRequest instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns UpdateRequest instance
+                     */
+                    public static create(properties?: com.mapr.data.db.IUpdateRequest): com.mapr.data.db.UpdateRequest;
+
+                    /**
+                     * Encodes the specified UpdateRequest message. Does not implicitly {@link com.mapr.data.db.UpdateRequest.verify|verify} messages.
+                     * @param message UpdateRequest message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: com.mapr.data.db.IUpdateRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified UpdateRequest message, length delimited. Does not implicitly {@link com.mapr.data.db.UpdateRequest.verify|verify} messages.
+                     * @param message UpdateRequest message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: com.mapr.data.db.IUpdateRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes an UpdateRequest message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns UpdateRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.mapr.data.db.UpdateRequest;
+
+                    /**
+                     * Decodes an UpdateRequest message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns UpdateRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.mapr.data.db.UpdateRequest;
+
+                    /**
+                     * Verifies an UpdateRequest message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates an UpdateRequest message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns UpdateRequest
+                     */
+                    public static fromObject(object: { [k: string]: any }): com.mapr.data.db.UpdateRequest;
+
+                    /**
+                     * Creates a plain object from an UpdateRequest message. Also converts values to other types if specified.
+                     * @param message UpdateRequest
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: com.mapr.data.db.UpdateRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this UpdateRequest to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
+
+                /** Properties of an UpdateResponse. */
+                interface IUpdateResponse {
+
+                    /**
+                     * `NO_ERROR` - if a document was updated successfuly
+                     * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
+                     * evaluated to 'false'.
+                     */
+                    error?: (com.mapr.data.db.IRpcError|null);
+                }
+
+                /** Represents an UpdateResponse. */
+                class UpdateResponse implements IUpdateResponse {
+
+                    /**
+                     * Constructs a new UpdateResponse.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: com.mapr.data.db.IUpdateResponse);
+
+                    /**
+                     * `NO_ERROR` - if a document was updated successfuly
+                     * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
+                     * evaluated to 'false'.
+                     */
+                    public error?: (com.mapr.data.db.IRpcError|null);
+
+                    /**
+                     * Creates a new UpdateResponse instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns UpdateResponse instance
+                     */
+                    public static create(properties?: com.mapr.data.db.IUpdateResponse): com.mapr.data.db.UpdateResponse;
+
+                    /**
+                     * Encodes the specified UpdateResponse message. Does not implicitly {@link com.mapr.data.db.UpdateResponse.verify|verify} messages.
+                     * @param message UpdateResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: com.mapr.data.db.IUpdateResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified UpdateResponse message, length delimited. Does not implicitly {@link com.mapr.data.db.UpdateResponse.verify|verify} messages.
+                     * @param message UpdateResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: com.mapr.data.db.IUpdateResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes an UpdateResponse message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns UpdateResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.mapr.data.db.UpdateResponse;
+
+                    /**
+                     * Decodes an UpdateResponse message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns UpdateResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.mapr.data.db.UpdateResponse;
+
+                    /**
+                     * Verifies an UpdateResponse message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates an UpdateResponse message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns UpdateResponse
+                     */
+                    public static fromObject(object: { [k: string]: any }): com.mapr.data.db.UpdateResponse;
+
+                    /**
+                     * Creates a plain object from an UpdateResponse message. Also converts values to other types if specified.
+                     * @param message UpdateResponse
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: com.mapr.data.db.UpdateResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this UpdateResponse to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
+
+                /** Properties of a DeleteRequest. */
+                interface IDeleteRequest {
+
+                    /** DeleteRequest tablePath */
+                    tablePath?: (string|null);
+
+                    /** DeleteRequest payloadEncoding */
+                    payloadEncoding?: (com.mapr.data.db.PayloadEncoding|null);
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    jsonCondition?: (string|null);
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    jsonDocument?: (string|null);
+                }
+
+                /** Represents a DeleteRequest. */
+                class DeleteRequest implements IDeleteRequest {
+
+                    /**
+                     * Constructs a new DeleteRequest.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: com.mapr.data.db.IDeleteRequest);
+
+                    /** DeleteRequest tablePath. */
+                    public tablePath: string;
+
+                    /** DeleteRequest payloadEncoding. */
+                    public payloadEncoding: com.mapr.data.db.PayloadEncoding;
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    public jsonCondition: string;
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    public jsonDocument: string;
+
+                    /** DeleteRequest condition. */
+                    public condition?: "jsonCondition";
+
+                    /** DeleteRequest document. */
+                    public document?: "jsonDocument";
+
+                    /**
+                     * Creates a new DeleteRequest instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns DeleteRequest instance
+                     */
+                    public static create(properties?: com.mapr.data.db.IDeleteRequest): com.mapr.data.db.DeleteRequest;
+
+                    /**
+                     * Encodes the specified DeleteRequest message. Does not implicitly {@link com.mapr.data.db.DeleteRequest.verify|verify} messages.
+                     * @param message DeleteRequest message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: com.mapr.data.db.IDeleteRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified DeleteRequest message, length delimited. Does not implicitly {@link com.mapr.data.db.DeleteRequest.verify|verify} messages.
+                     * @param message DeleteRequest message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: com.mapr.data.db.IDeleteRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a DeleteRequest message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns DeleteRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.mapr.data.db.DeleteRequest;
+
+                    /**
+                     * Decodes a DeleteRequest message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns DeleteRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.mapr.data.db.DeleteRequest;
+
+                    /**
+                     * Verifies a DeleteRequest message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a DeleteRequest message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns DeleteRequest
+                     */
+                    public static fromObject(object: { [k: string]: any }): com.mapr.data.db.DeleteRequest;
+
+                    /**
+                     * Creates a plain object from a DeleteRequest message. Also converts values to other types if specified.
+                     * @param message DeleteRequest
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: com.mapr.data.db.DeleteRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this DeleteRequest to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
+
+                /** Properties of a DeleteResponse. */
+                interface IDeleteResponse {
+
+                    /** `NO_ERROR` - if a document was deleted successfuly */
+                    error?: (com.mapr.data.db.IRpcError|null);
+                }
+
+                /** Represents a DeleteResponse. */
+                class DeleteResponse implements IDeleteResponse {
+
+                    /**
+                     * Constructs a new DeleteResponse.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: com.mapr.data.db.IDeleteResponse);
+
+                    /** `NO_ERROR` - if a document was deleted successfuly */
+                    public error?: (com.mapr.data.db.IRpcError|null);
+
+                    /**
+                     * Creates a new DeleteResponse instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns DeleteResponse instance
+                     */
+                    public static create(properties?: com.mapr.data.db.IDeleteResponse): com.mapr.data.db.DeleteResponse;
+
+                    /**
+                     * Encodes the specified DeleteResponse message. Does not implicitly {@link com.mapr.data.db.DeleteResponse.verify|verify} messages.
+                     * @param message DeleteResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: com.mapr.data.db.IDeleteResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified DeleteResponse message, length delimited. Does not implicitly {@link com.mapr.data.db.DeleteResponse.verify|verify} messages.
+                     * @param message DeleteResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: com.mapr.data.db.IDeleteResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a DeleteResponse message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns DeleteResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.mapr.data.db.DeleteResponse;
+
+                    /**
+                     * Decodes a DeleteResponse message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns DeleteResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.mapr.data.db.DeleteResponse;
+
+                    /**
+                     * Verifies a DeleteResponse message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a DeleteResponse message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns DeleteResponse
+                     */
+                    public static fromObject(object: { [k: string]: any }): com.mapr.data.db.DeleteResponse;
+
+                    /**
+                     * Creates a plain object from a DeleteResponse message. Also converts values to other types if specified.
+                     * @param message DeleteResponse
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: com.mapr.data.db.DeleteResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this DeleteResponse to JSON.
                      * @returns JSON object
                      */
                     public toJSON(): { [k: string]: any };

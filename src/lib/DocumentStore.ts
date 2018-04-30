@@ -19,6 +19,7 @@ import InsertMode = com.mapr.data.db.InsertMode
 import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
+import {OBinaryData} from ".."
 
 /*
  * Class that responsible for operation with documents
@@ -42,12 +43,12 @@ export class DocumentStore {
   public checkAndReplace(document: any, condition: any, callback?: Callback): void|Promise<any> {
     return this.grpcInsertOrReplace(document, InsertMode.REPLACE, condition, callback)
   }
-  // TODO: Add $binary support
-  public findById(id: string, callback?: Callback): void|Promise<any> {
+  public findById(id: string|OBinaryData, condition?: any, callback?: Callback): void|Promise<any> {
+    const reqPayload = {...{_id: id}, ...condition}
     const request: IFindByIdRequest = {
       tablePath: this.storePath,
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
-      jsonDocument: encode({_id: id}),
+      jsonDocument: encode(reqPayload),
     }
 
     if (callback) {

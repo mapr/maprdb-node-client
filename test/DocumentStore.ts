@@ -1,5 +1,6 @@
 import {expect} from 'chai'
 import {config} from './config'
+import {OBinaryData, ODate} from '../src'
 
 const {StoreConnection} = require('../src/lib/StoreConnection')
 
@@ -51,6 +52,14 @@ describe('DocumentStore', () => {
         const resp = await store.insertOrReplace(doc)
         expect(resp).to.be.true
       })
+      it('should insert into store with binary ID', async () => {
+        const doc: any = {}
+        doc._id = new OBinaryData('1234')
+        doc.testField = new ODate ('2012-10-20')
+        const store = storeConnection.getStore(storeName)
+        const resp = await store.insertOrReplace(doc)
+        expect(resp).to.be.true
+      })
     })
     describe('Test findById document', () => {
       it('should find store document by id', async () => {
@@ -60,6 +69,22 @@ describe('DocumentStore', () => {
         expect(doc).to.be.eql({
           _id,
           testField: 'testValue',
+        })
+      })
+    })
+    describe('Test findById document with condition', () => {
+      it('should find store document by binary id that satisfies the condition', async () => {
+        const _id = new OBinaryData('1234')
+        const condition: any = {}
+        condition.$select = ['_id', 'testField']
+        condition.$where = {
+          $eq: { testField: new ODate ('2012-10-20') },
+        }
+        const store = storeConnection.getStore(storeName)
+        const doc = await store.findById(_id, condition)
+        expect(doc).to.be.eql({
+          _id,
+          testField: new ODate ('2012-10-20'),
         })
       })
     })

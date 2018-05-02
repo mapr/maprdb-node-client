@@ -5,32 +5,26 @@
 
 import {com} from '../proto'
 import {Callback} from '../types'
-import {createConnection, InsertOrReplaceRequestBuilder} from './Connection'
+import {createConnection} from './Connection'
 
-import InsertMode = com.mapr.data.db.InsertMode
 import ICreateTableRequest = com.mapr.data.db.ICreateTableRequest
 import ErrorCode = com.mapr.data.db.ErrorCode
 import IDeleteTableRequest = com.mapr.data.db.IDeleteTableRequest
-import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import IDeleteTableResponse = com.mapr.data.db.IDeleteTableResponse
-import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import ITableExistsRequest = com.mapr.data.db.ITableExistsRequest
 import ITableExistsResponse = com.mapr.data.db.ITableExistsResponse
-import IInsertOrReplaceResponse = com.mapr.data.db.IInsertOrReplaceResponse
-import IFindByIdResponse = com.mapr.data.db.IFindByIdResponse
+import {DocumentStore} from './DocumentStore'
 
 /*
  * Class that responsible for calls to grpc service
  */
 export class StoreConnection {
-  public _url: string
-  public _connection: any
-  public _tableName: string
+  private _url: string
+  private _connection: any
 
-  constructor(url: string, tableName?: string) {
+  constructor(url: string) {
     this._url = url
-    this._tableName = tableName
-    this._connection = createConnection(url)
+    this._connection = createConnection(this._url)
   }
 
   public createStore(storePath: string, callback?: Callback): void|Promise<any> {
@@ -93,7 +87,7 @@ export class StoreConnection {
     const request: IDeleteTableRequest = {tablePath: storePath}
 
     if (callback) {
-      this._connection.deleteTable(request, (err, response) => {
+      this._connection.deleteTable(request, (err, response: IDeleteTableResponse) => {
         this.handleDefaultCallback(err, response, callback)
       })
 
@@ -106,134 +100,17 @@ export class StoreConnection {
       })
     })
   }
-  // TODO Refactor
-  public insertOrReplace(payload: any, callback?: Callback): void|Promise<any> {
-    const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.INSERT_OR_REPLACE)
 
-    if (callback) {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, true)
-          }
-        }
-        callback(err || response.error)
-      })
-
-      return
+  public getStore(storePath: string) {
+    if (typeof storePath !== 'string') {
+      throw Error('Table name should be string')
     }
 
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(true)
-          }
-        }
-        reject(err || response.error)
-      })
-    })
-  }
-  public insert(payload: any, callback?: Callback): void|Promise<any> {
-    const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.INSERT)
-
-    if (callback) {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, true)
-          }
-        }
-        callback(err || response.error)
-      })
-
-      return
-    }
-
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(true)
-          }
-        }
-        reject(err || response.error)
-      })
-    })
-  }
-  public replace(payload: any, callback?: Callback): void|Promise<any> {
-    const request = InsertOrReplaceRequestBuilder(payload, this._tableName, InsertMode.REPLACE)
-
-    if (callback) {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, true)
-          }
-        }
-        callback(err || response.error)
-      })
-
-      return
-    }
-
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(true)
-          }
-        }
-        reject(err || response.error)
-      })
-    })
-  }
-
-  public getStore(storePath: string): StoreConnection {
-    if (typeof storePath === 'string') {
-      this._tableName = storePath
-    } else {
-      console.warn('Table name should be string')
-    }
-
-    return this
-  }
-
-  public findById(storePath: string, id: string, callback?: Callback): void|Promise<any> {
-    const request: IFindByIdRequest = {
-      tablePath: storePath,
-      payloadEncoding: PayloadEncoding.JSON_ENCODING,
-      jsonDocument: JSON.stringify({_id: id}),
-    }
-
-    if (callback) {
-      this._connection.findById(request, (err, response: IFindByIdResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, response.jsonDocument)
-          }
-        }
-        callback(err || response.error)
-      })
-
-      return
-    }
-
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this._connection.findById(request, (err, response: IFindByIdResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(response.jsonDocument)
-          }
-        }
-        reject(err || response.error)
-      })
-    })
+    return new DocumentStore(storePath, this._connection)
   }
   public close() {
     this._connection.close()
   }
-
   private handleDefaultCallback(err: Error, response: any, callback?: Callback): void {
     if (!err && (response.error.errCode === ErrorCode.NO_ERROR)) {
       return callback(null, true)

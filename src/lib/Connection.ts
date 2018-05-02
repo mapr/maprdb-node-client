@@ -11,6 +11,7 @@ import {join} from 'path'
 import InsertMode = com.mapr.data.db.InsertMode
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import IInsertOrReplaceRequest = com.mapr.data.db.IInsertOrReplaceRequest
+import {parseOJAIDocument} from '../ojai/OJAIUtils'
 
 const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
 const protoPackage = loadSync(PROTO_PATH)
@@ -21,7 +22,7 @@ export const createConnection = (url: string) => {
   return new MapRDbServer(url, credentials.createInsecure())
 }
 
-export const encode = (payload: Object, encoding: PayloadEncoding): string => {
+export const encode = (payload: Object, encoding: PayloadEncoding = PayloadEncoding.JSON_ENCODING): string => {
   switch (encoding) {
     case PayloadEncoding.JSON_ENCODING:
       return JSON.stringify(payload)
@@ -33,11 +34,10 @@ export const encode = (payload: Object, encoding: PayloadEncoding): string => {
   }
 }
 
-export const decode = (raw: any, rawEncoding: any): Object => {
-  const encoding: any = PayloadEncoding[rawEncoding]
+export const decode = (raw: any, encoding: PayloadEncoding): Object => {
   switch (encoding) {
     case PayloadEncoding.JSON_ENCODING:
-      return JSON.parse(raw)
+      return parseOJAIDocument(raw)
 
     default:
       console.warn('Unknown encoding:', encoding)
@@ -46,13 +46,15 @@ export const decode = (raw: any, rawEncoding: any): Object => {
   }
 }
 
-export const InsertOrReplaceRequestBuilder = (payload: Object, tablePath: string, insertMode?: InsertMode): IInsertOrReplaceRequest => {
+export const InsertOrReplaceRequestBuilder =
+  (document: Object, tablePath: string, insertMode: InsertMode, condition?: any): IInsertOrReplaceRequest => {
   const encoding = PayloadEncoding.JSON_ENCODING
 
   return {
     insertMode: insertMode,
     tablePath: tablePath,
     payloadEncoding: encoding,
-    jsonDocument: encode(payload, encoding),
+    jsonCondition: encode(condition, encoding),
+    jsonDocument: encode(document, encoding),
   }
 }

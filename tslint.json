@@ -9,6 +9,7 @@
       "info",
       "error"
     ],
+    "no-reserved-keywords": false,
     "mocha-no-side-effect-code": false,
     "missing-jsdoc": false,
     "no-relative-imports": false,
@@ -48,6 +49,7 @@
     "no-suspicious-comment": false,
     "no-implicit-dependencies": false,
     "no-unused-expression": false,
-    "chai-vague-errors": false
+    "chai-vague-errors": false,
+    "no-multiline-string": false
   }
 }

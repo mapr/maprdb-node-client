@@ -1,3 +1,4 @@
+
 const { ConnectionManager, ODate, OTime, OTimestamp } = require('node-maprdb');
 
 // Create connection with specified URL
@@ -25,7 +26,12 @@ doc.phoneNumbers = [
   {areaCode: '555', number: '5555555'},
   {areaCode: '555', number: '555-5556'}
 ];
-store.insertOrReplace(doc)
+const condition = {
+  $where: {
+    $eq: { firstName: 'John' }
+  }
+};
+store.checkAndReplace(doc, condition)
   .then((res) => console.log(res))
   .catch((err) => console.error(err))
   .then(() => connection.close());

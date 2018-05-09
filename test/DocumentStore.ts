@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018 MapR, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {expect} from 'chai'
 import {config} from './config'
 import {ODate} from '../src'
@@ -138,7 +154,7 @@ describe('DocumentStore', () => {
         expect(doc).to.be.eql({_id: 'id__id', testField: 'updatedTestValue'})
       })
     })
-    describe('Test checkAndMutate document', () => {
+    describe('Test checkAndUpdate document', () => {
       it('should update with condition store document', async () => {
         const store = storeConnection.getStore(storeName)
         const _id = 'id__id'
@@ -150,7 +166,7 @@ describe('DocumentStore', () => {
             $eq: { testField: 'updatedTestValue' },
           },
         }
-        const result = await store.checkAndMutate(_id, mutation, condition)
+        const result = await store.checkAndUpdate(_id, mutation, condition)
         expect(result).to.be.true
         const doc = await store.findById(_id)
         expect(doc).to.be.eql({_id: 'id__id', testField: 'mutatedValue'})

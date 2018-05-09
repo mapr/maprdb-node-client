@@ -16,13 +16,35 @@
 
 const { ConnectionManager } = require('node-maprdb');
 
+const id = '123';
+const condition = {
+  $where: {
+    $and: [
+      {
+        $eq: { testField : 'test'}
+      }
+    ]
+  }
+};
+
+const mutation = {
+  $set:[
+    {'a.b[0].boolean':true},
+    {'a.c.d':11},
+    {'a.x':1}
+  ]
+};
+
+
 // Create connection with specified connection string
 const connection = ConnectionManager.getConnection('localhost:5678');
 
 const storeName = '/test-db-1';
 
-connection.createStore(storeName, (err, result) => {
+const store = connection.getStore(storeName);
+
+store.checkAndUpdate(id, mutation, condition, (err, result) => {
   // Log the result to the console
-  console.log('createStore', {err, result});
+  console.log('checkAndUpdate', {err, result});
   connection.close();
 });

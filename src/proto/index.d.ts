@@ -225,7 +225,8 @@ export namespace com {
                     DOCUMENT_ALREADY_EXISTS = 280,
                     DOCUMENT_NOT_FOUND = 281,
                     ENCODING_ERROR = 290,
-                    DECODING_ERROR = 291
+                    DECODING_ERROR = 291,
+                    ILLEGAL_MUTATION = 292
                 }
 
                 /** Properties of a RpcError. */
@@ -1142,30 +1143,20 @@ export namespace com {
                     payloadEncoding?: (com.mapr.data.db.PayloadEncoding|null);
 
                     /**
-                     * Contains JSON encoded OJAI document if the payload_encoding is `JSON_ENCODING`.<p/>
-                     * <b>Schema of the OJAI document:</b>
-                     * <pre>
-                     * {
-                     * "_id": &lt;id_value>,
-                     * "$where": { &lt;ojai_condition_in_json_format> },
-                     * "$select": [ &lt;list_of_field_paths> ]
-                     * }
-                     * </pre>
-                     * The document MUST contain the "_id" field.<p/>
-                     * <b>Examples:</b><p/>
-                     * <pre>
-                     * {
-                     * "_id": "user0001"
-                     * }
-                     * </pre>
-                     * <i>or</i>,
-                     * <pre>
-                     * {
-                     * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$where": { "$eq": {"address.zip": 95111} },
-                     * "$select": [ "name", "address.phone" ]
-                     * }
-                     * </pre>
+                     * <b>[Optional]</b><p/>
+                     * List of OJAI FieldPaths that should be included in the returned document
+                     */
+                    projetions?: (string[]|null);
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    jsonCondition?: (string|null);
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
                      */
                     jsonDocument?: (string|null);
                 }
@@ -1186,35 +1177,28 @@ export namespace com {
                     public payloadEncoding: com.mapr.data.db.PayloadEncoding;
 
                     /**
-                     * Contains JSON encoded OJAI document if the payload_encoding is `JSON_ENCODING`.<p/>
-                     * <b>Schema of the OJAI document:</b>
-                     * <pre>
-                     * {
-                     * "_id": &lt;id_value>,
-                     * "$where": { &lt;ojai_condition_in_json_format> },
-                     * "$select": [ &lt;list_of_field_paths> ]
-                     * }
-                     * </pre>
-                     * The document MUST contain the "_id" field.<p/>
-                     * <b>Examples:</b><p/>
-                     * <pre>
-                     * {
-                     * "_id": "user0001"
-                     * }
-                     * </pre>
-                     * <i>or</i>,
-                     * <pre>
-                     * {
-                     * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$where": { "$eq": {"address.zip": 95111} },
-                     * "$select": [ "name", "address.phone" ]
-                     * }
-                     * </pre>
+                     * <b>[Optional]</b><p/>
+                     * List of OJAI FieldPaths that should be included in the returned document
+                     */
+                    public projetions: string[];
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     */
+                    public jsonCondition: string;
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
                      */
                     public jsonDocument: string;
 
-                    /** FindByIdRequest data. */
-                    public data?: "jsonDocument";
+                    /** FindByIdRequest condition. */
+                    public condition?: "jsonCondition";
+
+                    /** FindByIdRequest document. */
+                    public document?: "jsonDocument";
 
                     /**
                      * Creates a new FindByIdRequest instance using the specified properties.

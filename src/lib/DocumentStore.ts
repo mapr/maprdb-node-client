@@ -19,7 +19,7 @@ import InsertMode = com.mapr.data.db.InsertMode
 import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
-import {OBinaryData} from ".."
+import {OBinaryData} from '..'
 
 /*
  * Class that responsible for operation with documents
@@ -57,6 +57,9 @@ export class DocumentStore {
           if (response.error.errCode === ErrorCode.NO_ERROR) {
             return callback(null, decode(response.jsonDocument, response.payloadEncoding))
           }
+          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
+            return callback(null, null)
+          }
         }
         callback(err || response.error)
       })
@@ -69,6 +72,9 @@ export class DocumentStore {
         if (!err) {
           if (response.error.errCode === ErrorCode.NO_ERROR) {
             return resolve(decode(response.jsonDocument, response.payloadEncoding))
+          }
+          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
+            return resolve(null)
           }
         }
         reject(err || response.error)

@@ -43,10 +43,12 @@ export class DocumentStore {
   public checkAndReplace(document: any, condition: any, callback?: Callback): void|Promise<any> {
     return this.grpcInsertOrReplace(document, InsertMode.REPLACE, condition, callback)
   }
-  public findById(id: string|OBinaryData, condition?: any, callback?: Callback): void|Promise<any> {
-    const reqPayload = {...{_id: id}, ...condition}
+  public findById(id: string|OBinaryData, condition?: any, projections?: string[], callback?: Callback): void|Promise<any> {
+    const reqPayload = {_id: id}
     const request: IFindByIdRequest = {
       tablePath: this.storePath,
+      projetions: projections,
+      jsonCondition: encode(condition),
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
       jsonDocument: encode(reqPayload),
     }

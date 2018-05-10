@@ -84,7 +84,6 @@ describe('DocumentStore', () => {
       it('should find store document by binary id that satisfies the condition', async () => {
         const _id = new OBinaryData('1234')
         const condition: any = {}
-        condition.$select = ['_id', 'testField']
         condition.$where = {
           $eq: { testField: new ODate ('2012-10-20') },
         }
@@ -92,6 +91,17 @@ describe('DocumentStore', () => {
         const doc = await store.findById(_id, condition)
         expect(doc).to.be.eql({
           _id,
+          testField: new ODate ('2012-10-20'),
+        })
+      })
+    })
+    describe('Test findById document with projection', () => {
+      it('should find store document by binary id with field projection', async () => {
+        const _id = new OBinaryData('1234')
+        const projections: any = ['testField']
+        const store = storeConnection.getStore(storeName)
+        const doc = await store.findById(_id, {}, projections)
+        expect(doc).to.be.eql({
           testField: new ODate ('2012-10-20'),
         })
       })

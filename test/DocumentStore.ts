@@ -96,6 +96,17 @@ describe('DocumentStore', () => {
         })
       })
     })
+    describe('Test findById document with projection', () => {
+      it('should find store document by binary id with field projection', async () => {
+        const _id = new OBinaryData('1234')
+        const projetions: any = ['testField']
+        const store = storeConnection.getStore(storeName)
+        const doc = await store.findById(_id, {}, projetions)
+        expect(doc).to.be.eql({
+          testField: new ODate ('2012-10-20'),
+        })
+      })
+    })
     describe('Test find document', () => {
       it('should find store documents', (done) => {
         const query: any = {}

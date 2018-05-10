@@ -71,6 +71,14 @@ describe('DocumentStore', () => {
           testField: 'testValue',
         })
       })
+      it('Should return null', async () => {
+        const id = 'no_such_id'
+
+        const store = await storeConnection.getStore(storeName)
+        const result = await store.findById(id)
+
+        expect(result).to.be.null
+      })
     })
     describe('Test findById document with condition', () => {
       it('should find store document by binary id that satisfies the condition', async () => {

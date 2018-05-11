@@ -3,7 +3,7 @@
  *
  */
 
-import {ODate, OTime, OTimestamp, OBinaryData} from '..'
+import {ODate, OTime, OTimestamp} from '..'
 
 const typeTransformMap = {
   $numberByte : (x) => x,
@@ -14,13 +14,23 @@ const typeTransformMap = {
   $dateDay : (x) => new ODate(x),
   $time : (x) => new OTime(x),
   $date : (x) => new OTimestamp(x),
-  $binary : (x) => new OBinaryData(x),
+  $binary : (x) => Buffer.from(x, 'base64'),
 }
 
 export const parseOJAIDocument = (jsonStr: string) => {
   const obj = JSON.parse(jsonStr)
 
   return normalizeTypes(obj)
+}
+
+export const stringifyOJAIDocument = (document : any) => {
+  return JSON.stringify(document, (key: string, value : any) => {
+    if ((value !== undefined) && (value.type === 'Buffer')) {
+      return { $binary: Buffer.from(value.data).toString('base64') }
+    }
+
+    return value
+  })
 }
 
 const normalizeTypes = (obj) => {

@@ -1,6 +1,6 @@
 import {expect} from 'chai'
 import {config} from './config'
-import {OBinaryData, ODate} from '../src'
+import {ODate} from '../src'
 
 const {StoreConnection} = require('../src/lib/StoreConnection')
 
@@ -54,7 +54,7 @@ describe('DocumentStore', () => {
       })
       it('should insert into store with binary ID', async () => {
         const doc: any = {}
-        doc._id = new OBinaryData('1234')
+        doc._id = Buffer.from('1234')
         doc.testField = new ODate ('2012-10-20')
         const store = storeConnection.getStore(storeName)
         const resp = await store.insertOrReplace(doc)
@@ -82,7 +82,7 @@ describe('DocumentStore', () => {
     })
     describe('Test findById document with condition', () => {
       it('should find store document by binary id that satisfies the condition', async () => {
-        const _id = new OBinaryData('1234')
+        const _id = Buffer.from([0x31, 0x32, 0x33, 0x34])
         const condition: any = {}
         condition.$where = {
           $eq: { testField: new ODate ('2012-10-20') },
@@ -97,7 +97,7 @@ describe('DocumentStore', () => {
     })
     describe('Test findById document with projection', () => {
       it('should find store document by binary id with field projection', async () => {
-        const _id = new OBinaryData('1234')
+        const _id = Buffer.from([0x31, 0x32, 0x33, 0x34])
         const projections: any = ['testField']
         const store = storeConnection.getStore(storeName)
         const doc = await store.findById(_id, {}, projections)

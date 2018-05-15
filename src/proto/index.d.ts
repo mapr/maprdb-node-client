@@ -1146,7 +1146,7 @@ export namespace com {
                      * <b>[Optional]</b><p/>
                      * List of OJAI FieldPaths that should be included in the returned document
                      */
-                    projetions?: (string[]|null);
+                    projections?: (string[]|null);
 
                     /**
                      * <b>[Optional]</b><p/>
@@ -1180,7 +1180,7 @@ export namespace com {
                      * <b>[Optional]</b><p/>
                      * List of OJAI FieldPaths that should be included in the returned document
                      */
-                    public projetions: string[];
+                    public projections: string[];
 
                     /**
                      * <b>[Optional]</b><p/>

@@ -2442,7 +2442,7 @@ $root.com = (function() {
                      * @interface IFindByIdRequest
                      * @property {string|null} [tablePath] FindByIdRequest tablePath
                      * @property {com.mapr.data.db.PayloadEncoding|null} [payloadEncoding] FindByIdRequest payloadEncoding
-                     * @property {Array.<string>|null} [projetions] <b>[Optional]</b><p/>
+                     * @property {Array.<string>|null} [projections] <b>[Optional]</b><p/>
                      * List of OJAI FieldPaths that should be included in the returned document
                      * @property {string|null} [jsonCondition] <b>[Optional]</b><p/>
                      * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
@@ -2459,7 +2459,7 @@ $root.com = (function() {
                      * @param {com.mapr.data.db.IFindByIdRequest=} [properties] Properties to set
                      */
                     function FindByIdRequest(properties) {
-                        this.projetions = [];
+                        this.projections = [];
                         if (properties)
                             for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                                 if (properties[keys[i]] != null)
@@ -2485,11 +2485,11 @@ $root.com = (function() {
                     /**
                      * <b>[Optional]</b><p/>
                      * List of OJAI FieldPaths that should be included in the returned document
-                     * @member {Array.<string>} projetions
+                     * @member {Array.<string>} projections
                      * @memberof com.mapr.data.db.FindByIdRequest
                      * @instance
                      */
-                    FindByIdRequest.prototype.projetions = $util.emptyArray;
+                    FindByIdRequest.prototype.projections = $util.emptyArray;
 
                     /**
                      * <b>[Optional]</b><p/>
@@ -2562,9 +2562,9 @@ $root.com = (function() {
                             writer.uint32(/* id 1, wireType 2 =*/10).string(message.tablePath);
                         if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
                             writer.uint32(/* id 2, wireType 0 =*/16).int32(message.payloadEncoding);
-                        if (message.projetions != null && message.projetions.length)
-                            for (var i = 0; i < message.projetions.length; ++i)
-                                writer.uint32(/* id 3, wireType 2 =*/26).string(message.projetions[i]);
+                        if (message.projections != null && message.projections.length)
+                            for (var i = 0; i < message.projections.length; ++i)
+                                writer.uint32(/* id 3, wireType 2 =*/26).string(message.projections[i]);
                         if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition"))
                             writer.uint32(/* id 4, wireType 2 =*/34).string(message.jsonCondition);
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument"))
@@ -2610,9 +2610,9 @@ $root.com = (function() {
                                 message.payloadEncoding = reader.int32();
                                 break;
                             case 3:
-                                if (!(message.projetions && message.projetions.length))
-                                    message.projetions = [];
-                                message.projetions.push(reader.string());
+                                if (!(message.projections && message.projections.length))
+                                    message.projections = [];
+                                message.projections.push(reader.string());
                                 break;
                             case 4:
                                 message.jsonCondition = reader.string();
@@ -2667,12 +2667,12 @@ $root.com = (function() {
                             case 1:
                                 break;
                             }
-                        if (message.projetions != null && message.hasOwnProperty("projetions")) {
-                            if (!Array.isArray(message.projetions))
-                                return "projetions: array expected";
-                            for (var i = 0; i < message.projetions.length; ++i)
-                                if (!$util.isString(message.projetions[i]))
-                                    return "projetions: string[] expected";
+                        if (message.projections != null && message.hasOwnProperty("projections")) {
+                            if (!Array.isArray(message.projections))
+                                return "projections: array expected";
+                            for (var i = 0; i < message.projections.length; ++i)
+                                if (!$util.isString(message.projections[i]))
+                                    return "projections: string[] expected";
                         }
                         if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
                             properties.condition = 1;
@@ -2711,12 +2711,12 @@ $root.com = (function() {
                             message.payloadEncoding = 1;
                             break;
                         }
-                        if (object.projetions) {
-                            if (!Array.isArray(object.projetions))
-                                throw TypeError(".com.mapr.data.db.FindByIdRequest.projetions: array expected");
-                            message.projetions = [];
-                            for (var i = 0; i < object.projetions.length; ++i)
-                                message.projetions[i] = String(object.projetions[i]);
+                        if (object.projections) {
+                            if (!Array.isArray(object.projections))
+                                throw TypeError(".com.mapr.data.db.FindByIdRequest.projections: array expected");
+                            message.projections = [];
+                            for (var i = 0; i < object.projections.length; ++i)
+                                message.projections[i] = String(object.projections[i]);
                         }
                         if (object.jsonCondition != null)
                             message.jsonCondition = String(object.jsonCondition);
@@ -2739,7 +2739,7 @@ $root.com = (function() {
                             options = {};
                         var object = {};
                         if (options.arrays || options.defaults)
-                            object.projetions = [];
+                            object.projections = [];
                         if (options.defaults) {
                             object.tablePath = "";
                             object.payloadEncoding = options.enums === String ? "UNKNOWN_ENCODING" : 0;
@@ -2748,10 +2748,10 @@ $root.com = (function() {
                             object.tablePath = message.tablePath;
                         if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
                             object.payloadEncoding = options.enums === String ? $root.com.mapr.data.db.PayloadEncoding[message.payloadEncoding] : message.payloadEncoding;
-                        if (message.projetions && message.projetions.length) {
-                            object.projetions = [];
-                            for (var j = 0; j < message.projetions.length; ++j)
-                                object.projetions[j] = message.projetions[j];
+                        if (message.projections && message.projections.length) {
+                            object.projections = [];
+                            for (var j = 0; j < message.projections.length; ++j)
+                                object.projections[j] = message.projections[j];
                         }
                         if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
                             object.jsonCondition = message.jsonCondition;

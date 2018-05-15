@@ -47,7 +47,7 @@ export class DocumentStore {
     const reqPayload = {_id: id}
     const request: IFindByIdRequest = {
       tablePath: this.storePath,
-      projetions: projections,
+      projections: projections,
       jsonCondition: encode(condition),
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
       jsonDocument: encode(reqPayload),

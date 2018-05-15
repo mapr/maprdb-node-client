@@ -369,6 +369,7 @@ $root.com = (function() {
                  * @property {number} DOCUMENT_NOT_FOUND=281 DOCUMENT_NOT_FOUND value
                  * @property {number} ENCODING_ERROR=290 ENCODING_ERROR value
                  * @property {number} DECODING_ERROR=291 DECODING_ERROR value
+                 * @property {number} ILLEGAL_MUTATION=292 ILLEGAL_MUTATION value
                  */
                 db.ErrorCode = (function() {
                     var valuesById = {}, values = Object.create(valuesById);
@@ -388,6 +389,7 @@ $root.com = (function() {
                     values[valuesById[281] = "DOCUMENT_NOT_FOUND"] = 281;
                     values[valuesById[290] = "ENCODING_ERROR"] = 290;
                     values[valuesById[291] = "DECODING_ERROR"] = 291;
+                    values[valuesById[292] = "ILLEGAL_MUTATION"] = 292;
                     return values;
                 })();
 
@@ -570,6 +572,7 @@ $root.com = (function() {
                             case 281:
                             case 290:
                             case 291:
+                            case 292:
                                 break;
                             }
                         if (message.errorMessage != null && message.hasOwnProperty("errorMessage"))
@@ -657,6 +660,10 @@ $root.com = (function() {
                         case "DECODING_ERROR":
                         case 291:
                             message.errCode = 291;
+                            break;
+                        case "ILLEGAL_MUTATION":
+                        case 292:
+                            message.errCode = 292;
                             break;
                         }
                         if (object.errorMessage != null)
@@ -2435,30 +2442,12 @@ $root.com = (function() {
                      * @interface IFindByIdRequest
                      * @property {string|null} [tablePath] FindByIdRequest tablePath
                      * @property {com.mapr.data.db.PayloadEncoding|null} [payloadEncoding] FindByIdRequest payloadEncoding
-                     * @property {string|null} [jsonDocument] Contains JSON encoded OJAI document if the payload_encoding is `JSON_ENCODING`.<p/>
-                     * <b>Schema of the OJAI document:</b>
-                     * <pre>
-                     * {
-                     * "_id": &lt;id_value>,
-                     * "$where": { &lt;ojai_condition_in_json_format> },
-                     * "$select": [ &lt;list_of_field_paths> ]
-                     * }
-                     * </pre>
-                     * The document MUST contain the "_id" field.<p/>
-                     * <b>Examples:</b><p/>
-                     * <pre>
-                     * {
-                     * "_id": "user0001"
-                     * }
-                     * </pre>
-                     * <i>or</i>,
-                     * <pre>
-                     * {
-                     * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$where": { "$eq": {"address.zip": 95111} },
-                     * "$select": [ "name", "address.phone" ]
-                     * }
-                     * </pre>
+                     * @property {Array.<string>|null} [projetions] <b>[Optional]</b><p/>
+                     * List of OJAI FieldPaths that should be included in the returned document
+                     * @property {string|null} [jsonCondition] <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @property {string|null} [jsonDocument] <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
                      */
 
                     /**
@@ -2470,6 +2459,7 @@ $root.com = (function() {
                      * @param {com.mapr.data.db.IFindByIdRequest=} [properties] Properties to set
                      */
                     function FindByIdRequest(properties) {
+                        this.projetions = [];
                         if (properties)
                             for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                                 if (properties[keys[i]] != null)
@@ -2493,30 +2483,26 @@ $root.com = (function() {
                     FindByIdRequest.prototype.payloadEncoding = 0;
 
                     /**
-                     * Contains JSON encoded OJAI document if the payload_encoding is `JSON_ENCODING`.<p/>
-                     * <b>Schema of the OJAI document:</b>
-                     * <pre>
-                     * {
-                     * "_id": &lt;id_value>,
-                     * "$where": { &lt;ojai_condition_in_json_format> },
-                     * "$select": [ &lt;list_of_field_paths> ]
-                     * }
-                     * </pre>
-                     * The document MUST contain the "_id" field.<p/>
-                     * <b>Examples:</b><p/>
-                     * <pre>
-                     * {
-                     * "_id": "user0001"
-                     * }
-                     * </pre>
-                     * <i>or</i>,
-                     * <pre>
-                     * {
-                     * "_id": { "$binary": "dXNlcjAwMDE="} },
-                     * "$where": { "$eq": {"address.zip": 95111} },
-                     * "$select": [ "name", "address.phone" ]
-                     * }
-                     * </pre>
+                     * <b>[Optional]</b><p/>
+                     * List of OJAI FieldPaths that should be included in the returned document
+                     * @member {Array.<string>} projetions
+                     * @memberof com.mapr.data.db.FindByIdRequest
+                     * @instance
+                     */
+                    FindByIdRequest.prototype.projetions = $util.emptyArray;
+
+                    /**
+                     * <b>[Optional]</b><p/>
+                     * Contains JSON encoded OJAI QueryCondition when payload_encoding is `JSON_ENCODING`.<p/>
+                     * @member {string} jsonCondition
+                     * @memberof com.mapr.data.db.FindByIdRequest
+                     * @instance
+                     */
+                    FindByIdRequest.prototype.jsonCondition = "";
+
+                    /**
+                     * <b>[Required]</b><p/>
+                     * Contains JSON encoded OJAI Document with `_id` field when payload_encoding is `JSON_ENCODING`.<p/>
                      * @member {string} jsonDocument
                      * @memberof com.mapr.data.db.FindByIdRequest
                      * @instance
@@ -2527,12 +2513,23 @@ $root.com = (function() {
                     var $oneOfFields;
 
                     /**
-                     * FindByIdRequest data.
-                     * @member {"jsonDocument"|undefined} data
+                     * FindByIdRequest condition.
+                     * @member {"jsonCondition"|undefined} condition
                      * @memberof com.mapr.data.db.FindByIdRequest
                      * @instance
                      */
-                    Object.defineProperty(FindByIdRequest.prototype, "data", {
+                    Object.defineProperty(FindByIdRequest.prototype, "condition", {
+                        get: $util.oneOfGetter($oneOfFields = ["jsonCondition"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+
+                    /**
+                     * FindByIdRequest document.
+                     * @member {"jsonDocument"|undefined} document
+                     * @memberof com.mapr.data.db.FindByIdRequest
+                     * @instance
+                     */
+                    Object.defineProperty(FindByIdRequest.prototype, "document", {
                         get: $util.oneOfGetter($oneOfFields = ["jsonDocument"]),
                         set: $util.oneOfSetter($oneOfFields)
                     });
@@ -2565,8 +2562,13 @@ $root.com = (function() {
                             writer.uint32(/* id 1, wireType 2 =*/10).string(message.tablePath);
                         if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
                             writer.uint32(/* id 2, wireType 0 =*/16).int32(message.payloadEncoding);
+                        if (message.projetions != null && message.projetions.length)
+                            for (var i = 0; i < message.projetions.length; ++i)
+                                writer.uint32(/* id 3, wireType 2 =*/26).string(message.projetions[i]);
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition"))
+                            writer.uint32(/* id 4, wireType 2 =*/34).string(message.jsonCondition);
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument"))
-                            writer.uint32(/* id 10, wireType 2 =*/82).string(message.jsonDocument);
+                            writer.uint32(/* id 5, wireType 2 =*/42).string(message.jsonDocument);
                         return writer;
                     };
 
@@ -2607,7 +2609,15 @@ $root.com = (function() {
                             case 2:
                                 message.payloadEncoding = reader.int32();
                                 break;
-                            case 10:
+                            case 3:
+                                if (!(message.projetions && message.projetions.length))
+                                    message.projetions = [];
+                                message.projetions.push(reader.string());
+                                break;
+                            case 4:
+                                message.jsonCondition = reader.string();
+                                break;
+                            case 5:
                                 message.jsonDocument = reader.string();
                                 break;
                             default:
@@ -2657,8 +2667,20 @@ $root.com = (function() {
                             case 1:
                                 break;
                             }
+                        if (message.projetions != null && message.hasOwnProperty("projetions")) {
+                            if (!Array.isArray(message.projetions))
+                                return "projetions: array expected";
+                            for (var i = 0; i < message.projetions.length; ++i)
+                                if (!$util.isString(message.projetions[i]))
+                                    return "projetions: string[] expected";
+                        }
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            properties.condition = 1;
+                            if (!$util.isString(message.jsonCondition))
+                                return "jsonCondition: string expected";
+                        }
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
-                            properties.data = 1;
+                            properties.document = 1;
                             if (!$util.isString(message.jsonDocument))
                                 return "jsonDocument: string expected";
                         }
@@ -2689,6 +2711,15 @@ $root.com = (function() {
                             message.payloadEncoding = 1;
                             break;
                         }
+                        if (object.projetions) {
+                            if (!Array.isArray(object.projetions))
+                                throw TypeError(".com.mapr.data.db.FindByIdRequest.projetions: array expected");
+                            message.projetions = [];
+                            for (var i = 0; i < object.projetions.length; ++i)
+                                message.projetions[i] = String(object.projetions[i]);
+                        }
+                        if (object.jsonCondition != null)
+                            message.jsonCondition = String(object.jsonCondition);
                         if (object.jsonDocument != null)
                             message.jsonDocument = String(object.jsonDocument);
                         return message;
@@ -2707,6 +2738,8 @@ $root.com = (function() {
                         if (!options)
                             options = {};
                         var object = {};
+                        if (options.arrays || options.defaults)
+                            object.projetions = [];
                         if (options.defaults) {
                             object.tablePath = "";
                             object.payloadEncoding = options.enums === String ? "UNKNOWN_ENCODING" : 0;
@@ -2715,10 +2748,20 @@ $root.com = (function() {
                             object.tablePath = message.tablePath;
                         if (message.payloadEncoding != null && message.hasOwnProperty("payloadEncoding"))
                             object.payloadEncoding = options.enums === String ? $root.com.mapr.data.db.PayloadEncoding[message.payloadEncoding] : message.payloadEncoding;
+                        if (message.projetions && message.projetions.length) {
+                            object.projetions = [];
+                            for (var j = 0; j < message.projetions.length; ++j)
+                                object.projetions[j] = message.projetions[j];
+                        }
+                        if (message.jsonCondition != null && message.hasOwnProperty("jsonCondition")) {
+                            object.jsonCondition = message.jsonCondition;
+                            if (options.oneofs)
+                                object.condition = "jsonCondition";
+                        }
                         if (message.jsonDocument != null && message.hasOwnProperty("jsonDocument")) {
                             object.jsonDocument = message.jsonDocument;
                             if (options.oneofs)
-                                object.data = "jsonDocument";
+                                object.document = "jsonDocument";
                         }
                         return object;
                     };

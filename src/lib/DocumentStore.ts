@@ -19,7 +19,7 @@ import InsertMode = com.mapr.data.db.InsertMode
 import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
-import {OBinaryData} from ".."
+import {OBinaryData} from '..'
 
 /*
  * Class that responsible for operation with documents
@@ -43,10 +43,12 @@ export class DocumentStore {
   public checkAndReplace(document: any, condition: any, callback?: Callback): void|Promise<any> {
     return this.grpcInsertOrReplace(document, InsertMode.REPLACE, condition, callback)
   }
-  public findById(id: string|OBinaryData, condition?: any, callback?: Callback): void|Promise<any> {
-    const reqPayload = {...{_id: id}, ...condition}
+  public findById(id: string|Buffer, condition?: any, projections?: string[], callback?: Callback): void|Promise<any> {
+    const reqPayload = {_id: id}
     const request: IFindByIdRequest = {
       tablePath: this.storePath,
+      projetions: projections,
+      jsonCondition: encode(condition),
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
       jsonDocument: encode(reqPayload),
     }
@@ -56,6 +58,9 @@ export class DocumentStore {
         if (!err) {
           if (response.error.errCode === ErrorCode.NO_ERROR) {
             return callback(null, decode(response.jsonDocument, response.payloadEncoding))
+          }
+          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
+            return callback(null, null)
           }
         }
         callback(err || response.error)
@@ -69,6 +74,9 @@ export class DocumentStore {
         if (!err) {
           if (response.error.errCode === ErrorCode.NO_ERROR) {
             return resolve(decode(response.jsonDocument, response.payloadEncoding))
+          }
+          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
+            return resolve(null)
           }
         }
         reject(err || response.error)

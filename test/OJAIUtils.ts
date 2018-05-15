@@ -1,6 +1,6 @@
 import {expect} from 'chai'
-import {parseOJAIDocument} from '../src/ojai/OJAIUtils'
-import {OBinaryData, ODate, OTime, OTimestamp} from '../src'
+import {parseOJAIDocument, stringifyOJAIDocument} from '../src/ojai/OJAIUtils'
+import {ODate, OTime, OTimestamp} from '../src'
 
 const expectations = [
   /////////////////////// Trivial test-cases ///////////////////
@@ -20,11 +20,11 @@ const expectations = [
     document: `{
 	    "map": {
 		    "binData": {
-			    "$binary": "1AB10CDEF99232213233BBCD12"
+			    "$binary": "YnVmZmVy"
 		    }
 	    }
     }`,
-    obj: { map : { binData: new OBinaryData('1AB10CDEF99232213233BBCD12') } },
+    obj: { map : { binData: Buffer.from('buffer') } },
   },
   /////////////////////// Test case from MAPRDB-584 //////////////////
   {
@@ -115,11 +115,11 @@ describe('OJAIUtils', () => {
       const date = new ODate ('2012-10-20')
       const time = new OTime ('07:42:46.123')
       const timestamp = new OTimestamp ('2012-10-20T07:42:46.123-07:00')
-      const binaryData = new OBinaryData ('34AADSDSA1032421424124')
-      expect(JSON.stringify(date)).to.be.eql('{"$dateDay":"2012-10-20"}')
-      expect(JSON.stringify(time)).to.be.eql('{"$time":"07:42:46.123"}')
-      expect(JSON.stringify(timestamp)).to.be.eql('{"$date":"2012-10-20T07:42:46.123-07:00"}')
-      expect(JSON.stringify(binaryData)).to.be.eql('{"$binary":"34AADSDSA1032421424124"}')
+      const binaryData = { _id : Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72]) }
+      expect(stringifyOJAIDocument(date)).to.be.eql('{"$dateDay":"2012-10-20"}')
+      expect(stringifyOJAIDocument(time)).to.be.eql('{"$time":"07:42:46.123"}')
+      expect(stringifyOJAIDocument(timestamp)).to.be.eql('{"$date":"2012-10-20T07:42:46.123-07:00"}')
+      expect(stringifyOJAIDocument(binaryData)).to.be.eql('{"_id":{"$binary":"YnVmZmVy"}}')
     })
   })
 })

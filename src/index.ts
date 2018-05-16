@@ -19,7 +19,6 @@ import {ODate} from './types/ODate'
 import {OTime} from './types/OTime'
 import {OTimestamp} from './types/OTimestamp'
 
-
 export {
   ConnectionManager,
   ODate,

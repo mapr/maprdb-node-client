@@ -30,7 +30,7 @@ const expectations = [
   },
   {
     document: '{ "map": { "null": null } }',
-    obj: { map : { null: null } },
+    obj: { map : { null: <any>null } },
   },
   {
     document: `{
@@ -77,7 +77,7 @@ const expectations = [
 	}
 } `,
     obj : { map:
-        { null: null,
+        { null: <any>null,
           boolean: true,
           string: 'eureka',
           byte: 127,
@@ -122,7 +122,7 @@ const expectations = [
 describe('OJAIUtils', () => {
   describe('parseOJAIDocument tests', () => {
     expectations.forEach((expectation) => {
-      it('should replace needed types', async () => {
+      it('should replace needed types', () => {
         const obj = parseOJAIDocument(expectation.document)
         expect(obj).to.be.eql(expectation.obj)
       })

@@ -14,58 +14,88 @@
  * limitations under the License.
  */
 
-import {credentials, loadObject} from 'grpc'
 import {com} from '../proto'
-import {loadSync} from 'protobufjs'
-import {join} from 'path'
+import {Callback} from '../types'
+import {createConnection, withOptionalCallback, retryDecorator} from './utils'
+import Promise from 'bluebird'
+import ICreateTableRequest = com.mapr.data.db.ICreateTableRequest
+import ErrorCode = com.mapr.data.db.ErrorCode
+import IDeleteTableRequest = com.mapr.data.db.IDeleteTableRequest
+import IDeleteTableResponse = com.mapr.data.db.IDeleteTableResponse
+import ITableExistsRequest = com.mapr.data.db.ITableExistsRequest
+import ITableExistsResponse = com.mapr.data.db.ITableExistsResponse
+import ICreateTableResponse = com.mapr.data.db.ICreateTableResponse
 
-import InsertMode = com.mapr.data.db.InsertMode
-import PayloadEncoding = com.mapr.data.db.PayloadEncoding
-import IInsertOrReplaceRequest = com.mapr.data.db.IInsertOrReplaceRequest
-import {parseOJAIDocument, stringifyOJAIDocument} from '../ojai/OJAIUtils'
+import {DocumentStore} from './DocumentStore'
 
-const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
-const protoPackage = loadSync(PROTO_PATH)
-const grpcObject: any = loadObject(protoPackage, { enumsAsStrings: false })
-const MapRDbServer = grpcObject.com.mapr.data.db.MapRDbServer
+/*
+ * Class that responsible for calls to grpc service
+ */
+export class Connection {
+  private _url: string
+  private _connection: any
 
-export const createConnection = (url: string) => {
-  return new MapRDbServer(url, credentials.createInsecure())
-}
-
-export const encode = (payload: Object, encoding: PayloadEncoding = PayloadEncoding.JSON_ENCODING): string => {
-  switch (encoding) {
-    case PayloadEncoding.JSON_ENCODING:
-      return stringifyOJAIDocument(payload)
-
-    default:
-      console.warn('Unknown encoding:', encoding)
-
-      return String(payload)
+  constructor(url: string) {
+    this._url = url
+    this._connection = Promise.promisifyAll(createConnection(this._url))
   }
-}
 
-export const decode = (raw: any, encoding: PayloadEncoding): Object => {
-  switch (encoding) {
-    case PayloadEncoding.JSON_ENCODING:
-      return parseOJAIDocument(raw)
+  public createStore(storePath: string, callback?: Callback): void|Promise<any> {
+    const request: ICreateTableRequest = {tablePath: storePath}
 
-    default:
-      console.warn('Unknown encoding:', encoding)
-
-      return raw
+    return withOptionalCallback(
+      retryDecorator(() => this._connection.createTableAsync(request)),
+      (response: ICreateTableResponse) => {
+        if (response.error.errCode === ErrorCode.NO_ERROR) {
+          return true
+        }
+        throw response.error
+      },
+      callback,
+    )
   }
-}
 
-export const InsertOrReplaceRequestBuilder =
-  (document: Object, tablePath: string, insertMode: InsertMode, condition?: any): IInsertOrReplaceRequest => {
-  const encoding = PayloadEncoding.JSON_ENCODING
+  public storeExists(storePath: string, callback?: Callback): void|Promise<any> {
+    const request: ITableExistsRequest = {tablePath: storePath}
 
-  return {
-    insertMode: insertMode,
-    tablePath: tablePath,
-    payloadEncoding: encoding,
-    jsonCondition: encode(condition, encoding),
-    jsonDocument: encode(document, encoding),
+    return withOptionalCallback(
+      retryDecorator(() => this._connection.tableExistsAsync(request)),
+      (response: ITableExistsResponse) => {
+        if (response.error.errCode === ErrorCode.NO_ERROR) {
+          return true
+        }
+        if (response.error.errCode === ErrorCode.TABLE_NOT_FOUND) {
+          return false
+        }
+        throw response.error
+      },
+      callback,
+    )
+  }
+
+  public deleteStore(storePath: string, callback?: Callback): void|Promise<any> {
+    const request: IDeleteTableRequest = {tablePath: storePath}
+
+    return withOptionalCallback(
+      retryDecorator(() => this._connection.deleteTableAsync(request)),
+      (response: IDeleteTableResponse) => {
+        if (response.error.errCode === ErrorCode.NO_ERROR) {
+          return true
+        }
+        throw response.error
+      },
+      callback,
+    )
+  }
+
+  public getStore(storePath: string) {
+    if (typeof storePath !== 'string') {
+      throw Error('Table name should be string')
+    }
+
+    return new DocumentStore(storePath, this._connection)
+  }
+  public close() {
+    this._connection.close()
   }
 }

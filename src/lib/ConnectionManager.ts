@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {StoreConnection} from './StoreConnection'
+import {Connection} from './Connection'
 
 /*
  * Class for connection management
  */
 export class ConnectionManagerClass {
   public getConnection(url: string) {
-    return new StoreConnection(url)
+    return new Connection(url)
   }
 }
 

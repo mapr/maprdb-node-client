@@ -28,8 +28,8 @@ const grpcObject: any = grpc.loadObject(protoPackage, { enumsAsStrings: false })
 const client = new grpcObject.com.mapr.data.db.MapRDbServer(`${HOST}:${PORT}`, grpc.credentials.createInsecure())
 
 describe('Test connection to DB', () => {
-  let response
-  let err
+  let response: any
+  let err: Error
 
   beforeEach((done: () => void) => {
     client.insertOrReplace('test', (resErr: Error, res: {}) => {

@@ -18,53 +18,58 @@ import {expect} from 'chai'
 import {config} from './config'
 import {ODate} from '../src'
 
-const {StoreConnection} = require('../src/lib/StoreConnection')
+const {Connection} = require('../src/lib/Connection')
 
 const { HOST, PORT } = config
-const storeConnection = new StoreConnection(`${HOST}:${PORT}`)
+const connection = new Connection(`${HOST}:${PORT}`)
 
 describe('DocumentStore', () => {
   describe('Test create/delete store', () => {
     it('should check if store does not exist', async () => {
-      const resp = await storeConnection.storeExists('/test-store-test')
+      let resp
+      try {
+        resp = await connection.storeExists('/test-store-test')
+      } catch (e) {
+        console.log(e)
+      }
       expect(resp).to.be.false
     })
 
     it('should create store', async () => {
-      const resp = await storeConnection.createStore('/test-store-test')
+      const resp = await connection.createStore('/test-store-test')
       expect(resp).to.be.true
     })
 
     it('should check if store exists', async () => {
-      const resp = await storeConnection.storeExists('/test-store-test')
+      const resp = await connection.storeExists('/test-store-test')
       expect(resp).to.be.true
     })
 
     it('should remove store', async () => {
-      const resp = await storeConnection.deleteStore('/test-store-test')
+      const resp = await connection.deleteStore('/test-store-test')
       expect(resp).to.be.true
     })
 
     it('should check if store does not exist', async () => {
-      const resp = await storeConnection.storeExists('/test-store-test')
+      const resp = await connection.storeExists('/test-store-test')
       expect(resp).to.be.false
     })
   })
   describe('Document manipulation', () => {
-    let storeName;
+    let storeName: string;
     before(async () => {
       storeName = '/test-store-test-document'
-      await storeConnection.createStore(storeName)
+      await connection.createStore(storeName)
     })
     after(async () => {
-      await storeConnection.deleteStore(storeName)
+      await connection.deleteStore(storeName)
     })
     describe('Test insert or replace document', () => {
       it('should insert into store', async () => {
         const doc: any = {}
         doc._id = 'id__id'
         doc.testField = 'testValue'
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const resp = await store.insertOrReplace(doc)
         expect(resp).to.be.true
       })
@@ -72,7 +77,7 @@ describe('DocumentStore', () => {
         const doc: any = {}
         doc._id = Buffer.from('1234')
         doc.testField = new ODate ('2012-10-20')
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const resp = await store.insertOrReplace(doc)
         expect(resp).to.be.true
       })
@@ -80,7 +85,7 @@ describe('DocumentStore', () => {
     describe('Test findById document', () => {
       it('should find store document by id', async () => {
         const _id = 'id__id'
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const doc = await store.findById(_id)
         expect(doc).to.be.eql({
           _id,
@@ -90,7 +95,7 @@ describe('DocumentStore', () => {
       it('Should return null', async () => {
         const id = 'no_such_id'
 
-        const store = await storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const result = await store.findById(id)
 
         expect(result).to.be.null
@@ -103,7 +108,7 @@ describe('DocumentStore', () => {
         condition.$where = {
           $eq: { testField: new ODate ('2012-10-20') },
         }
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const doc = await store.findById(_id, condition)
         expect(doc).to.be.eql({
           _id,
@@ -115,7 +120,7 @@ describe('DocumentStore', () => {
       it('should find store document by binary id with field projection', async () => {
         const _id = Buffer.from([0x31, 0x32, 0x33, 0x34])
         const projections: any = ['testField']
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const doc = await store.findById(_id, {}, projections)
         expect(doc).to.be.eql({
           testField: new ODate ('2012-10-20'),
@@ -129,12 +134,13 @@ describe('DocumentStore', () => {
         query.$where = {
           $eq: { testField: 'testValue' },
         }
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const docStream = store.find(query)
-        const resp = []
-        docStream.on('data', (chunk => {
+        const resp: any[] = []
+        docStream.on('data', (chunk: any) => {
           resp.push(chunk)
-        }))
+        })
+        docStream.on('error', (err: any) => console.error(err))
         docStream.on('end', () => {
           expect(resp).to.be.eql([{_id: 'id__id', testField: 'testValue'}])
           done()
@@ -143,7 +149,7 @@ describe('DocumentStore', () => {
     })
     describe('Test update document', () => {
       it('should update store document', async () => {
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const _id = 'id__id'
         const mutation = {
           $set: { testField: 'updatedTestValue' },
@@ -156,7 +162,7 @@ describe('DocumentStore', () => {
     })
     describe('Test checkAndUpdate document', () => {
       it('should update with condition store document', async () => {
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const _id = 'id__id'
         const mutation = {
           $set: { testField: 'mutatedValue' },
@@ -174,7 +180,7 @@ describe('DocumentStore', () => {
     })
     describe('Test delete document', () => {
       it('should delete store document', async () => {
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const _id = 'id__id'
         const result = await store.delete(_id)
         expect(result).to.be.true
@@ -182,7 +188,7 @@ describe('DocumentStore', () => {
     })
     describe('Test checkAndDelete document', () => {
       it('should delete with condition store document', async () => {
-        const store = storeConnection.getStore(storeName)
+        const store = connection.getStore(storeName)
         const _id = 'id__id'
         const doc: any = {}
         doc._id = _id

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {decode, encode, InsertOrReplaceRequestBuilder} from './Connection'
+import {decode, encode, InsertOrReplaceRequestBuilder, withOptionalCallback, retryDecorator} from './utils'
 import {Callback} from '../types'
 import {DocumentStream} from '../ojai/DocumentStream'
 
@@ -30,7 +30,6 @@ import InsertMode = com.mapr.data.db.InsertMode
 import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
-import {OBinaryData} from '..'
 
 /*
  * Class that responsible for operation with documents
@@ -58,41 +57,25 @@ export class DocumentStore {
     const reqPayload = {_id: id}
     const request: IFindByIdRequest = {
       tablePath: this.storePath,
-      projections: projections,
+      projections,
       jsonCondition: encode(condition),
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
       jsonDocument: encode(reqPayload),
     }
 
-    if (callback) {
-      this.connection.findById(request, (err, response: IFindByIdResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, decode(response.jsonDocument, response.payloadEncoding))
-          }
-          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
-            return callback(null, null)
-          }
+    return withOptionalCallback(
+      retryDecorator(() => this.connection.findByIdAsync(request)),
+      (response: IFindByIdResponse) => {
+        if (response.error.errCode === ErrorCode.NO_ERROR) {
+          return decode(response.jsonDocument, response.payloadEncoding)
         }
-        callback(err || response.error)
-      })
-
-      return
-    }
-
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this.connection.findById(request, (err, response: IFindByIdResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(decode(response.jsonDocument, response.payloadEncoding))
-          }
-          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
-            return resolve(null)
-          }
+        if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
+          return null
         }
-        reject(err || response.error)
-      })
-    })
+        throw response.error
+      },
+      callback,
+    )
   }
   public find(query: any, includeQueryPlan: boolean = false): DocumentStream {
     const request: IFindRequest = {
@@ -125,29 +108,17 @@ export class DocumentStore {
     const { condition, callback } = this.handleOptionalParams(conditionOrCallback, optionalCallback)
 
     const request = InsertOrReplaceRequestBuilder(document, this.storePath, mode, condition)
-    if (callback) {
-      this.connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, true)
-          }
-        }
-        callback(err || response.error)
-      })
 
-      return
-    }
-
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this.connection.insertOrReplace(request, (err, response: IInsertOrReplaceResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(true)
-          }
+    return withOptionalCallback(
+      retryDecorator(() => this.connection.insertOrReplaceAsync(request)),
+      (response: IInsertOrReplaceResponse) => {
+        if (response.error.errCode === ErrorCode.NO_ERROR) {
+          return true
         }
-        reject(err || response.error)
-      })
-    })
+        throw response.error
+      },
+      callback,
+    )
   }
   private grpcUpdate(_id: string, mutation: any, conditionOrCallback?: any, optionalCallback?: Callback): void|Promise<any> {
     const { condition, callback } = this.handleOptionalParams(conditionOrCallback, optionalCallback)
@@ -160,35 +131,19 @@ export class DocumentStore {
       jsonMutation: encode(mutation),
     }
 
-    if (callback) {
-      this.connection.update(request, (err, response: IUpdateResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, true)
-          }
-          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
-            return callback(null, false)
-          }
+    return withOptionalCallback(
+      retryDecorator(() => this.connection.updateAsync(request)),
+      (response: IUpdateResponse) => {
+        if (response.error.errCode === ErrorCode.NO_ERROR) {
+          return true
         }
-        callback(err || response.error)
-      })
-
-      return
-    }
-
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this.connection.update(request, (err, response: IUpdateResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(true)
-          }
-          if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
-            return resolve(false)
-          }
+        if (response.error.errCode === ErrorCode.DOCUMENT_NOT_FOUND) {
+          return false
         }
-        reject(err || response.error)
-      })
-    })
+        throw response.error
+      },
+      callback,
+    )
   }
   private grpcDelete(_id: string, conditionOrCallback?: any, optionalCallback?: Callback): void|Promise<any> {
     const { callback, condition } = this.handleOptionalParams(conditionOrCallback, optionalCallback)
@@ -200,29 +155,16 @@ export class DocumentStore {
       jsonCondition: encode(condition),
     }
 
-    if (callback) {
-      this.connection.delete(request, (err, response: IDeleteResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return callback(null, true)
-          }
+    return withOptionalCallback(
+      retryDecorator(() => this.connection.deleteAsync(request)),
+      (response: IDeleteResponse) => {
+        if (response.error.errCode === ErrorCode.NO_ERROR) {
+          return true
         }
-        callback(err || response.error)
-      })
-
-      return
-    }
-
-    return new Promise((resolve: any, reject: (err: Error) => void) => {
-      this.connection.delete(request, (err, response: IDeleteResponse) => {
-        if (!err) {
-          if (response.error.errCode === ErrorCode.NO_ERROR) {
-            return resolve(true)
-          }
-        }
-        reject(err || response.error)
-      })
-    })
+        throw response.error
+      },
+      callback,
+    )
   }
   private handleOptionalParams(conditionOrCallback?: any, optionalCallback?: Callback) {
     let condition

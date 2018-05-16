@@ -9,6 +9,7 @@
       "info",
       "error"
     ],
+    "import-name": false,
     "no-reserved-keywords": false,
     "mocha-no-side-effect-code": false,
     "missing-jsdoc": false,

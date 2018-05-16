@@ -25,12 +25,13 @@ export class DocumentStream extends Transform {
     this.stream.pipe(this)
   }
   public _transform(chunk: any, encoding: any, callback: any) {
+    console.log(chunk)
     this.push(JSON.parse(chunk.jsonResponse))
     callback()
   }
   public toPromise() {
     return new Promise((resolve, reject) => {
-      const results = [];
+      const results: any = [];
       this.on('data', (chunk) => {
         results.push(chunk)
       })

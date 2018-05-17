@@ -16,16 +16,16 @@
 
 import {ODate, OTime, OTimestamp} from '..'
 
-const typeTransformMap = {
-  $numberByte : (x) => x,
-  $numberShort : (x) => x,
-  $numberInt : (x) => x,
-  $numberLong : (x) => x,
-  $numberFloat : (x) => x,
-  $dateDay : (x) => new ODate(x),
-  $time : (x) => new OTime(x),
-  $date : (x) => new OTimestamp(x),
-  $binary : (x) => Buffer.from(x, 'base64'),
+const typeTransformMap: { [key: string]: any } = {
+  $numberByte : (x: any) => x,
+  $numberShort : (x: any) => x,
+  $numberInt : (x: any) => x,
+  $numberLong : (x: any) => x,
+  $numberFloat : (x: any) => x,
+  $dateDay : (x: any) => new ODate(x),
+  $time : (x: any) => new OTime(x),
+  $date : (x: any) => new OTimestamp(x),
+  $binary : (x: any) => Buffer.from(x, 'base64'),
 }
 
 export const parseOJAIDocument = (jsonStr: string) => {
@@ -44,7 +44,7 @@ export const stringifyOJAIDocument = (document : any) => {
   })
 }
 
-const normalizeTypes = (obj) => {
+const normalizeTypes = (obj: any) => {
   Object.keys(obj).forEach(key => {
     const val = obj[key]
     if (val instanceof Object) {
@@ -59,13 +59,13 @@ const normalizeTypes = (obj) => {
   return obj
 }
 
-const objectNeedsNormalization = (obj) => {
+const objectNeedsNormalization = (obj: any) => {
   const keys = Object.keys(obj)
 
   return keys.length === 1 && typeTransformMap[keys[0]]
 }
 
-const normalizeObject = (obj) => {
+const normalizeObject = (obj: any) => {
   const field = Object.keys(obj)[0]
 
   return typeTransformMap[field](obj[field])

@@ -16,7 +16,7 @@
 
 import {decode, encode, InsertOrReplaceRequestBuilder, withOptionalCallback, retryDecorator} from './utils'
 import {Callback} from '../types'
-import {DocumentStream} from '../ojai/DocumentStream'
+import {QueryResult} from '../ojai/QueryResult'
 
 import {com} from '../proto'
 import IInsertOrReplaceResponse = com.mapr.data.db.IInsertOrReplaceResponse
@@ -77,7 +77,7 @@ export class DocumentStore {
       callback,
     )
   }
-  public find(query: any, includeQueryPlan: boolean = false): DocumentStream {
+  public find(query: any, includeQueryPlan: boolean = false): QueryResult<any> {
     const request: IFindRequest = {
       tablePath: this.storePath,
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
@@ -85,7 +85,7 @@ export class DocumentStore {
       jsonQuery: encode(query),
     }
 
-    return new DocumentStream(this.connection.find(request))
+    return new QueryResult(() => this.connection.find(request))
   }
   public delete(_id: string, callback?: Callback): void|Promise<any> {
     return this.grpcDelete(_id, callback)

@@ -1,6 +1,6 @@
 {
   "name": "node-maprdb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "./dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,12 +19,14 @@
   "license": "ISC",
   "dependencies": {
     "@types/promise-retry": "^1.1.1",
+    "@types/retry": "^0.10.2",
     "bluebird": "^3.5.1",
     "dotenv": "^5.0.0",
-    "grpc": "^1.8.4",
+    "grpc": "^1.11.3",
     "grpc-health-check": "^1.6.6",
     "lodash": "^4.17.5",
-    "promise-retry": "^1.1.1"
+    "promise-retry": "^1.1.1",
+    "retry": "^0.12.0"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.20",

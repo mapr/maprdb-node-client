@@ -26,12 +26,7 @@ const connection = new Connection(`${HOST}:${PORT}`)
 describe('DocumentStore', () => {
   describe('Test create/delete store', () => {
     it('should check if store does not exist', async () => {
-      let resp
-      try {
-        resp = await connection.storeExists('/test-store-test')
-      } catch (e) {
-        console.log(e)
-      }
+      const resp = await connection.storeExists('/test-store-test')
       expect(resp).to.be.false
     })
 

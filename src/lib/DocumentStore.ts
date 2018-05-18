@@ -30,6 +30,7 @@ import InsertMode = com.mapr.data.db.InsertMode
 import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
+import {ConnectionInfo} from "./ConnectionInfo"
 
 /*
  * Class that responsible for operation with documents
@@ -37,9 +38,12 @@ import ErrorCode = com.mapr.data.db.ErrorCode
 export class DocumentStore {
   private storePath: string
   private connection: any
-  constructor(storePath: string, connection: any) {
+  private connectionInfo: ConnectionInfo
+
+  constructor(storePath: string, connection: any, connectionInfo: ConnectionInfo) {
     this.storePath = storePath
     this.connection = connection
+    this.connectionInfo = connectionInfo
   }
   public insertOrReplace(document: any, callback?: Callback): void|Promise<any> {
     return this.grpcInsertOrReplace(document, InsertMode.INSERT_OR_REPLACE, callback)
@@ -64,7 +68,7 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.findByIdAsync(request)),
+      retryDecorator(() => this.connection.findByIdAsync(request, this.connectionInfo.validationMetadata)),
       (response: IFindByIdResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return decode(response.jsonDocument, response.payloadEncoding)
@@ -98,7 +102,7 @@ export class DocumentStore {
     }
 
     return new QueryResult(() => this.connection.find(
-      request,
+      request, this.connectionInfo.validationMetadata,
       { deadline: Date.now() + timeoutParam },
     ))
   }
@@ -125,7 +129,7 @@ export class DocumentStore {
     const request = InsertOrReplaceRequestBuilder(document, this.storePath, mode, condition)
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.insertOrReplaceAsync(request)),
+      retryDecorator(() => this.connection.insertOrReplaceAsync(request, this.connectionInfo.validationMetadata)),
       (response: IInsertOrReplaceResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -147,7 +151,7 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.updateAsync(request)),
+      retryDecorator(() => this.connection.updateAsync(request, this.connectionInfo.validationMetadata)),
       (response: IUpdateResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -171,7 +175,7 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.deleteAsync(request)),
+      retryDecorator(() => this.connection.deleteAsync(request, this.connectionInfo.validationMetadata)),
       (response: IDeleteResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true

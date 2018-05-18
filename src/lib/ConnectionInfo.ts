@@ -17,6 +17,12 @@
 import {Metadata} from 'grpc'
 
 export class ConnectionInfo {
+  private _url: string
+  private _ssl: boolean
+  private _sslCa: string
+  private _validationMetadata: Metadata
+  private _sslTargetNameOverride: string
+
   get url(): string {
     return this._url
   }
@@ -33,14 +39,13 @@ export class ConnectionInfo {
     return this._validationMetadata
   }
 
+  set validationMetadata(value: Metadata) {
+    this._validationMetadata = value
+  }
+
   get sslTargetNameOverride(): string {
     return this._sslTargetNameOverride
   }
-  private _url: string
-  private _ssl: boolean
-  private _sslCa: string
-  private _validationMetadata: Metadata
-  private _sslTargetNameOverride: string
 
   public constructor (url : string,
                       ssl: boolean,

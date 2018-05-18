@@ -34,17 +34,18 @@ const protoPackage = loadSync(PROTO_PATH)
 const grpcObject: any = loadObject(protoPackage, { enumsAsStrings: false })
 const MapRDbServer = grpcObject.com.mapr.data.db.MapRDbServer
 
-export const createConnection = (connectionInfo: ConnectionInfo) => {
+export const createConnection = (connectionInfo: ConnectionInfo, metadataInterceptor: any) => {
   if (connectionInfo.ssl) {
       const sslTrustPem = fs.readFileSync(connectionInfo.sslCa)
       const options = {
         'grpc.ssl_target_name_override' : connectionInfo.sslTargetNameOverride,
+         interceptors: [metadataInterceptor],
       }
 
       return new MapRDbServer(connectionInfo.url, credentials.createSsl(sslTrustPem), options)
   }
 
-  return new MapRDbServer(connectionInfo.url, credentials.createInsecure())
+  return new MapRDbServer(connectionInfo.url, credentials.createInsecure(), { interceptors: [metadataInterceptor] })
 }
 
 export const encode = (payload: Object, encoding: PayloadEncoding = PayloadEncoding.JSON_ENCODING): string => {

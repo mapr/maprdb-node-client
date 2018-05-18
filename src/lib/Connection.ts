@@ -28,7 +28,7 @@ import ICreateTableResponse = com.mapr.data.db.ICreateTableResponse
 
 import {DocumentStore} from './DocumentStore'
 import {URL} from 'url'
-import {Metadata} from 'grpc'
+import {InterceptingCall, Metadata} from 'grpc'
 import {ConnectionInfo} from './ConnectionInfo'
 
 /*
@@ -38,16 +38,31 @@ export class Connection {
   private _connection: any
   private connectionInfo: ConnectionInfo
 
-  constructor(url: string) {
-    this.connectionInfo = this.constructConnectionInfo(url)
-    this._connection = Promise.promisifyAll(createConnection(this.connectionInfo))
+  constructor(connectionString: string) {
+    const metadataInterceptor = (options: any, nextCall: any) => {
+      return new InterceptingCall(nextCall(options), {
+        start: (metadata: any, listener: any, next: any) => {
+          next(metadata, {
+            onReceiveMetadata: (metadata1: any, next1: any) => {
+              if (this.connectionInfo.validationMetadata.getMap().username !== undefined) {
+                this.connectionInfo.validationMetadata = metadata1 // replace with jwt token
+              }
+              console.log(metadata1)
+              next1(metadata1)
+            },
+          })
+        },
+      })
+    }
+    this.connectionInfo = this.constructConnectionInfo(connectionString)
+    this._connection = Promise.promisifyAll(createConnection(this.connectionInfo, metadataInterceptor))
   }
 
   public createStore(storePath: string, callback?: Callback): void|Promise<any> {
     const request: ICreateTableRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => this._connection.createTableAsync(request)),
+      retryDecorator(() => this._connection.createTableAsync(request, this.connectionInfo.validationMetadata)),
       (response: ICreateTableResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -62,7 +77,7 @@ export class Connection {
     const request: ITableExistsRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => this._connection.tableExistsAsync(request)),
+      retryDecorator(() => this._connection.tableExistsAsync(request, this.connectionInfo.validationMetadata)),
       (response: ITableExistsResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -80,7 +95,7 @@ export class Connection {
     const request: IDeleteTableRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => this._connection.deleteTableAsync(request)),
+      retryDecorator(() => this._connection.deleteTableAsync(request, this.connectionInfo.validationMetadata)),
       (response: IDeleteTableResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -96,19 +111,18 @@ export class Connection {
       throw Error('Table name should be string')
     }
 
-    return new DocumentStore(storePath, this._connection)
+    return new DocumentStore(storePath, this._connection, this.connectionInfo)
   }
   public close() {
     this._connection.close()
   }
 
-  private constructConnectionInfo(url: string): ConnectionInfo {
-    const urlParts = url.split('?')
-    const urlToExtractArgs = (urlParts.length > 1) ?
-      `https://dummyhost:0000?${urlParts[1].replace(/\;/g, '\&')}` :
+  private constructConnectionInfo(connectionString: string): ConnectionInfo {
+    const connectionStringParts = connectionString.split('?')
+    const dummyUrlToExtractArgs = (connectionStringParts.length > 1) ?
+      `https://dummyhost:0000?${connectionStringParts[1].replace(/\;/g, '\&')}` :
       'https://dummyhost:0000'
-    const argsURL = new URL(urlToExtractArgs)
-    const params = argsURL.searchParams
+    const params = new URL(dummyUrlToExtractArgs).searchParams
     const authType = params.get('auth') || 'basic'
     const username = params.get('username') || ''
     const passwd = params.get('password') || ''
@@ -137,7 +151,7 @@ export class Connection {
     meta.add('password', passwd)
 
     return new ConnectionInfo(
-      urlParts[0],
+      connectionStringParts[0],
       ssl,
       sslCa,
       meta,

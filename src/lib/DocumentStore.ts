@@ -77,15 +77,30 @@ export class DocumentStore {
       callback,
     )
   }
-  public find(query: any, includeQueryPlan: boolean = false): QueryResult<any> {
+  public find(query: any, includeQueryPlan: boolean = false, timeout: number = Infinity): QueryResult<any> {
+    let includeQueryPlanParam = includeQueryPlan
+    let timeoutParam = timeout
+    if (typeof includeQueryPlan === 'number') {
+      timeoutParam = includeQueryPlan
+    } else if (typeof timeout === 'number') {
+      timeoutParam = timeout
+      includeQueryPlanParam = includeQueryPlan
+    }
+    if (!(typeof includeQueryPlanParam === 'boolean' && typeof timeoutParam === 'number')) {
+      throw new Error('Argument mismatch in find')
+    }
+
     const request: IFindRequest = {
       tablePath: this.storePath,
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
-      includeQueryPlan,
+      includeQueryPlan: includeQueryPlanParam,
       jsonQuery: encode(query),
     }
 
-    return new QueryResult(() => this.connection.find(request))
+    return new QueryResult(() => this.connection.find(
+      request,
+      { deadline: Date.now() + timeoutParam },
+    ))
   }
   public delete(_id: string, callback?: Callback): void|Promise<any> {
     return this.grpcDelete(_id, callback)

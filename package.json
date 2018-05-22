@@ -1,11 +1,12 @@
 {
   "name": "node-maprdb",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "./dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/*"
+    "dist/*",
+    "proto/*"
   ],
   "scripts": {
     "test": "npm run proto:dev && mocha -r ts-node/register --compiler tsc --project ./tsconfig.json --watch-extensions ts test/**/*.ts -w",

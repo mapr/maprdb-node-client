@@ -27,17 +27,20 @@ import ITableExistsResponse = com.mapr.data.db.ITableExistsResponse
 import ICreateTableResponse = com.mapr.data.db.ICreateTableResponse
 
 import {DocumentStore} from './DocumentStore'
+import {URL} from 'url'
+import {Metadata} from 'grpc'
+import {ConnectionInfo} from './ConnectionInfo'
 
 /*
  * Class that responsible for calls to grpc service
  */
 export class Connection {
-  private _url: string
   private _connection: any
+  private connectionInfo: ConnectionInfo
 
   constructor(url: string) {
-    this._url = url
-    this._connection = Promise.promisifyAll(createConnection(this._url))
+    this.connectionInfo = this.constructConnectionInfo(url)
+    this._connection = Promise.promisifyAll(createConnection(this.connectionInfo))
   }
 
   public createStore(storePath: string, callback?: Callback): void|Promise<any> {
@@ -97,5 +100,47 @@ export class Connection {
   }
   public close() {
     this._connection.close()
+  }
+
+  private constructConnectionInfo(url: string): ConnectionInfo {
+    const urlParts = url.split('?')
+    const urlToExtractArgs = (urlParts.length > 1) ?
+      `https://dummyhost:0000?${urlParts[1].replace(/\;/g, '\&')}` :
+      'https://dummyhost:0000'
+    const argsURL = new URL(urlToExtractArgs)
+    const params = argsURL.searchParams
+    const authType = params.get('auth') || 'basic'
+    const username = params.get('username') || ''
+    const passwd = params.get('password') || ''
+    const ssl = params.get('ssl') === 'true'
+    const sslCa = params.get('sslCA') || ''
+    const sslTargetNameOverride = params.get('sslTargetNameOverride') || ''
+
+    if (ssl && sslTargetNameOverride === '') {
+      throw Error('\'sslTargetNameOverride\' must be specified when ssl enabled.')
+    }
+    if (ssl && sslCa === '') {
+      throw Error('sslCa must be specified when ssl enabled.')
+    }
+    if (authType !== 'basic') {
+      throw Error('Only \'basic\' authentication is currently supported.')
+    }
+    if (authType === 'basic' &&
+      (username === '' ||
+      passwd === '')) {
+      throw Error('user and password must be specified when auth is basic.')
+    }
+
+    const meta = new Metadata()
+    meta.add('auth', authType)
+    meta.add('username', username)
+    meta.add('password', passwd)
+
+    return new ConnectionInfo(
+      urlParts[0],
+      ssl,
+      sslCa,
+      meta,
+      sslTargetNameOverride)
   }
 }

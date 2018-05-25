@@ -20,8 +20,9 @@ import {ODate} from '../src'
 
 const {Connection} = require('../src/lib/Connection')
 
-const { HOST, PORT } = config
-const connection = new Connection(`${HOST}:${PORT}`)
+const { HOST, PORT, AUTH, USER, PASS, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE} = config
+const connection = new Connection(`${HOST}:${PORT}?auth=${AUTH};username=${USER};password=${PASS};` +
+  `ssl=${SSL};sslCA=${SSL_CA};sslTargetNameOverride=${SSL_TARGET_NAME_OVERRIDE}`)
 
 describe('DocumentStore', () => {
   describe('Test create/delete store', () => {

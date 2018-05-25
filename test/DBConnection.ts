@@ -19,13 +19,26 @@ import * as grpc from 'grpc'
 import {join} from 'path'
 import { config } from './config'
 import {loadSync} from 'protobufjs'
+import * as fs from 'fs'
 
-const { HOST, PORT } = config
+const { HOST, PORT, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE} = config
 const PROTO_PATH = join(__dirname, '../proto/maprdb-server.proto')
 const protoPackage = loadSync(PROTO_PATH)
 const grpcObject: any = grpc.loadObject(protoPackage, { enumsAsStrings: false })
 
-const client = new grpcObject.com.mapr.data.db.MapRDbServer(`${HOST}:${PORT}`, grpc.credentials.createInsecure())
+const sslTrustPem = (SSL === 'true') ? fs.readFileSync(SSL_CA) : new Buffer('')
+const options = (SSL === 'true') ?
+  {
+     'grpc.ssl_target_name_override' : SSL_TARGET_NAME_OVERRIDE,
+  } :
+  {}
+
+const client = new grpcObject.com.mapr.data.db.MapRDbServer(
+  `${HOST}:${PORT}`,
+  (SSL === 'true') ?
+    grpc.credentials.createSsl(sslTrustPem) :
+    grpc.credentials.createInsecure(),
+  options)
 
 describe('Test connection to DB', () => {
   let response: any

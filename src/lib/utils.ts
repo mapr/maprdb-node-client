@@ -26,14 +26,25 @@ import {parseOJAIDocument, stringifyOJAIDocument} from '../ojai/OJAIUtils'
 import {Callback} from '../types'
 import promiseRetry from 'promise-retry'
 import {WrapOptions} from 'retry'
+import * as fs from 'fs'
+import {ConnectionInfo} from './ConnectionInfo'
 
 const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
 const protoPackage = loadSync(PROTO_PATH)
 const grpcObject: any = loadObject(protoPackage, { enumsAsStrings: false })
 const MapRDbServer = grpcObject.com.mapr.data.db.MapRDbServer
 
-export const createConnection = (url: string) => {
-  return new MapRDbServer(url, credentials.createInsecure())
+export const createConnection = (connectionInfo: ConnectionInfo) => {
+  if (connectionInfo.ssl) {
+      const sslTrustPem = fs.readFileSync(connectionInfo.sslCa)
+      const options = {
+        'grpc.ssl_target_name_override' : connectionInfo.sslTargetNameOverride,
+      }
+
+      return new MapRDbServer(connectionInfo.url, credentials.createSsl(sslTrustPem), options)
+  }
+
+  return new MapRDbServer(connectionInfo.url, credentials.createInsecure())
 }
 
 export const encode = (payload: Object, encoding: PayloadEncoding = PayloadEncoding.JSON_ENCODING): string => {

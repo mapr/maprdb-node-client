@@ -15,6 +15,12 @@
  */
 
 export const config = {
-  HOST: 'localhost',
+  HOST: 'node1.cluster.com',
   PORT: '5678',
+  AUTH: 'basic',
+  USER: 'maprlogin',
+  PASS: 'maprpassword',
+  SSL: 'true',
+  SSL_CA: '/opt/mapr/conf/ssl_truststore.pem',
+  SSL_TARGET_NAME_OVERRIDE: 'node1.cluster.com',
 }

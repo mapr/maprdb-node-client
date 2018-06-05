@@ -20,7 +20,7 @@ import {join} from 'path'
 import { config } from './config'
 import {loadSync} from 'protobufjs'
 import * as fs from 'fs'
-import {InterceptingCall} from "grpc"
+import {InterceptingCall} from 'grpc'
 
 const {HOST, PORT, AUTH, USER, PASS, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE} = config
 const PROTO_PATH = join(__dirname, '../proto/maprdb-server.proto')
@@ -63,9 +63,8 @@ describe('Test connection to DB', () => {
 
   beforeEach((done: () => void) => {
     const meta = new grpc.Metadata()
-    meta.add('auth', AUTH)
-    meta.add('username', USER)
-    meta.add('password', PASS)
+    const encodedUP = Buffer.from(`${USER}:${PASS}`).toString('base64')
+    meta.add('authorization', `basic ${encodedUP}`)
     client.insertOrReplace('test', meta, (resErr: Error, res: {}) => {
       response = res
       err = resErr

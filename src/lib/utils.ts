@@ -102,7 +102,11 @@ export const retryDecorator = (decoratedMethod: any, options: WrapOptions = { re
   return () => promiseRetry((retry) => {
     return decoratedMethod()
       .catch((err: StatusObject)  => {
-        if (err.code === status.UNAVAILABLE || err.code === status.RESOURCE_EXHAUSTED) {
+        if (err.code === status.UNAVAILABLE
+          || err.code === status.RESOURCE_EXHAUSTED
+          // should retry operation when token is expired
+          || (err.code === status.UNAUTHENTICATED && err.details === 'STATUS_TOKEN_EXPIRED')
+        ) {
           retry(err)
         }
 

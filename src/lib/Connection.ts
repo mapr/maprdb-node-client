@@ -15,6 +15,7 @@
  */
 
 import {com} from '../proto'
+import * as grpc from 'grpc'
 import {Callback} from '../types'
 import {createConnection, withOptionalCallback, retryDecorator} from './utils'
 import Promise from 'bluebird'
@@ -28,27 +29,36 @@ import ICreateTableResponse = com.mapr.data.db.ICreateTableResponse
 
 import {DocumentStore} from './DocumentStore'
 import {URL} from 'url'
-import {InterceptingCall, Metadata} from 'grpc'
 import {ConnectionInfo} from './ConnectionInfo'
 
 /*
  * Class that responsible for calls to grpc service
  */
 export class Connection {
-  private _connection: any
-  private connectionInfo: ConnectionInfo
+  private readonly _connection: any
+  private readonly connectionInfo: ConnectionInfo
 
   constructor(connectionString: string) {
     const metadataInterceptor = (options: any, nextCall: any) => {
-      return new InterceptingCall(nextCall(options), {
+      return new grpc.InterceptingCall(nextCall(options), {
         start: (metadata: any, listener: any, next: any) => {
           next(metadata, {
             onReceiveMetadata: (metadata1: any, next1: any) => {
-              if (this.connectionInfo.validationMetadata.getMap().username !== undefined) {
-                this.connectionInfo.validationMetadata = metadata1 // replace with jwt token
+              const token = metadata1.get('bearer-token')
+              if (token.length > 0) {
+                this.connectionInfo.setBearerAuth(token)
               }
-              console.log(metadata1)
               next1(metadata1)
+            },
+            onReceiveStatus: (status: any, next1: any) => {
+              if (status.code === grpc.status.UNAUTHENTICATED) {
+                if (status.details === 'STATUS_TOKEN_EXPIRED') {
+                  // reset to basic auth
+                  this.connectionInfo.setBasicAuth()
+                }
+                throw Error('Authentication failed. Invalid authentication credentials: user, password')
+              }
+              next1(status)
             },
           })
         },
@@ -145,16 +155,18 @@ export class Connection {
       throw Error('user and password must be specified when auth is basic.')
     }
 
-    const meta = new Metadata()
-    meta.add('auth', authType)
-    meta.add('username', username)
-    meta.add('password', passwd)
-
-    return new ConnectionInfo(
+    const meta = new grpc.Metadata()
+    const encodedUserMetadata = Buffer.from(`${username}:${passwd}`).toString('base64')
+    const connectionInfo = new ConnectionInfo(
       connectionStringParts[0],
       ssl,
       sslCa,
       meta,
-      sslTargetNameOverride)
+      sslTargetNameOverride,
+      encodedUserMetadata,
+    )
+    connectionInfo.setBasicAuth()
+
+    return connectionInfo
   }
 }

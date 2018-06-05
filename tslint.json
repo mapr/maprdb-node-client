@@ -20,6 +20,7 @@
     "no-void-expression": false,
     "no-redundant-jsdoc": false,
     "interface-name": false,
+    "no-backbone-get-set-outside-model": false,
     "trailing-comma": [
       // https://palantir.github.io/tslint/rules/trailing-comma/
       true,

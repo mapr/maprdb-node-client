@@ -52,7 +52,7 @@ describe('DocumentStore', () => {
     })
   })
   describe('Document manipulation', () => {
-    let storeName: string;
+    let storeName: string
     before(async () => {
       storeName = '/test-store-test-document'
       await connection.createStore(storeName)

@@ -17,11 +17,12 @@
 import {Metadata} from 'grpc'
 
 export class ConnectionInfo {
-  private _url: string
-  private _ssl: boolean
-  private _sslCa: string
+  private readonly _encodedUserMetadata: string;
+  private readonly _url: string
+  private readonly _ssl: boolean
+  private readonly _sslCa: string
+  private readonly _sslTargetNameOverride: string
   private _validationMetadata: Metadata
-  private _sslTargetNameOverride: string
 
   get url(): string {
     return this._url
@@ -51,11 +52,23 @@ export class ConnectionInfo {
                       ssl: boolean,
                       sslCa: string,
                       validationMetadata: Metadata,
-                      sslTargeNameOverride: string) {
+                      sslTargetNameOverride: string,
+                      encodedUserMetadata: string,
+                      ) {
     this._url = url
     this._ssl = ssl
     this._sslCa = sslCa
     this._validationMetadata = validationMetadata
-    this._sslTargetNameOverride = sslTargeNameOverride
+    this._sslTargetNameOverride = sslTargetNameOverride
+    this._encodedUserMetadata = encodedUserMetadata
   }
+
+  public setBasicAuth() {
+    this._validationMetadata.set('authorization', `basic ${this._encodedUserMetadata}`)
+  }
+
+  public setBearerAuth(jwtToken: string) {
+    this._validationMetadata.set('authorization', `bearer ${jwtToken}`)
+  }
+
 }

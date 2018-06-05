@@ -21,6 +21,6 @@ export const config = {
   USER: 'mapr',
   PASS: 'mapr',
   SSL: 'true',
-  SSL_CA: '/opt/mapr/conf/ssl_truststore.pem',
+  SSL_CA: '/tmp/ssl_truststore.pem',
   SSL_TARGET_NAME_OVERRIDE: 'node1.cluster.com',
 }

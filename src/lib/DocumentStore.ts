@@ -30,7 +30,7 @@ import InsertMode = com.mapr.data.db.InsertMode
 import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
-import {ConnectionInfo} from "./ConnectionInfo"
+import {ConnectionInfo} from './ConnectionInfo'
 
 /*
  * Class that responsible for operation with documents

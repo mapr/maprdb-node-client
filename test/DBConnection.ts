@@ -20,9 +20,8 @@ import {join} from 'path'
 import { config } from './config'
 import {loadSync} from 'protobufjs'
 import * as fs from 'fs'
-import {InterceptingCall} from 'grpc'
 
-const {HOST, PORT, AUTH, USER, PASS, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE} = config
+const {HOST, PORT, USER, PASS, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE} = config
 const PROTO_PATH = join(__dirname, '../proto/maprdb-server.proto')
 const protoPackage = loadSync(PROTO_PATH)
 const grpcObject: any = grpc.loadObject(protoPackage, { enumsAsStrings: false })
@@ -30,7 +29,7 @@ const grpcObject: any = grpc.loadObject(protoPackage, { enumsAsStrings: false })
 const sslTrustPem = (SSL === 'true') ? fs.readFileSync(SSL_CA) : new Buffer('')
 
 const metadataInterceptor = (options: any, nextCall: any) => {
-  return new InterceptingCall(nextCall(options), {
+  return new grpc.InterceptingCall(nextCall(options), {
     start: (metadata: any, listener: any, next: any) => {
       console.log(metadata)
       next(metadata, {
@@ -43,7 +42,7 @@ const metadataInterceptor = (options: any, nextCall: any) => {
   })
 }
 
-const options = (SSL === 'true') ?
+const grpcOptions = (SSL === 'true') ?
   {
      'grpc.ssl_target_name_override' : SSL_TARGET_NAME_OVERRIDE,
       interceptors: [metadataInterceptor],
@@ -55,7 +54,7 @@ const client = new grpcObject.com.mapr.data.db.MapRDbServer(
   (SSL === 'true') ?
     grpc.credentials.createSsl(sslTrustPem) :
     grpc.credentials.createInsecure(),
-  options)
+  grpcOptions)
 
 describe('Test connection to DB', () => {
   let response: any

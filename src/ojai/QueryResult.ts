@@ -21,11 +21,14 @@ import {decode} from '../lib/utils'
 import {com} from '../../dist/proto'
 import IFindResponse = com.mapr.data.db.IFindResponse
 import FindResponseType = com.mapr.data.db.FindResponseType
+import * as Log from '../lib/logging'
+
+const logger = Log.getLogger(__filename)
 
 export class QueryResult<T> extends Transform {
   public queryPlan: any
 
-  private runStream: () => ClientReadableStream<T>
+  private readonly runStream: () => ClientReadableStream<T>
   private stream: ClientReadableStream<T>
   private hasData: boolean
   constructor(runStream: () => ClientReadableStream<T>) {
@@ -57,6 +60,9 @@ export class QueryResult<T> extends Transform {
   }
   public _transform(chunk: IFindResponse, encoding: any, callback: any) {
     this.hasData = true
+
+    logger.debug('Receiving chunk from the server. Response body: %j', chunk)
+
     const decodedChunk = decode(chunk.jsonResponse, chunk.payloadEncoding)
     if (chunk.type === FindResponseType.QUERY_PLAN) {
       this.queryPlan = decodedChunk

@@ -31,12 +31,15 @@ import IFindByIdRequest = com.mapr.data.db.IFindByIdRequest
 import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
 import {ConnectionInfo} from './ConnectionInfo'
+import * as Log from './logging'
+
+const logger = Log.getLogger(__filename)
 
 /*
  * Class that responsible for operation with documents
  */
 export class DocumentStore {
-  private storePath: string
+  private readonly storePath: string
   private connection: any
   private connectionInfo: ConnectionInfo
 
@@ -68,7 +71,16 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.findByIdAsync(request, this.connectionInfo.validationMetadata)),
+      retryDecorator(() => {
+        logger.debug('Sending FIND BY ID request to the server. Request body: %j', request)
+
+        return this.connection.findByIdAsync(request, this.connectionInfo.validationMetadata)
+          .then((resp: IFindByIdResponse) => {
+            logger.debug('Receiving FIND BY ID response to the server. Response body: %j', resp)
+
+            return resp
+          })
+      }),
       (response: IFindByIdResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return decode(response.jsonDocument, response.payloadEncoding)
@@ -100,6 +112,7 @@ export class DocumentStore {
       includeQueryPlan: includeQueryPlanParam,
       jsonQuery: encode(query),
     }
+    logger.debug('Sending FIND request to the server. Request body: %j', request)
 
     return new QueryResult(() => this.connection.find(
       request, this.connectionInfo.validationMetadata,
@@ -129,7 +142,16 @@ export class DocumentStore {
     const request = InsertOrReplaceRequestBuilder(document, this.storePath, mode, condition)
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.insertOrReplaceAsync(request, this.connectionInfo.validationMetadata)),
+      retryDecorator(() => {
+        logger.debug('Sending INSERT OR REPLACE request to the server. Request body: %j', request)
+
+        return this.connection.insertOrReplaceAsync(request, this.connectionInfo.validationMetadata)
+          .then((resp: IInsertOrReplaceResponse) => {
+            logger.debug('Receiving INSERT OR REPLACE response to the server. Response body: %j', resp)
+
+            return resp
+          })
+      }),
       (response: IInsertOrReplaceResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -151,7 +173,16 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.updateAsync(request, this.connectionInfo.validationMetadata)),
+      retryDecorator(() => {
+        logger.debug('Sending UPDATE request to the server. Request body: %j', request)
+
+        return this.connection.updateAsync(request, this.connectionInfo.validationMetadata)
+          .then((resp: IUpdateResponse) => {
+            logger.debug('Receiving UPDATE response to the server. Response body: %j', resp)
+
+            return resp
+          })
+      }),
       (response: IUpdateResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -175,7 +206,16 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => this.connection.deleteAsync(request, this.connectionInfo.validationMetadata)),
+      retryDecorator(() => {
+        logger.debug('Sending DELETE request to the server. Request body: %j', request)
+
+        return this.connection.deleteAsync(request, this.connectionInfo.validationMetadata)
+          .then((resp: IDeleteResponse) => {
+            logger.debug('Receiving DELETE response to the server. Response body: %j', resp)
+
+            return resp
+          })
+      }),
       (response: IDeleteResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true

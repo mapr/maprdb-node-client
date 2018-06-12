@@ -30,6 +30,9 @@ import ICreateTableResponse = com.mapr.data.db.ICreateTableResponse
 import {DocumentStore} from './DocumentStore'
 import {URL} from 'url'
 import {ConnectionInfo} from './ConnectionInfo'
+import * as Log from '../lib/logging'
+
+const logger = Log.getLogger(__filename)
 
 /*
  * Class that responsible for calls to grpc service
@@ -46,6 +49,8 @@ export class Connection {
             onReceiveMetadata: (metadata1: any, next1: any) => {
               const token = metadata1.get('bearer-token')
               if (token.length > 0) {
+                logger.debug('Receiving jwt token for auth')
+
                 this.connectionInfo.setBearerAuth(token)
               }
               next1(metadata1)
@@ -53,6 +58,7 @@ export class Connection {
             onReceiveStatus: (status: any, next1: any) => {
               if (status.code === grpc.status.UNAUTHENTICATED) {
                 if (status.details === 'STATUS_TOKEN_EXPIRED') {
+                  logger.debug('Access token expired, reauthenticating.')
                   // reset to basic auth
                   this.connectionInfo.setBasicAuth()
                 }
@@ -72,7 +78,16 @@ export class Connection {
     const request: ICreateTableRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => this._connection.createTableAsync(request, this.connectionInfo.validationMetadata)),
+      retryDecorator(() => {
+        logger.debug('Sending CREATE STORE request to the server. Request body: %j', request)
+
+        return this._connection.createTableAsync(request, this.connectionInfo.validationMetadata)
+          .then((resp: ICreateTableResponse) => {
+            logger.debug(`Receiving CREATE STORE response from the server. Response body: %j`, resp)
+
+            return resp
+          })
+      }),
       (response: ICreateTableResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -87,7 +102,16 @@ export class Connection {
     const request: ITableExistsRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => this._connection.tableExistsAsync(request, this.connectionInfo.validationMetadata)),
+      retryDecorator(() => {
+        logger.debug('Sending STORE EXISTS request to the server. Request body: %j', request)
+
+        return this._connection.tableExistsAsync(request, this.connectionInfo.validationMetadata)
+          .then((resp: ITableExistsResponse) => {
+            logger.debug(`Receiving STORE EXISTS response from the server. Response body: %j`, resp)
+
+            return resp
+          })
+      }),
       (response: ITableExistsResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
@@ -105,7 +129,16 @@ export class Connection {
     const request: IDeleteTableRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => this._connection.deleteTableAsync(request, this.connectionInfo.validationMetadata)),
+      retryDecorator(() => {
+        logger.debug('Sending DELETE STORE request to the server. Request body: %j', request)
+
+        return this._connection.deleteTableAsync(request, this.connectionInfo.validationMetadata)
+          .then((resp: IDeleteTableResponse) => {
+            logger.debug(`Receiving DELETE STORE response from the server. Response body: %j`, resp)
+
+            return resp
+          })
+      }),
       (response: IDeleteTableResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true

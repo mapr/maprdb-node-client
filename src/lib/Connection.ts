@@ -134,7 +134,7 @@ export class Connection {
       'https://dummyhost:0000'
     const params = new URL(dummyUrlToExtractArgs).searchParams
     const authType = params.get('auth') || 'basic'
-    const username = params.get('username') || ''
+    const username = params.get('user') || ''
     const passwd = params.get('password') || ''
     const ssl = params.get('ssl') === 'true'
     const sslCa = params.get('sslCA') || ''

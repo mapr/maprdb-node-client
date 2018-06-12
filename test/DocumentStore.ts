@@ -17,12 +17,15 @@
 import {expect} from 'chai'
 import {config} from './config'
 import {ODate} from '../src'
+import {enableLogging} from '../src/lib/logging'
 
 const {Connection} = require('../src/lib/Connection')
 
 const { HOST, PORT, AUTH, USER, PASS, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE} = config
 const connection = new Connection(`${HOST}:${PORT}?auth=${AUTH};user=${USER};password=${PASS};` +
   `ssl=${SSL};sslCA=${SSL_CA};sslTargetNameOverride=${SSL_TARGET_NAME_OVERRIDE}`)
+
+enableLogging()
 
 describe('DocumentStore', () => {
   describe('Test create/delete store', () => {

@@ -16,18 +16,25 @@
 
 import {expect} from 'chai'
 import {config} from './config'
-import {ODate} from '../src'
+import {ConnectionManager, ODate} from '../src'
 import {enableLogging} from '../src/lib/logging'
-
-const {Connection} = require('../src/lib/Connection')
-
-const { HOST, PORT, AUTH, USER, PASS, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE} = config
-const connection = new Connection(`${HOST}:${PORT}?auth=${AUTH};user=${USER};password=${PASS};` +
-  `ssl=${SSL};sslCA=${SSL_CA};sslTargetNameOverride=${SSL_TARGET_NAME_OVERRIDE}`)
+import {Connection} from '../src/lib/Connection'
+import {DocumentStore} from '../src/lib/DocumentStore'
 
 enableLogging()
 
+const getConnectionString = (connectionConfig: any) => {
+  const { HOST, PORT, AUTH, USER, PASS, SSL, SSL_CA, SSL_TARGET_NAME_OVERRIDE } = connectionConfig
+
+  return `${HOST}:${PORT}?auth=${AUTH};user=${USER};password=${PASS};` +
+    `ssl=${SSL};sslCA=${SSL_CA};sslTargetNameOverride=${SSL_TARGET_NAME_OVERRIDE}`
+}
+
 describe('DocumentStore', () => {
+  let connection: Connection;
+  before(async () => {
+    connection = await ConnectionManager.getConnection(getConnectionString(config))
+  })
   describe('Test create/delete store', () => {
     it('should check if store does not exist', async () => {
       const resp = await connection.storeExists('/test-store-test')
@@ -68,7 +75,7 @@ describe('DocumentStore', () => {
         const doc: any = {}
         doc._id = 'id__id'
         doc.testField = 'testValue'
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const resp = await store.insertOrReplace(doc)
         expect(resp).to.be.true
       })
@@ -76,7 +83,7 @@ describe('DocumentStore', () => {
         const doc: any = {}
         doc._id = Buffer.from('1234')
         doc.testField = new ODate ('2012-10-20')
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const resp = await store.insertOrReplace(doc)
         expect(resp).to.be.true
       })
@@ -84,7 +91,7 @@ describe('DocumentStore', () => {
     describe('Test findById document', () => {
       it('should find store document by id', async () => {
         const _id = 'id__id'
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const doc = await store.findById(_id)
         expect(doc).to.be.eql({
           _id,
@@ -94,7 +101,7 @@ describe('DocumentStore', () => {
       it('Should return null', async () => {
         const id = 'no_such_id'
 
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const result = await store.findById(id)
 
         expect(result).to.be.null
@@ -107,7 +114,7 @@ describe('DocumentStore', () => {
         condition.$where = {
           $eq: { testField: new ODate ('2012-10-20') },
         }
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const doc = await store.findById(_id, condition)
         expect(doc).to.be.eql({
           _id,
@@ -118,8 +125,8 @@ describe('DocumentStore', () => {
     describe('Test findById document with projection', () => {
       it('should find store document by binary id with field projection', async () => {
         const _id = Buffer.from([0x31, 0x32, 0x33, 0x34])
-        const projections: any = ['testField']
-        const store = connection.getStore(storeName)
+        const projections = ['testField']
+        const store = await connection.getStore(storeName)
         const doc = await store.findById(_id, {}, projections)
         expect(doc).to.be.eql({
           testField: new ODate ('2012-10-20'),
@@ -133,22 +140,24 @@ describe('DocumentStore', () => {
         query.$where = {
           $eq: { testField: 'testValue' },
         }
-        const store = connection.getStore(storeName)
-        const docStream = store.find(query)
-        const resp: any[] = []
-        docStream.on('data', (chunk: any) => {
-          resp.push(chunk)
-        })
-        docStream.on('error', (err: any) => console.error(err))
-        docStream.on('end', () => {
-          expect(resp).to.be.eql([{_id: 'id__id', testField: 'testValue'}])
-          done()
-        })
+        connection.getStore(storeName)
+          .then((store: DocumentStore) => {
+            const docStream = store.find(query)
+            const resp: any[] = []
+            docStream.on('data', (chunk: any) => {
+              resp.push(chunk)
+            })
+            docStream.on('error', (err: any) => console.error(err))
+            docStream.on('end', () => {
+              expect(resp).to.be.eql([{_id: 'id__id', testField: 'testValue'}])
+              done()
+            })
+          })
       })
     })
     describe('Test update document', () => {
       it('should update store document', async () => {
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const _id = 'id__id'
         const mutation = {
           $set: { testField: 'updatedTestValue' },
@@ -161,7 +170,7 @@ describe('DocumentStore', () => {
     })
     describe('Test checkAndUpdate document', () => {
       it('should update with condition store document', async () => {
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const _id = 'id__id'
         const mutation = {
           $set: { testField: 'mutatedValue' },
@@ -179,7 +188,7 @@ describe('DocumentStore', () => {
     })
     describe('Test delete document', () => {
       it('should delete store document', async () => {
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const _id = 'id__id'
         const result = await store.delete(_id)
         expect(result).to.be.true
@@ -187,7 +196,7 @@ describe('DocumentStore', () => {
     })
     describe('Test checkAndDelete document', () => {
       it('should delete with condition store document', async () => {
-        const store = connection.getStore(storeName)
+        const store = await connection.getStore(storeName)
         const _id = 'id__id'
         const doc: any = {}
         doc._id = _id

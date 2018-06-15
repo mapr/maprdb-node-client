@@ -17,16 +17,12 @@
 const { ConnectionManager } = require('node-maprdb');
 
 // Create connection with specified connection string
-const connection = ConnectionManager.getConnection('localhost:5678');
-
+const docId = '123';
 const storeName = '/test-db-1';
 
-const docId = '123';
-
-const store = connection.getStore(storeName);
-
-//with promise
-store.findById(docId)
+const connection = ConnectionManager.getConnection('localhost:5678')
+  .then((connection) => connection.getStore(storeName))
+  .then((store) => store.findById(docId))
   .then((doc) => console.log('findById', doc))
   .catch((err) => console.error(err))
   .then(() => {

@@ -17,12 +17,12 @@
 const { ConnectionManager } = require('node-maprdb');
 
 // Create connection with specified connection string
-const connection = ConnectionManager.getConnection('localhost:5678');
+ConnectionManager.getConnection('localhost:5678', (err, connection) => {
+  const storeName = '/test-db-1';
 
-const storeName = '/test-db-1';
-
-connection.createStore(storeName, (err, result) => {
-  // Log the result to the console
-  console.log('createStore', {err, result});
-  connection.close();
+  connection.createStore(storeName, (err, result) => {
+    // Log the result to the console
+    console.log('createStore', {err, result});
+    connection.close();
+  });
 });

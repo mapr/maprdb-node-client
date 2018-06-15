@@ -98,14 +98,17 @@ export const withOptionalCallback = (method: any, mapper: any, callback?: Callba
   })
 }
 
+const isConnectFailed = (e: StatusObject) => e.code === status.UNAVAILABLE && e.details === 'Connect Failed'
+const isTokenExpired = (e: StatusObject) => e.code === status.UNAUTHENTICATED && e.details === 'STATUS_TOKEN_EXPIRED'
+
 export const retryDecorator = (decoratedMethod: any, options: WrapOptions = { retries: 7, maxTimeout: 18000 }) => {
   return () => promiseRetry((retry) => {
     return decoratedMethod()
       .catch((err: StatusObject)  => {
-        if (err.code === status.UNAVAILABLE
+        if (isConnectFailed(err)
           || err.code === status.RESOURCE_EXHAUSTED
           // should retry operation when token is expired
-          || (err.code === status.UNAUTHENTICATED && err.details === 'STATUS_TOKEN_EXPIRED')
+          || isTokenExpired(err)
         ) {
           retry(err)
         }

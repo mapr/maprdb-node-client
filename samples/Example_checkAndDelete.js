@@ -30,14 +30,14 @@ const condition = {
 };
 
 // Create connection with specified connection string
-const connection = ConnectionManager.getConnection('localhost:5678');
+ConnectionManager.getConnection('localhost:5678', (err, connection) => {
+  const storeName = '/test-db-1';
 
-const storeName = '/test-db-1';
-
-const store = connection.getStore(storeName);
-
-store.checkAndDelete(docId, condition, (err, result) => {
-  // Log the result to the console
-  console.log('checkAndDelete', {err, result});
-  connection.close();
+  connection.getStore(storeName, (err, store) => {
+    store.checkAndDelete(docId, condition, (err, result) => {
+      // Log the result to the console
+      console.log('checkAndDelete', {err, result});
+      connection.close();
+    });
+  });
 });

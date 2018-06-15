@@ -15,13 +15,28 @@
  */
 
 import {Connection} from './Connection'
+import {Callback} from '../types'
+import {withOptionalCallback} from './utils'
+import {status, StatusObject} from 'grpc'
 
+const isSslError = (e: StatusObject) => e.code === status.UNAVAILABLE && e.details === 'EOF'
 /*
  * Class for connection management
  */
 export class ConnectionManagerClass {
-  public getConnection(url: string) {
-    return new Connection(url)
+  public getConnection(url: string, callback?: Callback) {
+    const connection = new Connection(url)
+
+    return withOptionalCallback(
+      () => connection.pingConnection().catch((err: StatusObject) => {
+            if (isSslError(err)) {
+              throw new Error('Attempt to establish plain text connection failed! Server is listening on SSL socket?')
+            }
+            throw err
+        }),
+      () => connection,
+      callback,
+    )
   }
 }
 

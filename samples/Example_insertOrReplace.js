@@ -37,14 +37,12 @@ doc.phoneNumbers = [
   {areaCode: '555', number: '555-5556'}
 ];
 
-// Create connection with specified connection string
-const connection = ConnectionManager.getConnection('localhost:5678');
-
 const storeName = '/test-db-1';
 
-const store = connection.getStore(storeName);
-
-store.insertOrReplace(doc)
+// Create connection with specified connection string
+const connection = ConnectionManager.getConnection('localhost:5678')
+  .then((connection) => connection.getStore(storeName))
+  .then((store) => store.insertOrReplace(doc))
   .then((res) => console.log(res))
   .catch((err) => console.error(err))
   .then(() => connection.close());

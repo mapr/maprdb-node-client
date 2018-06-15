@@ -33,6 +33,20 @@ export namespace com {
                     public static create(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean): MapRDbServer;
 
                     /**
+                     * Calls Ping.
+                     * @param request PingRequest message or plain object
+                     * @param callback Node-style callback called with the error, if any, and PingResponse
+                     */
+                    public ping(request: com.mapr.data.db.IPingRequest, callback: com.mapr.data.db.MapRDbServer.PingCallback): void;
+
+                    /**
+                     * Calls Ping.
+                     * @param request PingRequest message or plain object
+                     * @returns Promise
+                     */
+                    public ping(request: com.mapr.data.db.IPingRequest): Promise<com.mapr.data.db.PingResponse>;
+
+                    /**
                      * Calls CreateTable.
                      * @param request CreateTableRequest message or plain object
                      * @param callback Node-style callback called with the error, if any, and CreateTableResponse
@@ -146,6 +160,13 @@ export namespace com {
                 }
 
                 namespace MapRDbServer {
+
+                    /**
+                     * Callback as used by {@link com.mapr.data.db.MapRDbServer#ping}.
+                     * @param error Error, if any
+                     * @param [response] PingResponse
+                     */
+                    type PingCallback = (error: (Error|null), response?: com.mapr.data.db.PingResponse) => void;
 
                     /**
                      * Callback as used by {@link com.mapr.data.db.MapRDbServer#createTable}.
@@ -341,6 +362,174 @@ export namespace com {
                 enum PayloadEncoding {
                     UNKNOWN_ENCODING = 0,
                     JSON_ENCODING = 1
+                }
+
+                /** Properties of a PingRequest. */
+                interface IPingRequest {
+                }
+
+                /** Represents a PingRequest. */
+                class PingRequest implements IPingRequest {
+
+                    /**
+                     * Constructs a new PingRequest.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: com.mapr.data.db.IPingRequest);
+
+                    /**
+                     * Creates a new PingRequest instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns PingRequest instance
+                     */
+                    public static create(properties?: com.mapr.data.db.IPingRequest): com.mapr.data.db.PingRequest;
+
+                    /**
+                     * Encodes the specified PingRequest message. Does not implicitly {@link com.mapr.data.db.PingRequest.verify|verify} messages.
+                     * @param message PingRequest message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: com.mapr.data.db.IPingRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified PingRequest message, length delimited. Does not implicitly {@link com.mapr.data.db.PingRequest.verify|verify} messages.
+                     * @param message PingRequest message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: com.mapr.data.db.IPingRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a PingRequest message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns PingRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.mapr.data.db.PingRequest;
+
+                    /**
+                     * Decodes a PingRequest message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns PingRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.mapr.data.db.PingRequest;
+
+                    /**
+                     * Verifies a PingRequest message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a PingRequest message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns PingRequest
+                     */
+                    public static fromObject(object: { [k: string]: any }): com.mapr.data.db.PingRequest;
+
+                    /**
+                     * Creates a plain object from a PingRequest message. Also converts values to other types if specified.
+                     * @param message PingRequest
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: com.mapr.data.db.PingRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this PingRequest to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
+
+                /** Properties of a PingResponse. */
+                interface IPingResponse {
+                }
+
+                /** Represents a PingResponse. */
+                class PingResponse implements IPingResponse {
+
+                    /**
+                     * Constructs a new PingResponse.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: com.mapr.data.db.IPingResponse);
+
+                    /**
+                     * Creates a new PingResponse instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns PingResponse instance
+                     */
+                    public static create(properties?: com.mapr.data.db.IPingResponse): com.mapr.data.db.PingResponse;
+
+                    /**
+                     * Encodes the specified PingResponse message. Does not implicitly {@link com.mapr.data.db.PingResponse.verify|verify} messages.
+                     * @param message PingResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: com.mapr.data.db.IPingResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified PingResponse message, length delimited. Does not implicitly {@link com.mapr.data.db.PingResponse.verify|verify} messages.
+                     * @param message PingResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: com.mapr.data.db.IPingResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a PingResponse message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns PingResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.mapr.data.db.PingResponse;
+
+                    /**
+                     * Decodes a PingResponse message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns PingResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.mapr.data.db.PingResponse;
+
+                    /**
+                     * Verifies a PingResponse message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a PingResponse message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns PingResponse
+                     */
+                    public static fromObject(object: { [k: string]: any }): com.mapr.data.db.PingResponse;
+
+                    /**
+                     * Creates a plain object from a PingResponse message. Also converts values to other types if specified.
+                     * @param message PingResponse
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: com.mapr.data.db.PingResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this PingResponse to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
                 }
 
                 /** Properties of a CreateTableRequest. */
@@ -1772,7 +1961,7 @@ export namespace com {
                 interface IUpdateResponse {
 
                     /**
-                     * `NO_ERROR` - if a document was updated successfuly
+                     * `NO_ERROR` - if a document was updated successfully
                      * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
                      * evaluated to 'false'.
                      */
@@ -1789,7 +1978,7 @@ export namespace com {
                     constructor(properties?: com.mapr.data.db.IUpdateResponse);
 
                     /**
-                     * `NO_ERROR` - if a document was updated successfuly
+                     * `NO_ERROR` - if a document was updated successfully
                      * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
                      * evaluated to 'false'.
                      */
@@ -1995,7 +2184,7 @@ export namespace com {
                 /** Properties of a DeleteResponse. */
                 interface IDeleteResponse {
 
-                    /** `NO_ERROR` - if a document was deleted successfuly */
+                    /** `NO_ERROR` - if a document was deleted successfully */
                     error?: (com.mapr.data.db.IRpcError|null);
                 }
 
@@ -2008,7 +2197,7 @@ export namespace com {
                      */
                     constructor(properties?: com.mapr.data.db.IDeleteResponse);
 
-                    /** `NO_ERROR` - if a document was deleted successfuly */
+                    /** `NO_ERROR` - if a document was deleted successfully */
                     public error?: (com.mapr.data.db.IRpcError|null);
 
                     /**

@@ -41,15 +41,12 @@ const condition = {
     $eq: { firstName: 'John' }
   }
 };
-
-// Create connection with specified connection string
-const connection = ConnectionManager.getConnection('localhost:5678');
-
 const storeName = '/test-db-1';
 
-const store = connection.getStore(storeName);
-
-store.checkAndReplace(doc, condition)
+// Create connection with specified connection string
+const connection = ConnectionManager.getConnection('localhost:5678')
+  .then((connection) => connection.getStore(storeName))
+  .then((store) => store.checkAndReplace(doc, condition))
   .then((res) => console.log(res))
   .catch((err) => console.error(err))
   .then(() => connection.close());

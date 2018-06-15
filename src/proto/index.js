@@ -78,6 +78,39 @@ $root.com = (function() {
                     };
 
                     /**
+                     * Callback as used by {@link com.mapr.data.db.MapRDbServer#ping}.
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @typedef PingCallback
+                     * @type {function}
+                     * @param {Error|null} error Error, if any
+                     * @param {com.mapr.data.db.PingResponse} [response] PingResponse
+                     */
+
+                    /**
+                     * Calls Ping.
+                     * @function ping
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @instance
+                     * @param {com.mapr.data.db.IPingRequest} request PingRequest message or plain object
+                     * @param {com.mapr.data.db.MapRDbServer.PingCallback} callback Node-style callback called with the error, if any, and PingResponse
+                     * @returns {undefined}
+                     * @variation 1
+                     */
+                    MapRDbServer.prototype.ping = function ping(request, callback) {
+                        return this.rpcCall(ping, $root.com.mapr.data.db.PingRequest, $root.com.mapr.data.db.PingResponse, request, callback);
+                    };
+
+                    /**
+                     * Calls Ping.
+                     * @function ping
+                     * @memberof com.mapr.data.db.MapRDbServer
+                     * @instance
+                     * @param {com.mapr.data.db.IPingRequest} request PingRequest message or plain object
+                     * @returns {Promise<com.mapr.data.db.PingResponse>} Promise
+                     * @variation 2
+                     */
+
+                    /**
                      * Callback as used by {@link com.mapr.data.db.MapRDbServer#createTable}.
                      * @memberof com.mapr.data.db.MapRDbServer
                      * @typedef CreateTableCallback
@@ -727,6 +760,326 @@ $root.com = (function() {
                     values[valuesById[0] = "UNKNOWN_ENCODING"] = 0;
                     values[valuesById[1] = "JSON_ENCODING"] = 1;
                     return values;
+                })();
+
+                db.PingRequest = (function() {
+
+                    /**
+                     * Properties of a PingRequest.
+                     * @memberof com.mapr.data.db
+                     * @interface IPingRequest
+                     */
+
+                    /**
+                     * Constructs a new PingRequest.
+                     * @memberof com.mapr.data.db
+                     * @classdesc Represents a PingRequest.
+                     * @implements IPingRequest
+                     * @constructor
+                     * @param {com.mapr.data.db.IPingRequest=} [properties] Properties to set
+                     */
+                    function PingRequest(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * Creates a new PingRequest instance using the specified properties.
+                     * @function create
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {com.mapr.data.db.IPingRequest=} [properties] Properties to set
+                     * @returns {com.mapr.data.db.PingRequest} PingRequest instance
+                     */
+                    PingRequest.create = function create(properties) {
+                        return new PingRequest(properties);
+                    };
+
+                    /**
+                     * Encodes the specified PingRequest message. Does not implicitly {@link com.mapr.data.db.PingRequest.verify|verify} messages.
+                     * @function encode
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {com.mapr.data.db.IPingRequest} message PingRequest message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    PingRequest.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified PingRequest message, length delimited. Does not implicitly {@link com.mapr.data.db.PingRequest.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {com.mapr.data.db.IPingRequest} message PingRequest message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    PingRequest.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a PingRequest message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {com.mapr.data.db.PingRequest} PingRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    PingRequest.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.com.mapr.data.db.PingRequest();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a PingRequest message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {com.mapr.data.db.PingRequest} PingRequest
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    PingRequest.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a PingRequest message.
+                     * @function verify
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    PingRequest.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        return null;
+                    };
+
+                    /**
+                     * Creates a PingRequest message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {com.mapr.data.db.PingRequest} PingRequest
+                     */
+                    PingRequest.fromObject = function fromObject(object) {
+                        if (object instanceof $root.com.mapr.data.db.PingRequest)
+                            return object;
+                        return new $root.com.mapr.data.db.PingRequest();
+                    };
+
+                    /**
+                     * Creates a plain object from a PingRequest message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @static
+                     * @param {com.mapr.data.db.PingRequest} message PingRequest
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    PingRequest.toObject = function toObject() {
+                        return {};
+                    };
+
+                    /**
+                     * Converts this PingRequest to JSON.
+                     * @function toJSON
+                     * @memberof com.mapr.data.db.PingRequest
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    PingRequest.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return PingRequest;
+                })();
+
+                db.PingResponse = (function() {
+
+                    /**
+                     * Properties of a PingResponse.
+                     * @memberof com.mapr.data.db
+                     * @interface IPingResponse
+                     */
+
+                    /**
+                     * Constructs a new PingResponse.
+                     * @memberof com.mapr.data.db
+                     * @classdesc Represents a PingResponse.
+                     * @implements IPingResponse
+                     * @constructor
+                     * @param {com.mapr.data.db.IPingResponse=} [properties] Properties to set
+                     */
+                    function PingResponse(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * Creates a new PingResponse instance using the specified properties.
+                     * @function create
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {com.mapr.data.db.IPingResponse=} [properties] Properties to set
+                     * @returns {com.mapr.data.db.PingResponse} PingResponse instance
+                     */
+                    PingResponse.create = function create(properties) {
+                        return new PingResponse(properties);
+                    };
+
+                    /**
+                     * Encodes the specified PingResponse message. Does not implicitly {@link com.mapr.data.db.PingResponse.verify|verify} messages.
+                     * @function encode
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {com.mapr.data.db.IPingResponse} message PingResponse message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    PingResponse.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified PingResponse message, length delimited. Does not implicitly {@link com.mapr.data.db.PingResponse.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {com.mapr.data.db.IPingResponse} message PingResponse message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    PingResponse.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a PingResponse message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {com.mapr.data.db.PingResponse} PingResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    PingResponse.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.com.mapr.data.db.PingResponse();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a PingResponse message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {com.mapr.data.db.PingResponse} PingResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    PingResponse.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a PingResponse message.
+                     * @function verify
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    PingResponse.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        return null;
+                    };
+
+                    /**
+                     * Creates a PingResponse message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {com.mapr.data.db.PingResponse} PingResponse
+                     */
+                    PingResponse.fromObject = function fromObject(object) {
+                        if (object instanceof $root.com.mapr.data.db.PingResponse)
+                            return object;
+                        return new $root.com.mapr.data.db.PingResponse();
+                    };
+
+                    /**
+                     * Creates a plain object from a PingResponse message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @static
+                     * @param {com.mapr.data.db.PingResponse} message PingResponse
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    PingResponse.toObject = function toObject() {
+                        return {};
+                    };
+
+                    /**
+                     * Converts this PingResponse to JSON.
+                     * @function toJSON
+                     * @memberof com.mapr.data.db.PingResponse
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    PingResponse.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return PingResponse;
                 })();
 
                 db.CreateTableRequest = (function() {
@@ -4018,7 +4371,7 @@ $root.com = (function() {
                      * Properties of an UpdateResponse.
                      * @memberof com.mapr.data.db
                      * @interface IUpdateResponse
-                     * @property {com.mapr.data.db.IRpcError|null} [error] `NO_ERROR` - if a document was updated successfuly
+                     * @property {com.mapr.data.db.IRpcError|null} [error] `NO_ERROR` - if a document was updated successfully
                      * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
                      * evaluated to 'false'.
                      */
@@ -4039,7 +4392,7 @@ $root.com = (function() {
                     }
 
                     /**
-                     * `NO_ERROR` - if a document was updated successfuly
+                     * `NO_ERROR` - if a document was updated successfully
                      * `DOCUMENT_NOT_FOUND` - if a document with specified `_id` does not exist or the specified condition
                      * evaluated to 'false'.
                      * @member {com.mapr.data.db.IRpcError|null|undefined} error
@@ -4519,7 +4872,7 @@ $root.com = (function() {
                      * Properties of a DeleteResponse.
                      * @memberof com.mapr.data.db
                      * @interface IDeleteResponse
-                     * @property {com.mapr.data.db.IRpcError|null} [error] `NO_ERROR` - if a document was deleted successfuly
+                     * @property {com.mapr.data.db.IRpcError|null} [error] `NO_ERROR` - if a document was deleted successfully
                      */
 
                     /**
@@ -4538,7 +4891,7 @@ $root.com = (function() {
                     }
 
                     /**
-                     * `NO_ERROR` - if a document was deleted successfuly
+                     * `NO_ERROR` - if a document was deleted successfully
                      * @member {com.mapr.data.db.IRpcError|null|undefined} error
                      * @memberof com.mapr.data.db.DeleteResponse
                      * @instance

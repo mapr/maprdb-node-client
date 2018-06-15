@@ -36,7 +36,7 @@ export const parseOJAIDocument = (jsonStr: string) => {
 
 export const stringifyOJAIDocument = (document : any) => {
   return JSON.stringify(document, (key: string, value : any) => {
-    if ((value !== undefined) && (value.type === 'Buffer')) {
+    if ((value !== undefined) && (value !== null) && (value.type === 'Buffer')) {
       return { $binary: Buffer.from(value.data).toString('base64') }
     }
 

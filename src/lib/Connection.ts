@@ -198,14 +198,12 @@ export class Connection {
     const authType = params.get('auth') || 'basic'
     const username = params.get('user') || ''
     const passwd = params.get('password') || ''
-    const ssl = params.get('ssl') === 'true'
+    const ssl = params.get('ssl') || 'true'
+    const sslEnabled = ssl === 'true'
     const sslCa = params.get('sslCA') || ''
     const sslTargetNameOverride = params.get('sslTargetNameOverride') || ''
 
-    if (ssl && sslTargetNameOverride === '') {
-      throw Error('\'sslTargetNameOverride\' must be specified when ssl enabled.')
-    }
-    if (ssl && sslCa === '') {
+    if (sslEnabled && sslCa === '') {
       throw Error('sslCa must be specified when ssl enabled.')
     }
     if (authType !== 'basic') {
@@ -221,7 +219,7 @@ export class Connection {
     const encodedUserMetadata = Buffer.from(`${username}:${passwd}`).toString('base64')
     const connectionInfo = new ConnectionInfo(
       connectionStringParts[0],
-      ssl,
+      sslEnabled,
       sslCa,
       meta,
       sslTargetNameOverride,

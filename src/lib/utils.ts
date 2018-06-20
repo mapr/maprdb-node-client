@@ -25,9 +25,9 @@ import IInsertOrReplaceRequest = com.mapr.data.db.IInsertOrReplaceRequest
 import {parseOJAIDocument, stringifyOJAIDocument} from '../ojai/OJAIUtils'
 import {Callback} from '../types'
 import promiseRetry from 'promise-retry'
-import {WrapOptions} from 'retry'
 import * as fs from 'fs'
 import {ConnectionInfo} from './ConnectionInfo'
+import {ConnectionOptions} from '..'
 
 const PROTO_PATH = join(__dirname, '../../proto/maprdb-server.proto')
 const protoPackage = loadSync(PROTO_PATH)
@@ -101,8 +101,8 @@ export const withOptionalCallback = (method: any, mapper: any, callback?: Callba
 const isConnectFailed = (e: StatusObject) => e.code === status.UNAVAILABLE && e.details === 'Connect Failed'
 const isTokenExpired = (e: StatusObject) => e.code === status.UNAUTHENTICATED && e.details === 'STATUS_TOKEN_EXPIRED'
 
-export const retryDecorator = (decoratedMethod: any, options: WrapOptions = { retries: 7, maxTimeout: 18000 }) => {
-  return () => promiseRetry((retry) => {
+export const retryDecorator = (options: ConnectionOptions) => {
+  return (decoratedMethod: any) => () => promiseRetry((retry: (err: any) => void) => {
     return decoratedMethod()
       .catch((err: StatusObject)  => {
         if (isConnectFailed(err)
@@ -115,5 +115,5 @@ export const retryDecorator = (decoratedMethod: any, options: WrapOptions = { re
 
         throw err
       })
-  },                        options)
+  },                                                  options.toWrapOptions())
 }

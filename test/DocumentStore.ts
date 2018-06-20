@@ -31,9 +31,10 @@ const getConnectionString = (connectionConfig: any) => {
 }
 
 describe('DocumentStore', () => {
-  let connection: Connection;
+  let connection: Connection
   before(async () => {
-    connection = await ConnectionManager.getConnection(getConnectionString(config))
+    connection = await ConnectionManager.getConnection(getConnectionString(config),
+                 {'ojai.mapr.rpc.wait-multiplier': 500, 'ojai.mapr.rpc.max-retries' : 3})
   })
   describe('Test create/delete store', () => {
     it('should check if store does not exist', async () => {

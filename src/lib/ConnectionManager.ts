@@ -18,14 +18,18 @@ import {Connection} from './Connection'
 import {Callback} from '../types'
 import {withOptionalCallback} from './utils'
 import {status, StatusObject} from 'grpc'
+import {ConnectionOptions} from '..'
 
 const isSslError = (e: StatusObject) => e.code === status.UNAVAILABLE && e.details === 'EOF'
 /*
  * Class for connection management
  */
 export class ConnectionManagerClass {
-  public getConnection(url: string, callback?: Callback) {
-    const connection = new Connection(url)
+  public getConnection(url: string, connectionOptionsOrCallback?: any, callback?: Callback) {
+
+    const { connectionOptionsInternal, callbackInternal } = this.handleOptionalParams(connectionOptionsOrCallback, callback)
+
+    const connection = new Connection(url, connectionOptionsInternal)
 
     return withOptionalCallback(
       () => connection.pingConnection().catch((err: StatusObject) => {
@@ -35,8 +39,25 @@ export class ConnectionManagerClass {
             throw err
         }),
       () => connection,
-      callback,
-    )
+      callbackInternal,
+    )}
+
+  private handleOptionalParams(connectionOptionsOrCallback?: any, optionalCallback?: Callback) {
+    let connectionOptions: ConnectionOptions
+    let callback: Callback
+    if (optionalCallback !== undefined) {
+      connectionOptions = connectionOptionsOrCallback
+    } else if (connectionOptionsOrCallback !== undefined) {
+      if (typeof connectionOptionsOrCallback === 'function') {
+        callback = connectionOptionsOrCallback
+      } else {
+        connectionOptions = new ConnectionOptions(connectionOptionsOrCallback)
+      }
+    } else {
+      connectionOptions = new ConnectionOptions({})
+    }
+
+    return {connectionOptionsInternal: connectionOptions, callbackInternal: callback}
   }
 }
 

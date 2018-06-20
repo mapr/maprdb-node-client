@@ -18,10 +18,12 @@ import {ConnectionManager} from './lib/ConnectionManager'
 import {ODate} from './types/ODate'
 import {OTime} from './types/OTime'
 import {OTimestamp} from './types/OTimestamp'
+import {ConnectionOptions} from './types/ConnectionOptions'
 
 export {
   ConnectionManager,
   ODate,
   OTime,
   OTimestamp,
+  ConnectionOptions,
 }

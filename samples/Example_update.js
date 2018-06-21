@@ -16,12 +16,6 @@
 
 const { ConnectionManager } = require('node-maprdb');
 
-// Create connection with specified connection string
-const connection = ConnectionManager.getConnection('localhost:5678');
-
-const storeName = '/test-db-1';
-
-const store = connection.getStore(storeName);
 const id = '123';
 
 const mutation = {
@@ -32,8 +26,15 @@ const mutation = {
   ]
 };
 
-store.update(id, mutation, (err, result) => {
-  // Log the result to the console
-  console.log('update', {err, result});
-  connection.close();
+// Create connection with specified connection string
+ConnectionManager.getConnection('localhost:5678', (err, connection) => {
+  const storeName = '/test-db-1';
+
+  connection.getStore(storeName, (err, store) => {
+    store.update(id, mutation, (err, result) => {
+      // Log the result to the console
+      console.log('update', {err, result});
+      connection.close();
+    });
+  });
 });

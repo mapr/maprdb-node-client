@@ -18,12 +18,14 @@ import {com} from '../proto'
 import * as grpc from 'grpc'
 import {Callback} from '../types'
 import {createConnection, withOptionalCallback, retryDecorator} from './utils'
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 import ICreateTableRequest = com.mapr.data.db.ICreateTableRequest
 import ErrorCode = com.mapr.data.db.ErrorCode
 import IDeleteTableRequest = com.mapr.data.db.IDeleteTableRequest
 import IDeleteTableResponse = com.mapr.data.db.IDeleteTableResponse
 import ITableExistsRequest = com.mapr.data.db.ITableExistsRequest
+import IPingRequest = com.mapr.data.db.IPingRequest
+import IPingResponse = com.mapr.data.db.IPingResponse
 import ITableExistsResponse = com.mapr.data.db.ITableExistsResponse
 import ICreateTableResponse = com.mapr.data.db.ICreateTableResponse
 
@@ -71,7 +73,7 @@ export class Connection {
       })
     }
     this.connectionInfo = this.constructConnectionInfo(connectionString)
-    this._connection = Promise.promisifyAll(createConnection(this.connectionInfo, metadataInterceptor))
+    this._connection = Bluebird.promisifyAll(createConnection(this.connectionInfo, metadataInterceptor))
   }
 
   public createStore(storePath: string, callback?: Callback): void|Promise<any> {
@@ -149,15 +151,42 @@ export class Connection {
     )
   }
 
-  public getStore(storePath: string) {
+  public getStore(storePath: string, callback?: Callback) {
     if (typeof storePath !== 'string') {
       throw Error('Table name should be string')
     }
+    const store = new DocumentStore(storePath, this._connection, this.connectionInfo)
 
-    return new DocumentStore(storePath, this._connection, this.connectionInfo)
+    return withOptionalCallback(
+      () => this.storeExists(storePath),
+      (isExists: boolean) => {
+        if (isExists) {
+          return store
+        }
+        throw Error(`Store ${storePath} not found`)
+      },
+      callback,
+    )
   }
   public close() {
     this._connection.close()
+  }
+
+  public pingConnection(): Promise<any> {
+    const request: IPingRequest = {}
+
+    const method = retryDecorator(() => {
+      logger.debug('Sending PING request to the server. Request body: %j', request)
+
+      return this._connection.pingAsync(request, this.connectionInfo.validationMetadata)
+        .then((resp: IPingResponse) => {
+          logger.debug(`Receiving PING response from the server. Response body: %j`, resp)
+
+          return resp
+        })
+    })
+
+    return method()
   }
 
   private constructConnectionInfo(connectionString: string): ConnectionInfo {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {decode, encode, InsertOrReplaceRequestBuilder, withOptionalCallback, retryDecorator} from './utils'
+import {decode, encode, InsertOrReplaceRequestBuilder, withOptionalCallback} from './utils'
 import {Callback} from '../types'
 import {QueryResult} from '../ojai/QueryResult'
 
@@ -42,11 +42,13 @@ export class DocumentStore {
   private readonly storePath: string
   private connection: any
   private connectionInfo: ConnectionInfo
+  private readonly retryDecorator: any
 
-  constructor(storePath: string, connection: any, connectionInfo: ConnectionInfo) {
+  constructor(storePath: string, connection: any, connectionInfo: ConnectionInfo, retryDecorator: any) {
     this.storePath = storePath
     this.connection = connection
     this.connectionInfo = connectionInfo
+    this.retryDecorator = retryDecorator
   }
   public insertOrReplace(document: any, callback?: Callback): void|Promise<any> {
     return this.grpcInsertOrReplace(document, InsertMode.INSERT_OR_REPLACE, callback)
@@ -71,7 +73,7 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => {
+      this.retryDecorator(() => {
         logger.debug('Sending FIND BY ID request to the server. Request body: %j', request)
 
         return this.connection.findByIdAsync(request, this.connectionInfo.validationMetadata)
@@ -142,7 +144,7 @@ export class DocumentStore {
     const request = InsertOrReplaceRequestBuilder(document, this.storePath, mode, condition)
 
     return withOptionalCallback(
-      retryDecorator(() => {
+      this.retryDecorator(() => {
         logger.debug('Sending INSERT OR REPLACE request to the server. Request body: %j', request)
 
         return this.connection.insertOrReplaceAsync(request, this.connectionInfo.validationMetadata)
@@ -173,7 +175,7 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => {
+      this.retryDecorator(() => {
         logger.debug('Sending UPDATE request to the server. Request body: %j', request)
 
         return this.connection.updateAsync(request, this.connectionInfo.validationMetadata)
@@ -206,7 +208,7 @@ export class DocumentStore {
     }
 
     return withOptionalCallback(
-      retryDecorator(() => {
+      this.retryDecorator(() => {
         logger.debug('Sending DELETE request to the server. Request body: %j', request)
 
         return this.connection.deleteAsync(request, this.connectionInfo.validationMetadata)

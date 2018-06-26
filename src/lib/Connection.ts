@@ -33,6 +33,7 @@ import {DocumentStore} from './DocumentStore'
 import {URL} from 'url'
 import {ConnectionInfo} from './ConnectionInfo'
 import * as Log from '../lib/logging'
+import {ConnectionOptions} from '..'
 
 const logger = Log.getLogger(__filename)
 
@@ -42,8 +43,9 @@ const logger = Log.getLogger(__filename)
 export class Connection {
   private readonly _connection: any
   private readonly connectionInfo: ConnectionInfo
+  private readonly _retryDecorator: any
 
-  constructor(connectionString: string) {
+  constructor(connectionString: string, connectionOptions: ConnectionOptions) {
     const metadataInterceptor = (options: any, nextCall: any) => {
       return new grpc.InterceptingCall(nextCall(options), {
         start: (metadata: any, listener: any, next: any) => {
@@ -74,13 +76,18 @@ export class Connection {
     }
     this.connectionInfo = this.constructConnectionInfo(connectionString)
     this._connection = Bluebird.promisifyAll(createConnection(this.connectionInfo, metadataInterceptor))
+    this._retryDecorator = retryDecorator(connectionOptions)
+  }
+
+  get retryDecorator(): any {
+    return this._retryDecorator
   }
 
   public createStore(storePath: string, callback?: Callback): void|Promise<any> {
     const request: ICreateTableRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => {
+      this._retryDecorator(() => {
         logger.debug('Sending CREATE STORE request to the server. Request body: %j', request)
 
         return this._connection.createTableAsync(request, this.connectionInfo.validationMetadata)
@@ -104,7 +111,7 @@ export class Connection {
     const request: ITableExistsRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => {
+      this._retryDecorator(() => {
         logger.debug('Sending STORE EXISTS request to the server. Request body: %j', request)
 
         return this._connection.tableExistsAsync(request, this.connectionInfo.validationMetadata)
@@ -131,7 +138,7 @@ export class Connection {
     const request: IDeleteTableRequest = {tablePath: storePath}
 
     return withOptionalCallback(
-      retryDecorator(() => {
+      this._retryDecorator(() => {
         logger.debug('Sending DELETE STORE request to the server. Request body: %j', request)
 
         return this._connection.deleteTableAsync(request, this.connectionInfo.validationMetadata)
@@ -155,7 +162,7 @@ export class Connection {
     if (typeof storePath !== 'string') {
       throw Error('Table name should be string')
     }
-    const store = new DocumentStore(storePath, this._connection, this.connectionInfo)
+    const store = new DocumentStore(storePath, this._connection, this.connectionInfo, this._retryDecorator)
 
     return withOptionalCallback(
       () => this.storeExists(storePath),
@@ -175,7 +182,7 @@ export class Connection {
   public pingConnection(): Promise<any> {
     const request: IPingRequest = {}
 
-    const method = retryDecorator(() => {
+    const method = this.retryDecorator(() => {
       logger.debug('Sending PING request to the server. Request body: %j', request)
 
       return this._connection.pingAsync(request, this.connectionInfo.validationMetadata)

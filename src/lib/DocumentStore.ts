@@ -32,6 +32,7 @@ import PayloadEncoding = com.mapr.data.db.PayloadEncoding
 import ErrorCode = com.mapr.data.db.ErrorCode
 import {ConnectionInfo} from './ConnectionInfo'
 import * as Log from './logging'
+import {ConnectionOptions} from '..'
 
 const logger = Log.getLogger(__filename)
 
@@ -43,12 +44,18 @@ export class DocumentStore {
   private connection: any
   private connectionInfo: ConnectionInfo
   private readonly retryDecorator: any
+  private readonly connectionOptions: ConnectionOptions
 
-  constructor(storePath: string, connection: any, connectionInfo: ConnectionInfo, retryDecorator: any) {
+  constructor(storePath: string,
+              connection: any,
+              connectionInfo: ConnectionInfo,
+              retryDecorator: any,
+              connectionOptions: ConnectionOptions) {
     this.storePath = storePath
     this.connection = connection
     this.connectionInfo = connectionInfo
     this.retryDecorator = retryDecorator
+    this.connectionOptions = connectionOptions
   }
   public insertOrReplace(document: any, callback?: Callback): void|Promise<any> {
     return this.grpcInsertOrReplace(document, InsertMode.INSERT_OR_REPLACE, callback)
@@ -119,7 +126,7 @@ export class DocumentStore {
     return new QueryResult(() => this.connection.find(
       request, this.connectionInfo.validationMetadata,
       { deadline: Date.now() + timeoutParam },
-    ))
+    ),                     this.connectionOptions)
   }
   public delete(_id: string, callback?: Callback): void|Promise<any> {
     return this.grpcDelete(_id, callback)

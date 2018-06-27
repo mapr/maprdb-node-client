@@ -22,6 +22,7 @@ import {com} from '../../dist/proto'
 import IFindResponse = com.mapr.data.db.IFindResponse
 import FindResponseType = com.mapr.data.db.FindResponseType
 import * as Log from '../lib/logging'
+import {ConnectionOptions} from '..'
 
 const logger = Log.getLogger(__filename)
 
@@ -31,16 +32,12 @@ export class QueryResult<T> extends Transform {
   private readonly runStream: () => ClientReadableStream<T>
   private stream: ClientReadableStream<T>
   private hasData: boolean
-  constructor(runStream: () => ClientReadableStream<T>) {
+  constructor(runStream: () => ClientReadableStream<T>, connectionOptions: ConnectionOptions) {
     super({ writableObjectMode: true, readableObjectMode: true })
     this.runStream = runStream
     this.hasData = false
     const retryStream = () => {
-      const operation = retry.operation({
-        retries: 7,
-        minTimeout: 1000,
-        maxTimeout: 18 * 1000,
-      })
+      const operation = retry.operation(connectionOptions.toWrapOptions())
       operation.attempt(() => {
         this.stream = this.runStream()
         this.stream.on('error', (err: StatusObject) => {

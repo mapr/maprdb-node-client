@@ -44,6 +44,7 @@ export class Connection {
   private readonly _connection: any
   private readonly connectionInfo: ConnectionInfo
   private readonly _retryDecorator: any
+  private readonly connectionOptions: ConnectionOptions
 
   constructor(connectionString: string, connectionOptions: ConnectionOptions) {
     const metadataInterceptor = (options: any, nextCall: any) => {
@@ -76,6 +77,7 @@ export class Connection {
     }
     this.connectionInfo = this.constructConnectionInfo(connectionString)
     this._connection = Bluebird.promisifyAll(createConnection(this.connectionInfo, metadataInterceptor))
+    this.connectionOptions = connectionOptions
     this._retryDecorator = retryDecorator(connectionOptions)
   }
 
@@ -162,7 +164,7 @@ export class Connection {
     if (typeof storePath !== 'string') {
       throw Error('Table name should be string')
     }
-    const store = new DocumentStore(storePath, this._connection, this.connectionInfo, this._retryDecorator)
+    const store = new DocumentStore(storePath, this._connection, this.connectionInfo, this._retryDecorator, this.connectionOptions)
 
     return withOptionalCallback(
       () => this.storeExists(storePath),

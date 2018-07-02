@@ -36,6 +36,13 @@ import {ConnectionOptions} from '..'
 
 const logger = Log.getLogger(__filename)
 
+export interface FindOptions {
+  'ojai.mapr.query.include-query-plan': boolean
+  'ojai.mapr.query.timeout-milliseconds'?: number
+}
+
+const TIMEOUT_MAX = 2147483647
+
 /*
  * Class that responsible for operation with documents
  */
@@ -102,19 +109,14 @@ export class DocumentStore {
       callback,
     )
   }
-  public find(query: any, includeQueryPlan: boolean = false, timeout: number = Infinity): QueryResult<any> {
-    let includeQueryPlanParam = includeQueryPlan
-    let timeoutParam = timeout
-    if (typeof includeQueryPlan === 'number') {
-      timeoutParam = includeQueryPlan
-    } else if (typeof timeout === 'number') {
-      timeoutParam = timeout
-      includeQueryPlanParam = includeQueryPlan
+  public find(query: any, findOptions: FindOptions = {
+    'ojai.mapr.query.include-query-plan': false,
+  }): QueryResult<any> {
+    const includeQueryPlanParam = findOptions['ojai.mapr.query.include-query-plan']
+    const timeoutParam = findOptions['ojai.mapr.query.timeout-milliseconds']
+    if (timeoutParam > TIMEOUT_MAX) {
+      throw new Error('Timeout is bigger than maximum')
     }
-    if (!(typeof includeQueryPlanParam === 'boolean' && typeof timeoutParam === 'number')) {
-      throw new Error('Argument mismatch in find')
-    }
-
     const request: IFindRequest = {
       tablePath: this.storePath,
       payloadEncoding: PayloadEncoding.JSON_ENCODING,
@@ -125,7 +127,7 @@ export class DocumentStore {
 
     return new QueryResult(() => this.connection.find(
       request, this.connectionInfo.validationMetadata,
-      { deadline: Date.now() + timeoutParam },
+      timeoutParam ? { deadline: Date.now() + timeoutParam } : undefined,
     ),                     this.connectionOptions)
   }
   public delete(_id: string, callback?: Callback): void|Promise<any> {

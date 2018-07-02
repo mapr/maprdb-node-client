@@ -33,8 +33,9 @@ const getConnectionString = (connectionConfig: any) => {
 describe('DocumentStore', () => {
   let connection: Connection
   before(async () => {
-    connection = await ConnectionManager.getConnection(getConnectionString(config),
-                 {'ojai.mapr.rpc.wait-multiplier': 500, 'ojai.mapr.rpc.max-retries' : 3})
+    connection = await ConnectionManager.getConnection(
+      getConnectionString(config),
+      {'ojai.mapr.rpc.wait-multiplier': 500, 'ojai.mapr.rpc.max-retries' : 3})
   })
   describe('Test create/delete store', () => {
     it('should check if store does not exist', async () => {
@@ -143,13 +144,17 @@ describe('DocumentStore', () => {
         }
         connection.getStore(storeName)
           .then((store: DocumentStore) => {
-            const docStream = store.find(query)
+            const docStream = store.find(
+              query,
+              {  'ojai.mapr.query.include-query-plan': true, 'ojai.mapr.query.timeout-milliseconds': 3000 },
+            )
             const resp: any[] = []
             docStream.on('data', (chunk: any) => {
               resp.push(chunk)
             })
             docStream.on('error', (err: any) => console.error(err))
             docStream.on('end', () => {
+              expect(docStream.queryPlan).is.not.empty
               expect(resp).to.be.eql([{_id: 'id__id', testField: 'testValue'}])
               done()
             })

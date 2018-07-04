@@ -1,6 +1,6 @@
 {
   "name": "node-maprdb",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "",
   "main": "./dist/index.js",
   "types": "dist/index.d.ts",
@@ -51,6 +51,7 @@
     "tslint": "^5.9.1",
     "tslint-microsoft-contrib": "^5.0.2",
     "tsutils": "^2.21.0",
+    "typedoc": "^0.11.1",
     "typescript": "^2.7.1"
   }
 }

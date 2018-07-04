@@ -25,16 +25,30 @@ query.$where = {
   ]
 };
 
-// Create connection with specified connection string
-ConnectionManager.getConnection('localhost:5678', (err, connection) => {
-  const storeName = '/test-db-1';
+const connectionString = 'localhost:5678?' +
+  'auth=basic;' +
+  'user=mapr;' +
+  'password=mapr;' +
+  'ssl=true;' +
+  'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
+  'sslTargetNameOverride=node1.cluster.com';
 
-  connection.getStore(storeName, (err, store) => {
-    const stream = store.find(query);
+const storeName = '/test-db-1';
+
+let connection;
+
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.getStore(storeName);
+  })
+  .then((store) => store.find(query))
+  .then((stream) => {
     stream.on('data', (document) => console.log(document));
     stream.on('end', () => {
       console.log('end');
       connection.close();
     });
-  });
-});
+  })
+  .catch((err) => console.error(err));

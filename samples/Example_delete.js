@@ -16,16 +16,27 @@
 
 const { ConnectionManager } = require('node-maprdb');
 
-// Create connection with specified connection string
-ConnectionManager.getConnection('localhost:5678', (err, connection) => {
-  const storeName = '/test-db-1';
-  const docId = '123';
+const connectionString = 'localhost:5678?' +
+  'auth=basic;' +
+  'user=mapr;' +
+  'password=mapr;' +
+  'ssl=true;' +
+  'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
+  'sslTargetNameOverride=node1.cluster.com';
 
-  connection.getStore(storeName, (err, store) => {
-    store.delete(docId, (err, result) => {
-      // Log the result to the console
-      console.log('delete', {err, result});
-      connection.close();
-    });
+const storeName = '/test-db-1';
+const docId = '123';
+let connection;
+
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) =>{
+    connection = conn
+    return connection.getStore(storeName)
+  })
+  .then((store) => store.delete(docId))
+  .then((res) => console.log('delete', res))
+  .catch((err) => console.error(err))
+  .then(() => {
+    connection.close();
   });
-});

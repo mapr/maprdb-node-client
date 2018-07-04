@@ -29,15 +29,27 @@ const condition = {
   }
 };
 
-// Create connection with specified connection string
-ConnectionManager.getConnection('localhost:5678', (err, connection) => {
-  const storeName = '/test-db-1';
+const connectionString = 'localhost:5678?' +
+  'auth=basic;' +
+  'user=mapr;' +
+  'password=mapr;' +
+  'ssl=true;' +
+  'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
+  'sslTargetNameOverride=node1.cluster.com';
 
-  connection.getStore(storeName, (err, store) => {
-    store.checkAndDelete(docId, condition, (err, result) => {
-      // Log the result to the console
-      console.log('checkAndDelete', {err, result});
-      connection.close();
-    });
+const storeName = '/test-db-1';
+
+let connection;
+
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.getStore(storeName)
+  })
+  .then((store) => store.checkAndDelete(docId, condition))
+  .then((result) => console.log('checkAndDelete', result))
+  .catch((err) => console.error(err))
+  .then(() => {
+    connection.close();
   });
-});

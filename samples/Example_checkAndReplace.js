@@ -43,9 +43,22 @@ const condition = {
 };
 const storeName = '/test-db-1';
 
+const connectionString = 'localhost:5678?' +
+  'auth=basic;' +
+  'user=mapr;' +
+  'password=mapr;' +
+  'ssl=true;' +
+  'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
+  'sslTargetNameOverride=node1.cluster.com';
+
+let connection;
+
 // Create connection with specified connection string
-const connection = ConnectionManager.getConnection('localhost:5678')
-  .then((connection) => connection.getStore(storeName))
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.getStore(storeName)
+  })
   .then((store) => store.checkAndReplace(doc, condition))
   .then((res) => console.log(res))
   .catch((err) => console.error(err))

@@ -26,8 +26,16 @@ const mutation = {
   ]
 };
 
+const connectionString = 'localhost:5678?' +
+  'auth=basic;' +
+  'user=mapr;' +
+  'password=mapr;' +
+  'ssl=true;' +
+  'sslCA=/tmp/ssl_truststore.pem;' +
+  'sslTargetNameOverride=node1.cluster.com';
+
 // Create connection with specified connection string
-ConnectionManager.getConnection('localhost:5678', (err, connection) => {
+ConnectionManager.getConnection(connectionString, (err, connection) => {
   const storeName = '/test-db-1';
 
   connection.getStore(storeName, (err, store) => {

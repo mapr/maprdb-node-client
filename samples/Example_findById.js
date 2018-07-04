@@ -20,7 +20,15 @@ const { ConnectionManager } = require('node-maprdb');
 const docId = '123';
 const storeName = '/test-db-1';
 
-const connection = ConnectionManager.getConnection('localhost:5678')
+const connectionString = 'localhost:5678?' +
+  'auth=basic;' +
+  'user=mapr;' +
+  'password=mapr;' +
+  'ssl=true;' +
+  'sslCA=/tmp/ssl_truststore.pem;' +
+  'sslTargetNameOverride=node1.cluster.com';
+
+const connection = ConnectionManager.getConnection(connectionString)
   .then((connection) => connection.getStore(storeName))
   .then((store) => store.findById(docId))
   .then((doc) => console.log('findById', doc))

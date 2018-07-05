@@ -26,6 +26,8 @@ const mutation = {
   ]
 };
 
+const storeName = '/test-db-1';
+
 const connectionString = 'localhost:5678?' +
   'auth=basic;' +
   'user=mapr;' +
@@ -34,15 +36,17 @@ const connectionString = 'localhost:5678?' +
   'sslCA=/tmp/ssl_truststore.pem;' +
   'sslTargetNameOverride=node1.cluster.com';
 
-// Create connection with specified connection string
-ConnectionManager.getConnection(connectionString, (err, connection) => {
-  const storeName = '/test-db-1';
+let connection;
 
-  connection.getStore(storeName, (err, store) => {
-    store.update(id, mutation, (err, result) => {
-      // Log the result to the console
-      console.log('update', {err, result});
-      connection.close();
-    });
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.getStore(storeName);
+  })
+  .then((store) => store.update(id, mutation))
+  .then((result) => console.log('update', result))
+  .catch((err) => console.error(err))
+  .then(() => {
+    connection.close();
   });
-});

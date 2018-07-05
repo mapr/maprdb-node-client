@@ -43,15 +43,19 @@ const connectionString = 'localhost:5678?' +
   'sslCA=/tmp/ssl_truststore.pem;' +
   'sslTargetNameOverride=node1.cluster.com';
 
-// Create connection with specified connection string
-ConnectionManager.getConnection(connectionString, (err, connection) => {
-  const storeName = '/test-db-1';
+const storeName = '/test-db-1';
 
-  connection.getStore(storeName, (err, store) => {
-    store.checkAndUpdate(id, mutation, condition, (err, result) => {
-      // Log the result to the console
-      console.log('checkAndUpdate', {err, result});
-      connection.close();
-    });
+let connection;
+
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.getStore(storeName);
+  })
+  .then((store) => store.checkAndUpdate(id, mutation, condition))
+  .then((result) => console.log('checkAndUpdate', result))
+  .catch((err) => console.error(err))
+  .then(() => {
+    connection.close();
   });
-});

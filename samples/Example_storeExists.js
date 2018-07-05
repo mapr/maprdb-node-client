@@ -26,9 +26,14 @@ const connectionString = 'localhost:5678?' +
   'sslCA=/tmp/ssl_truststore.pem;' +
   'sslTargetNameOverride=node1.cluster.com';
 
+let connection;
+
 // Create connection with specified connection string
-const connection = ConnectionManager.getConnection(connectionString)
-  .then((connection) => connection.storeExists(storeName))
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.storeExists(storeName)
+  })
   .then((res) => console.log(res))
   .catch((err) => console.error(err))
   .then(() => connection.close());

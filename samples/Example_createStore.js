@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const { ConnectionManager } = require('node-maprdb');
+const { ConnectionManager } = require('node-maprdb')
 
 const connectionString = 'localhost:5678?' +
   'auth=basic;' +
@@ -22,15 +22,20 @@ const connectionString = 'localhost:5678?' +
   'password=mapr;' +
   'ssl=true;' +
   'sslCA=/tmp/ssl_truststore.pem;' +
-  'sslTargetNameOverride=node1.cluster.com';
+  'sslTargetNameOverride=node1.cluster.com'
+
+const storeName = '/test-db-1'
+
+let connection
 
 // Create connection with specified connection string
-ConnectionManager.getConnection(connectionString, (err, connection) => {
-  const storeName = '/test-db-1';
-
-  connection.createStore(storeName, (err, result) => {
-    // Log the result to the console
-    console.log('createStore', {err, result});
-    connection.close();
-  });
-});
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn
+    return connection.createStore(storeName)
+  })
+  .then((res) => console.log('createStore', res))
+  .catch((err) => console.error(err))
+  .then(() => {
+    connection.close()
+  })

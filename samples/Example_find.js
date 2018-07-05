@@ -33,16 +33,22 @@ const connectionString = 'localhost:5678?' +
   'sslCA=/tmp/ssl_truststore.pem;' +
   'sslTargetNameOverride=node1.cluster.com';
 
-// Create connection with specified connection string
-ConnectionManager.getConnection(connectionString, (err, connection) => {
-  const storeName = '/test-db-1';
+const storeName = '/test-db-1';
 
-  connection.getStore(storeName, (err, store) => {
-    const stream = store.find(query);
+let connection;
+
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.getStore(storeName);
+  })
+  .then((store) => store.find(query))
+  .then((stream) => {
     stream.on('data', (document) => console.log(document));
     stream.on('end', () => {
       console.log('end');
       connection.close();
     });
-  });
-});
+  })
+  .catch((err) => console.error(err));

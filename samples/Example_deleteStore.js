@@ -24,13 +24,18 @@ const connectionString = 'localhost:5678?' +
   'sslCA=/tmp/ssl_truststore.pem;' +
   'sslTargetNameOverride=node1.cluster.com';
 
-// Create connection with specified connection string
-ConnectionManager.getConnection(connectionString, (err, connection) => {
-  const storeName = '/test-db-1';
+const storeName = '/test-db-1';
 
-  connection.deleteStore(storeName, (err, result) => {
-    // Log the result to the console
-    console.log('deleteStore', {err, result});
+let connection;
+
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn
+    return connection.deleteStore(storeName)
+  })
+  .then((res) => console.log('deleteStore', res))
+  .catch((err) => console.error(err))
+  .then(() => {
     connection.close();
   });
-});

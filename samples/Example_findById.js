@@ -28,8 +28,13 @@ const connectionString = 'localhost:5678?' +
   'sslCA=/tmp/ssl_truststore.pem;' +
   'sslTargetNameOverride=node1.cluster.com';
 
-const connection = ConnectionManager.getConnection(connectionString)
-  .then((connection) => connection.getStore(storeName))
+let connection;
+
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn
+    return connection.getStore(storeName);
+  })
   .then((store) => store.findById(docId))
   .then((doc) => console.log('findById', doc))
   .catch((err) => console.error(err))

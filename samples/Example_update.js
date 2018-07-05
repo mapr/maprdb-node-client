@@ -26,15 +26,27 @@ const mutation = {
   ]
 };
 
-// Create connection with specified connection string
-ConnectionManager.getConnection('localhost:5678', (err, connection) => {
-  const storeName = '/test-db-1';
+const storeName = '/test-db-1';
 
-  connection.getStore(storeName, (err, store) => {
-    store.update(id, mutation, (err, result) => {
-      // Log the result to the console
-      console.log('update', {err, result});
-      connection.close();
-    });
+const connectionString = 'localhost:5678?' +
+  'auth=basic;' +
+  'user=mapr;' +
+  'password=mapr;' +
+  'ssl=true;' +
+  'sslCA=/tmp/ssl_truststore.pem;' +
+  'sslTargetNameOverride=node1.cluster.com';
+
+let connection;
+
+// Create connection with specified connection string
+ConnectionManager.getConnection(connectionString)
+  .then((conn) => {
+    connection = conn;
+    return connection.getStore(storeName);
+  })
+  .then((store) => store.update(id, mutation))
+  .then((result) => console.log('update', result))
+  .catch((err) => console.error(err))
+  .then(() => {
+    connection.close();
   });
-});

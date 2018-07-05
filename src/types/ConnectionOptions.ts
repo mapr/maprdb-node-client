@@ -28,8 +28,8 @@ export class ConnectionOptions {
   constructor(connectionOptions: any) {
     const options = Object.keys(connectionOptions)
     options.forEach((val) => {
-      if (this[val] !== undefined) {
-        this[val] = connectionOptions[val]
+      if ((<any>this)[val] !== undefined) {
+        (<any>this)[val] = connectionOptions[val]
       } else {
         throw new Error(`Illigal connection option: ${val}. Ligal options are: ${Object.keys(this)}`)
       }

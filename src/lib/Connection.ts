@@ -45,7 +45,9 @@ export class Connection {
   private readonly connectionInfo: ConnectionInfo
   private readonly _retryDecorator: any
   private readonly connectionOptions: ConnectionOptions
-
+  /**
+   * @ignore
+   */
   constructor(connectionString: string, connectionOptions: ConnectionOptions) {
     const metadataInterceptor = (options: any, nextCall: any) => {
       return new grpc.InterceptingCall(nextCall(options), {
@@ -80,7 +82,9 @@ export class Connection {
     this.connectionOptions = connectionOptions
     this._retryDecorator = retryDecorator(connectionOptions)
   }
-
+  /**
+   * @ignore
+   */
   get retryDecorator(): any {
     return this._retryDecorator
   }
@@ -180,7 +184,9 @@ export class Connection {
   public close() {
     this._connection.close()
   }
-
+  /**
+   * @ignore
+   */
   public pingConnection(): Promise<any> {
     const request: IPingRequest = {}
 

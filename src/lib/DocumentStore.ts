@@ -53,6 +53,9 @@ export class DocumentStore {
   private readonly retryDecorator: any
   private readonly connectionOptions: ConnectionOptions
 
+  /**
+   * @ignore
+   */
   constructor(storePath: string,
               connection: any,
               connectionInfo: ConnectionInfo,

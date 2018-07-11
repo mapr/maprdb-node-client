@@ -1,4 +1,4 @@
-# maprdb-node-client
+# node-maprdb
 
 `npm run build` - build module from sources
 

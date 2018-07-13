@@ -34,7 +34,7 @@ export class QueryResult<T> extends Transform {
   private hasData: boolean
 
   /**
-   * @ignore
+   * @hidden
    */
   constructor(runStream: () => ClientReadableStream<T>, connectionOptions: ConnectionOptions) {
     super({ writableObjectMode: true, readableObjectMode: true })
@@ -60,7 +60,7 @@ export class QueryResult<T> extends Transform {
     retryStream()
   }
   /**
-   * @ignore
+   * @hidden
    */
   public _transform(chunk: IFindResponse, encoding: any, callback: any) {
     this.hasData = true
@@ -78,7 +78,7 @@ export class QueryResult<T> extends Transform {
     callback()
   }
   /**
-   * @ignore
+   * @hidden
    */
   public toPromise() {
     return new Promise((resolve, reject) => {

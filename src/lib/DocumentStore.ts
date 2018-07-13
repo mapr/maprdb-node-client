@@ -54,7 +54,7 @@ export class DocumentStore {
   private readonly connectionOptions: ConnectionOptions
 
   /**
-   * @ignore
+   * @hidden
    */
   constructor(storePath: string,
               connection: any,

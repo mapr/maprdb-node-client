@@ -46,7 +46,7 @@ export class Connection {
   private readonly _retryDecorator: any
   private readonly connectionOptions: ConnectionOptions
   /**
-   * @ignore
+   * @hidden
    */
   constructor(connectionString: string, connectionOptions: ConnectionOptions) {
     const metadataInterceptor = (options: any, nextCall: any) => {
@@ -83,7 +83,7 @@ export class Connection {
     this._retryDecorator = retryDecorator(connectionOptions)
   }
   /**
-   * @ignore
+   * @hidden
    */
   get retryDecorator(): any {
     return this._retryDecorator
@@ -185,7 +185,7 @@ export class Connection {
     this._connection.close()
   }
   /**
-   * @ignore
+   * @hidden
    */
   public pingConnection(): Promise<any> {
     const request: IPingRequest = {}

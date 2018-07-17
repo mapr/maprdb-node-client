@@ -44,8 +44,8 @@ describe('DocumentStore', () => {
     })
 
     it('should create store', async () => {
-      const resp = await connection.createStore('/test-store-test')
-      expect(resp).to.be.true
+      const store = await connection.createStore('/test-store-test')
+      expect(store).to.be.an.instanceof(DocumentStore)
     })
 
     it('should check if store exists', async () => {

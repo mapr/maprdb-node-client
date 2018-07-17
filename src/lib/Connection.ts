@@ -105,7 +105,7 @@ export class Connection {
       }),
       (response: ICreateTableResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
-          return true
+          return this.getDocumentStore(storePath)
         }
         throw response.error
       },
@@ -168,7 +168,7 @@ export class Connection {
     if (typeof storePath !== 'string') {
       throw Error('Table name should be string')
     }
-    const store = new DocumentStore(storePath, this._connection, this.connectionInfo, this._retryDecorator, this.connectionOptions)
+    const store = this.getDocumentStore(storePath)
 
     return withOptionalCallback(
       () => this.storeExists(storePath),
@@ -202,6 +202,10 @@ export class Connection {
     })
 
     return method()
+  }
+
+  private getDocumentStore(storePath: string) {
+    return new DocumentStore(storePath, this._connection, this.connectionInfo, this._retryDecorator, this.connectionOptions)
   }
 
   private constructConnectionInfo(connectionString: string): ConnectionInfo {

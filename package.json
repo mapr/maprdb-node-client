@@ -1,12 +1,13 @@
 {
   "name": "node-maprdb",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "",
   "main": "./dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist/*",
-    "proto/*"
+    "proto/*",
+    "docs/*"
   ],
   "scripts": {
     "test": "npm run proto:dev && mocha -r ts-node/register --compiler tsc --project ./tsconfig.json --watch-extensions ts test/**/*.ts -w",
@@ -14,8 +15,9 @@
     "prepublish": "npm run build",
     "proto": "mkdirp ./dist/proto && pbjs -t static-module -w commonjs ./proto/maprdb-server.proto -o ./dist/proto/index.js && pbts -o ./dist/proto/index.d.ts ./dist/proto/index.js",
     "proto:dev": "pbjs -t static-module -w commonjs ./proto/maprdb-server.proto -o ./src/proto/index.js && pbts -o ./src/proto/index.d.ts ./src/proto/index.js",
-    "build": "npm run proto && tsc -p tsconfig.release.json",
+    "build": "npm run proto && npm run docs && tsc -p tsconfig.release.json",
     "watch": "tsc -w",
+    "docs": "typedoc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint-fix": "tslint -c tslint.json -p tsconfig.json --fix"
   },

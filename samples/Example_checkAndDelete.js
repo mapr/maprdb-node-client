@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 MapR, Inc.
+ * Copyright (c) 2018 MapR Technologies, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,20 @@ const { ConnectionManager } = require('node-maprdb');
 const docId = '123';
 
 const condition = {
-  $where: {
-    $and: [
-      {
-        $eq: { testField : 'test'}
-      }
-    ]
-  }
+    $where: {
+        $and: [{
+            $eq: { testField: 'test' }
+        }]
+    }
 };
 
 const connectionString = 'localhost:5678?' +
-  'auth=basic;' +
-  'user=mapr;' +
-  'password=mapr;' +
-  'ssl=true;' +
-  'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
-  'sslTargetNameOverride=node1.cluster.com';
+    'auth=basic;' +
+    'user=mapr;' +
+    'password=mapr;' +
+    'ssl=true;' +
+    'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
+    'sslTargetNameOverride=node1.cluster.com';
 
 const storeName = '/test-db-1';
 
@@ -43,13 +41,13 @@ let connection;
 
 // Create connection with specified connection string
 ConnectionManager.getConnection(connectionString)
-  .then((conn) => {
-    connection = conn;
-    return connection.getStore(storeName)
-  })
-  .then((store) => store.checkAndDelete(docId, condition))
-  .then((result) => console.log('checkAndDelete', result))
-  .catch((err) => console.error(err))
-  .then(() => {
-    connection.close();
-  });
+    .then((conn) => {
+        connection = conn;
+        return connection.getStore(storeName)
+    })
+    .then((store) => store.checkAndDelete(docId, condition))
+    .then((result) => console.log('checkAndDelete', result))
+    .catch((err) => console.error(err))
+    .then(() => {
+        connection.close();
+    });

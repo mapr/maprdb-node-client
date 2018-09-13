@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 MapR, Inc.
+ * Copyright (c) 2018 MapR Technologies, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,34 +27,34 @@ doc.age = 35;
 doc.firstName = 'John';
 doc.lastName = 'Doe';
 doc.address = {
-  street: '350 Hoger Way',
-  city: 'San Jose',
-  state: 'CA',
-  zipCode: 95134
+    street: '350 Hoger Way',
+    city: 'San Jose',
+    state: 'CA',
+    zipCode: 95134
 };
 doc.phoneNumbers = [
-  {areaCode: '555', number: '5555555'},
-  {areaCode: '555', number: '555-5556'}
+    { areaCode: '555', number: '5555555' },
+    { areaCode: '555', number: '555-5556' }
 ];
 
 const storeName = '/test-db-1';
 
 const connectionString = 'localhost:5678?' +
-  'auth=basic;' +
-  'user=mapr;' +
-  'password=mapr;' +
-  'ssl=true;' +
-  'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
-  'sslTargetNameOverride=node1.cluster.com';
+    'auth=basic;' +
+    'user=mapr;' +
+    'password=mapr;' +
+    'ssl=true;' +
+    'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
+    'sslTargetNameOverride=node1.cluster.com';
 
 let connection;
 // Create connection with specified connection string
 ConnectionManager.getConnection(connectionString)
-  .then((conn) => {
-    connection = conn;
-    return connection.getStore(storeName);
-  })
-  .then((store) => store.insertOrReplace(doc))
-  .then((res) => console.log(res))
-  .catch((err) => console.error(err))
-  .then(() => connection.close());
+    .then((conn) => {
+        connection = conn;
+        return connection.getStore(storeName);
+    })
+    .then((store) => store.insertOrReplace(doc))
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+    .then(() => connection.close());

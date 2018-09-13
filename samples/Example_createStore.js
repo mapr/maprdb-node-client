@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 MapR, Inc.
+ * Copyright (c) 2018 MapR Technologies, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
 const { ConnectionManager } = require('node-maprdb')
 
 const connectionString = 'localhost:5678?' +
-  'auth=basic;' +
-  'user=mapr;' +
-  'password=mapr;' +
-  'ssl=true;' +
-  'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
-  'sslTargetNameOverride=node1.cluster.com'
+    'auth=basic;' +
+    'user=mapr;' +
+    'password=mapr;' +
+    'ssl=true;' +
+    'sslCA=/opt/mapr/conf/ssl_truststore.pem;' +
+    'sslTargetNameOverride=node1.cluster.com'
 
 const storeName = '/test-db-1'
 
@@ -30,12 +30,12 @@ let connection
 
 // Create connection with specified connection string
 ConnectionManager.getConnection(connectionString)
-  .then((conn) => {
-    connection = conn
-    return connection.createStore(storeName)
-  })
-  .then((res) => console.log('createStore', res))
-  .catch((err) => console.error(err))
-  .then(() => {
-    connection.close()
-  })
+    .then((conn) => {
+        connection = conn
+        return connection.createStore(storeName)
+    })
+    .then((res) => console.log('createStore', res))
+    .catch((err) => console.error(err))
+    .then(() => {
+        connection.close()
+    })

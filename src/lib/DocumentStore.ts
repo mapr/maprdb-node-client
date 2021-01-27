@@ -169,6 +169,8 @@ export class DocumentStore {
       (response: IInsertOrReplaceResponse) => {
         if (response.error.errCode === ErrorCode.NO_ERROR) {
           return true
+        } else if (response.error.errCode == ErrorCode.DOCUMENT_NOT_FOUND) {
+          return false
         }
         throw response.error
       },

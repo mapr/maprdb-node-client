@@ -211,7 +211,7 @@ export class Connection {
   private constructConnectionInfo(connectionString: string): ConnectionInfo {
     const connectionStringParts = connectionString.split('?')
     const dummyUrlToExtractArgs = (connectionStringParts.length > 1) ?
-      `https://dummyhost:0000?${connectionStringParts[1].replace(/\;/g, '\&')}` :
+      `https://dummyhost:0000?${decodeURIComponent(connectionStringParts[1]).replace(/\;/g, '\&')}` :
       'https://dummyhost:0000'
     const params = new URL(dummyUrlToExtractArgs).searchParams
     const authType = params.get('auth') || 'basic'
